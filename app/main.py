@@ -201,7 +201,7 @@ with col_input:
     )
 
 with col_btn:
-    check_btn = st.button("🔍 Check URL", use_container_width=True)
+    check_btn = st.button("🔍 Check URL", width="stretch")
 
 # Run Analysis
 if url_input:
@@ -379,7 +379,7 @@ if url_input:
             df_display = pd.DataFrame(feature_rows)
             st.dataframe(
                 df_display,
-                use_container_width=True,
+                width="stretch",
                 hide_index=True
             )
 

@@ -6,6 +6,9 @@ __pycache__/
 .DS_Store
 .agents/
 .claude/
+# Streamlit agent skills
+.agents/skills/developing-with-streamlit
+.claude/skills/developing-with-streamlit
 .env
 .env.*
 *.pkl
