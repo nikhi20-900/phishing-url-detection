@@ -8,3 +8,4 @@ notebook==7.6.2
 joblib==1.6.0
 streamlit>=1.30.0
 shap>=0.44.0
+watchdog>=6.0.0
