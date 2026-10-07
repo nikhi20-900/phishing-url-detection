@@ -25,120 +25,291 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom Styling (Dark Cybersecurity Theme)
+# Custom Styling (Refined Dark Cybersecurity Aesthetic)
 st.markdown(
     """
     <style>
-    /* Global dark aesthetic */
+    /* Global modern dark typography */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
     .stApp {
         background-color: #0b0f19;
         color: #e2e8f0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
     /* Header hero styling */
     .hero-container {
-        padding: 1.5rem 1rem;
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.5) 100%);
-        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(30, 41, 59, 0.45) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        margin-bottom: 0.85rem;
+        backdrop-filter: blur(10px);
+    }
+    .hero-badges {
+        margin-bottom: 0.45rem;
     }
     .hero-title {
-        font-size: 2.2rem;
-        font-weight: 800;
+        font-size: 2rem;
+        font-weight: 750;
         color: #f8fafc;
-        margin: 0;
-        letter-spacing: -0.5px;
+        margin: 0 0 0.35rem 0;
+        letter-spacing: -0.4px;
     }
     .hero-subtitle {
         color: #94a3b8;
-        font-size: 1.05rem;
-        margin-top: 0.35rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 0;
     }
     .badge-tag {
         display: inline-block;
-        font-size: 0.75rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 9999px;
-        background: rgba(59, 130, 246, 0.15);
+        font-size: 0.72rem;
+        padding: 0.18rem 0.55rem;
+        border-radius: 6px;
+        background: rgba(59, 130, 246, 0.12);
         color: #60a5fa;
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        margin-right: 0.5rem;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        margin-right: 0.4rem;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
     }
 
-    /* Result Badges */
-    .result-card-phishing {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.05) 100%);
-        border: 1px solid rgba(239, 68, 68, 0.5);
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
-    }
-    .result-card-legit {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
-        border: 1px solid rgba(16, 185, 129, 0.5);
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
-    }
-    .result-title-phishing {
-        font-size: 2rem;
-        font-weight: 900;
-        color: #ef4444;
-        margin: 0;
-        letter-spacing: 1px;
-    }
-    .result-title-legit {
-        font-size: 2rem;
-        font-weight: 900;
-        color: #10b981;
-        margin: 0;
-        letter-spacing: 1px;
-    }
-    
-    /* Top 5 Feature Cards */
-    .top-feature-box {
-        background: #111827;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 0.75rem;
-        border-left: 4px solid #64748b;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    }
-    .top-feature-box.phishing-driver {
-        border-left-color: #ef4444;
-        background: linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, #111827 100%);
-    }
-    .top-feature-box.legit-driver {
-        border-left-color: #10b981;
-        background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, #111827 100%);
-    }
-
-    /* Buttons */
-    div.stButton > button:first-child {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        color: white;
-        border: none;
+    /* Visual status metadata line */
+    .tech-status-line {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        font-size: 0.78rem;
+        color: #64748b;
+        padding: 0.35rem 0.75rem;
+        background: rgba(15, 23, 42, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 8px;
-        font-weight: 700;
-        padding: 0.65rem 1.75rem;
-        font-size: 1rem;
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        margin-bottom: 1.15rem;
+    }
+    .tech-status-line b {
+        color: #94a3b8;
+    }
+    .status-sep {
+        color: #334155;
+    }
+
+    /* Unified URL input & check button */
+    div[data-testid="stTextInput"] > div > div > input {
+        height: 46px !important;
+        background-color: #0f172a !important;
+        border: 1px solid rgba(148, 163, 184, 0.2) !important;
+        border-radius: 8px !important;
+        color: #f8fafc !important;
+        font-size: 0.95rem !important;
+        padding: 0.5rem 1rem !important;
         transition: all 0.2s ease;
+    }
+    div[data-testid="stTextInput"] > div > div > input:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+    }
+
+    div.stButton > button:first-child {
+        height: 46px !important;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     div.stButton > button:first-child:hover {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+        border-color: #60a5fa;
         transform: translateY(-1px);
     }
+
+    /* Refined Result Cards */
+    .result-card-phishing {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(185, 28, 28, 0.04) 100%);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-radius: 12px;
+        padding: 1.35rem 1.5rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.12);
+    }
+    .result-card-legit {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.04) 100%);
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        border-radius: 12px;
+        padding: 1.35rem 1.5rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
+    }
+    .result-tag-phishing {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .result-tag-legit {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .result-title-phishing {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #f87171;
+        margin: 0;
+        letter-spacing: -0.2px;
+    }
+    .result-title-legit {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #34d399;
+        margin: 0;
+        letter-spacing: -0.2px;
+    }
+    .result-desc {
+        color: #94a3b8;
+        margin-top: 0.4rem;
+        font-size: 0.9rem;
+        line-height: 1.45;
+    }
+
+    /* Probability Container */
+    .prob-container {
+        background: #111827;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.35rem 1.5rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .prob-meter-bg {
+        width: 100%;
+        height: 7px;
+        background: #1e293b;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0.5rem 0 0.85rem 0;
+    }
+    .prob-meter-phish {
+        height: 100%;
+        background: linear-gradient(90deg, #f87171, #ef4444);
+        border-radius: 4px;
+    }
+    .prob-meter-legit {
+        height: 100%;
+        background: linear-gradient(90deg, #34d399, #10b981);
+        border-radius: 4px;
+    }
     
+    /* Compact Top 5 Feature Cards */
+    .top-feature-box {
+        background: #0f172a;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 0.65rem 0.95rem;
+        margin-bottom: 0.45rem;
+        border-left: 3px solid #64748b;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    .top-feature-box.phishing-driver {
+        border-left-color: #ef4444;
+        background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, #0f172a 100%);
+    }
+    .top-feature-box.legit-driver {
+        border-left-color: #10b981;
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, #0f172a 100%);
+    }
+    .feat-rank {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #64748b;
+        margin-right: 0.35rem;
+    }
+    .feat-name {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: #f1f5f9;
+    }
+    .feat-category {
+        background: rgba(148, 163, 184, 0.1);
+        color: #94a3b8;
+        font-size: 0.7rem;
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+        margin-left: 0.4rem;
+    }
+    .feat-val code {
+        background: rgba(0, 0, 0, 0.35) !important;
+        color: #cbd5e1 !important;
+        font-size: 0.82rem !important;
+        padding: 0.15rem 0.4rem !important;
+        border-radius: 4px !important;
+    }
+    .feat-badge {
+        font-size: 0.74rem;
+        font-weight: 600;
+        padding: 0.15rem 0.5rem;
+        border-radius: 5px;
+    }
+    .badge-phish {
+        color: #f87171;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    .badge-legit {
+        color: #34d399;
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .feat-note {
+        color: #94a3b8;
+        font-size: 0.83rem;
+        line-height: 1.4;
+        margin-top: 0.25rem;
+    }
+
+    /* Section Subheaders */
+    h3 {
+        font-size: 1.2rem !important;
+        font-weight: 700 !important;
+        color: #f8fafc !important;
+        margin-top: 1.25rem !important;
+        margin-bottom: 0.2rem !important;
+    }
+
     /* Table styling */
     .dataframe {
         background-color: #0f172a !important;
@@ -153,16 +324,23 @@ st.markdown(
 st.markdown(
     """
     <div class="hero-container">
-        <div>
+        <div class="hero-badges">
             <span class="badge-tag">Machine Learning</span>
             <span class="badge-tag">Cybersecurity</span>
             <span class="badge-tag">Explainable AI (SHAP)</span>
-            <span class="badge-tag">Random Forest 99.7% Acc</span>
+            <span class="badge-tag">Random Forest • 99.7% Acc</span>
         </div>
         <h1 class="hero-title">🛡️ Phishing URL Analyzer</h1>
         <p class="hero-subtitle">
-            Inspect any web link in real-time. Features are extracted dynamically, evaluated against a trained Random Forest classifier, and explained using SHAP (Shapley Additive Explanations).
+            Inspect web links in real-time. Features are extracted dynamically, evaluated against a trained Random Forest classifier, and explained using SHAP (Shapley Additive Explanations).
         </p>
+    </div>
+    <div class="tech-status-line">
+        <span>⚡ <b>ML Prediction:</b> Random Forest Classifier (100 Trees)</span>
+        <span class="status-sep">•</span>
+        <span>🔬 <b>XAI:</b> Local TreeExplainer Attribution</span>
+        <span class="status-sep">•</span>
+        <span>🛡️ <b>Signals:</b> 18 Lexical & Structural Features</span>
     </div>
     """,
     unsafe_allow_html=True
@@ -187,10 +365,10 @@ sample_choice = st.selectbox(
     index=0
 )
 
-# URL Input Field
+# URL Input Field & Unified Button Bar
 default_url = SAMPLES[sample_choice] if sample_choice != "Select a pre-filled sample..." else "https://www.wikipedia.org"
 
-col_input, col_btn = st.columns([5, 1])
+col_input, col_btn = st.columns([5, 1], gap="small", vertical_alignment="bottom")
 
 with col_input:
     url_input = st.text_input(
@@ -216,19 +394,19 @@ if url_input:
         top_5 = result["top_5_features"]
         features_dict = result["features"]
 
-        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-        # 1. Result & Probability Banner
-        res_col1, res_col2 = st.columns([1, 1])
+        # 1. Result & Probability Cards (Balanced Hierarchy)
+        res_col1, res_col2 = st.columns([1, 1], gap="medium")
 
         with res_col1:
             if is_phishing:
                 st.markdown(
                     f"""
                     <div class="result-card-phishing">
-                        <div style="font-size: 2.5rem; margin-bottom: 0.25rem;">⚠️</div>
-                        <h2 class="result-title-phishing">PHISHING DETECTED</h2>
-                        <p style="color: #fca5a5; margin-top: 0.5rem; font-size: 1.1rem; font-weight: 500;">
+                        <div><span class="result-tag-phishing">⚠️ Malicious Pattern Detected</span></div>
+                        <h2 class="result-title-phishing">PHISHING URL</h2>
+                        <p class="result-desc">
                             High probability of malicious intent, credential harvesting, or deceptive origin.
                         </p>
                     </div>
@@ -239,10 +417,10 @@ if url_input:
                 st.markdown(
                     f"""
                     <div class="result-card-legit">
-                        <div style="font-size: 2.5rem; margin-bottom: 0.25rem;">✅</div>
+                        <div><span class="result-tag-legit">✅ Safe Profile Verified</span></div>
                         <h2 class="result-title-legit">LEGITIMATE URL</h2>
-                        <p style="color: #6ee7b7; margin-top: 0.5rem; font-size: 1.1rem; font-weight: 500;">
-                            Features match benign web architecture and safe registration profiles.
+                        <p class="result-desc">
+                            Structural and lexical patterns match authentic, trusted web architecture.
                         </p>
                     </div>
                     """,
@@ -250,27 +428,30 @@ if url_input:
                 )
 
         with res_col2:
+            meter_class = "prob-meter-phish" if is_phishing else "prob-meter-legit"
+            meter_width = confidence * 100
+            val_color = "#f87171" if is_phishing else "#34d399"
+
             st.markdown(
                 f"""
-                <div style="background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 1.35rem 1.5rem; height: 100%;">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem;">
-                        <span style="font-weight: 700; color: #f8fafc; font-size: 1.1rem;">Prediction Probability</span>
-                        <span style="font-size: 1.6rem; font-weight: 800; color: {'#ef4444' if is_phishing else '#10b981'};">{confidence:.1%}</span>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.35rem;">
-                            <span>Phishing Risk: <b>{prob_phishing:.1%}</b></span>
-                            <span>Legitimate Prob: <b>{prob_legit:.1%}</b></span>
+                <div class="prob-container">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-weight: 600; color: #94a3b8; font-size: 0.95rem;">Prediction Probability</span>
+                            <span style="font-size: 1.5rem; font-weight: 800; color: {val_color};">{confidence:.1%}</span>
+                        </div>
+                        <div class="prob-meter-bg">
+                            <div class="{meter_class}" style="width: {meter_width:.1f}%;"></div>
                         </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem;">
-                        <div style="background: #0f172a; padding: 0.75rem; border-radius: 8px; border: 1px solid {'rgba(239,68,68,0.4)' if is_phishing else '#1e293b'};">
-                            <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Phishing Score</span>
-                            <div style="font-size: 1.25rem; font-weight: 700; color: #f87171;">{prob_phishing:.1%}</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-top: 0.5rem;">
+                        <div style="background: #0f172a; padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid {'rgba(239,68,68,0.35)' if is_phishing else 'rgba(255,255,255,0.05)'};">
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Phishing Score</div>
+                            <div style="font-size: 1.15rem; font-weight: 750; color: #f87171;">{prob_phishing:.1%}</div>
                         </div>
-                        <div style="background: #0f172a; padding: 0.75rem; border-radius: 8px; border: 1px solid {'rgba(16,185,129,0.4)' if not is_phishing else '#1e293b'};">
-                            <span style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Legitimate Score</span>
-                            <div style="font-size: 1.25rem; font-weight: 700; color: #34d399;">{prob_legit:.1%}</div>
+                        <div style="background: #0f172a; padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid {'rgba(16,185,129,0.35)' if not is_phishing else 'rgba(255,255,255,0.05)'};">
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Legitimate Score</div>
+                            <div style="font-size: 1.15rem; font-weight: 750; color: #34d399;">{prob_legit:.1%}</div>
                         </div>
                     </div>
                 </div>
@@ -278,15 +459,15 @@ if url_input:
                 unsafe_allow_html=True
             )
 
-        st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
-        # 2. Top 5 Features Influencing the Prediction
+        # 2. Top 5 Features Influencing the Prediction (Compact Cards)
         st.subheader("🎯 Top 5 Features Influencing the Prediction")
         st.caption("Derived from local SHAP contribution values for this specific URL.")
 
         for rank, feat in enumerate(top_5, 1):
             pushes_phishing = feat["shap_value"] > 0
-            badge_color = "#ef4444" if pushes_phishing else "#10b981"
+            badge_class = "badge-phish" if pushes_phishing else "badge-legit"
             badge_text = "Increases Phishing Risk" if pushes_phishing else "Supports Legitimate"
             icon = "🚨" if pushes_phishing else "🛡️"
             box_class = "phishing-driver" if pushes_phishing else "legit-driver"
@@ -300,33 +481,34 @@ if url_input:
             st.markdown(
                 f"""
                 <div class="top-feature-box {box_class}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                        <div>
-                            <span style="font-weight: 800; font-size: 1.05rem; color: #f8fafc;">#{rank}. {feat['feature']}</span>
-                            <span style="background: #1e293b; color: #94a3b8; font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-left: 0.5rem;">{feat['category']}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center;">
+                            <span class="feat-rank">#{rank}</span>
+                            <span class="feat-name">{feat['feature']}</span>
+                            <span class="feat-category">{feat['category']}</span>
                         </div>
-                        <div>
-                            <span style="font-weight: 700; color: #f1f5f9; margin-right: 0.75rem;">Value: <code>{val_display}</code></span>
-                            <span style="font-size: 0.8rem; font-weight: 700; color: {badge_color}; background: rgba(0,0,0,0.3); padding: 0.2rem 0.6rem; border-radius: 6px; border: 1px solid {badge_color};">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <span class="feat-val"><code>{val_display}</code></span>
+                            <span class="feat-badge {badge_class}">
                                 {icon} {badge_text} ({feat['shap_value']:+.4f})
                             </span>
                         </div>
                     </div>
-                    <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.45;">
-                        <b>Security Analysis:</b> {feat['interpretation']}
+                    <div class="feat-note">
+                        {feat['interpretation']}
                     </div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-        st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
         # 3. SHAP Explanation & Visual Breakdown
         st.subheader("🔬 SHAP Explanation (Explainable AI)")
         st.caption("How each lexical and structural signal pushed the model toward or away from a phishing verdict.")
 
-        shap_col1, shap_col2 = st.columns([3, 2])
+        shap_col1, shap_col2 = st.columns([3, 2], gap="medium")
 
         with shap_col1:
             fig = create_shap_plot(result, max_display=10)
@@ -335,16 +517,16 @@ if url_input:
         with shap_col2:
             st.markdown(
                 f"""
-                <div style="background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 1.25rem;">
-                    <h4 style="margin-top: 0; color: #38bdf8;">How to Interpret SHAP Values:</h4>
-                    <ul style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.6; padding-left: 1.2rem;">
-                        <li><b>Baseline Model Prior:</b> Across the dataset, the prior probability for phishing is <b>{result['base_value_phishing']:.1%}</b>.</li>
-                        <li><b>Red Bars (+SHAP):</b> Features whose values increased the probability of this URL being classified as <span style="color:#f87171; font-weight:bold;">Phishing</span>.</li>
-                        <li><b>Green Bars (-SHAP):</b> Features whose values supported a <span style="color:#34d399; font-weight:bold;">Legitimate</span> diagnosis.</li>
-                        <li><b>Magnitude:</b> The length of the bar reflects the relative impact of that feature on this individual decision.</li>
+                <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1.25rem;">
+                    <h4 style="margin-top: 0; color: #38bdf8; font-size: 1rem; font-weight: 700;">How to Interpret SHAP Values:</h4>
+                    <ul style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; padding-left: 1.15rem; margin-bottom: 0.75rem;">
+                        <li><b>Baseline Model Prior:</b> Prior probability across dataset for phishing is <b>{result['base_value_phishing']:.1%}</b>.</li>
+                        <li><b>Red Bars (+SHAP):</b> Signals that increased the probability of a <span style="color:#f87171; font-weight:bold;">Phishing</span> verdict.</li>
+                        <li><b>Green Bars (-SHAP):</b> Signals that supported a <span style="color:#34d399; font-weight:bold;">Legitimate</span> verdict.</li>
+                        <li><b>Bar Length:</b> Indicates relative feature contribution weight for this specific URL.</li>
                     </ul>
-                    <hr style="border-color: #1e293b; margin: 1rem 0;">
-                    <div style="color: #94a3b8; font-size: 0.85rem;">
+                    <hr style="border-color: rgba(255, 255, 255, 0.08); margin: 0.75rem 0;">
+                    <div style="color: #64748b; font-size: 0.8rem;">
                         <i>Model: RandomForestClassifier (100 estimators, Gini criterion) trained on 235k PhiUSIIL URLs.</i>
                     </div>
                 </div>
@@ -352,7 +534,7 @@ if url_input:
                 unsafe_allow_html=True
             )
 
-        st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
         # 4. Collapsible Section for 18 Extracted Features
         with st.expander("📊 View All 18 Extracted Features (Collapsible Table)", expanded=False):
