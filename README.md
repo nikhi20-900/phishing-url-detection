@@ -31,7 +31,7 @@ flowchart LR
 
 1. **Live URL Analyzer**: Input any custom URL or test instantly using 1-click curated attack and benign samples.
 2. **Instant Threat Classification**: Real-time verdict badge (🔴 **PHISHING DETECTED** vs. 🟢 **LEGITIMATE URL**).
-3. **Probability & Confidence Metrics**: Exact class probabilities showing Phishing Risk Score (%) and Legitimate Score (%).
+3. **Prediction Probability Metrics**: Exact class probabilities showing Phishing Risk Score (%) and Legitimate Score (%).
 4. **18 Extracted Features (Collapsible View)**: An interactive expandable table (`st.expander`) displaying all 18 features, categories, values, SHAP impact scores, and descriptions.
 5. **SHAP Explainability (XAI)**: Visual horizontal feature attribution plot displaying how each signal pushed the prediction relative to the dataset baseline prior.
 6. **Top 5 Decision Drivers**: Ranked cards highlighting the top 5 most influential features with directional impact indicators and cybersecurity domain explanations.
@@ -156,7 +156,7 @@ Sample CLI output:
 
 ============================================================
 VERDICT     : 🚨 PHISHING
-CONFIDENCE  : 100.0%
+PROBABILITY : 100.0% (Phishing)
 RISK SCORES : Phishing: 100.0% | Legitimate: 0.0%
 ============================================================
 

@@ -23,7 +23,7 @@ def main():
     status_icon = "🚨 PHISHING" if result["is_phishing"] else "✅ LEGITIMATE"
     print("=" * 60)
     print(f"VERDICT     : {status_icon}")
-    print(f"CONFIDENCE  : {result['confidence']:.1%}")
+    print(f"PROBABILITY : {result['confidence']:.1%} ({'Phishing' if result['is_phishing'] else 'Legitimate'})")
     print(f"RISK SCORES : Phishing: {result['prob_phishing']:.1%} | Legitimate: {result['prob_legitimate']:.1%}")
     print("=" * 60)
 

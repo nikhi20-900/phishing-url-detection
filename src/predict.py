@@ -40,70 +40,68 @@ def load_model_and_explainer(model_path="models/random_forest_model.joblib"):
     return _MODEL_CACHE, _EXPLAINER_CACHE
 
 def interpret_feature_cybersecurity(feature_name: str, value: float, shap_val: float) -> str:
-    """Generate a contextual cybersecurity interpretation for a given feature impact."""
+    """Generate a scientifically defensible interpretation for a given feature impact."""
     pushes_phishing = shap_val > 0
 
     if feature_name == "IsHTTPS":
         if value == 0:
-            return "Unencrypted HTTP transport is a common hallmark of credential harvesting and deceptive links."
+            return "Unencrypted HTTP transport contributed toward the phishing classification, as absence of TLS is prevalent among deceptive links in the training data."
         return "HTTPS is active, establishing encrypted transport standard for genuine domains."
 
     if feature_name == "IsDomainIP":
         if value == 1:
-            return "Direct IP addressing in domain bypasses DNS registration to evade domain reputation filters."
+            return "Direct IP host addressing contributed toward the phishing classification based on patterns learned from the training data."
         return "Uses a standard registered domain name rather than a raw IP address."
 
-    if feature_name == "HasObfuscation" or feature_name == "NoOfObfuscatedChar":
+    if feature_name in ["HasObfuscation", "NoOfObfuscatedChar", "ObfuscationRatio"]:
         if value > 0:
-            return "Percent-encoded hex characters (%xx) detected, commonly used to hide malicious keywords or paths."
+            return "Percent-encoded hex characters (%xx) contributed toward the phishing classification based on patterns learned from the training data."
         return "Clean URL without hex percent-encoding obfuscation."
 
     if feature_name == "NoOfSubDomain":
-        if value >= 3:
-            return f"High subdomain depth ({int(value)} levels) frequently conceals target brands inside subdomains."
-        elif value == 0:
-            return "No subdomains present; direct apex or basic domain structure."
+        if pushes_phishing:
+            return f"Subdomain structure ({int(value)} level(s)) contributed toward the phishing classification based on patterns learned from the training data."
         return f"{int(value)} subdomain level(s), typical for standard domain routing."
 
     if feature_name == "URLLength":
         if pushes_phishing:
-            return f"Extended URL length ({int(value)} chars) often harbors embedded tracking parameters or payload strings."
+            return f"URL length ({int(value)} chars) contributed toward the phishing classification based on patterns learned from the training data."
         return f"Compact URL length ({int(value)} chars) consistent with concise legitimate destinations."
 
     if feature_name == "DomainLength":
         if pushes_phishing:
-            return f"Long domain name ({int(value)} chars) may mimic legitimate brand names via typo-squatting."
-        return f"Standard domain length ({int(value)} chars)."
+            return f"Domain length ({int(value)} chars) contributed toward the phishing classification based on patterns learned from the training data."
+        return f"Standard domain length ({int(value)} chars) aligned with typical legitimate domain patterns in the training data."
 
     if feature_name == "NoOfOtherSpecialCharsInURL":
         if pushes_phishing:
-            return f"Unusually high punctuation/special characters ({int(value)}) typical of complex phishing redirects."
+            return f"Special character count ({int(value)}) contributed toward the phishing classification based on patterns learned from the training data."
         return f"Minimal special characters ({int(value)}) aligns with clean site architecture."
 
     if feature_name == "SpacialCharRatioInURL":
         if pushes_phishing:
-            return f"Special character ratio ({value:.1%}) is elevated, indicating punctuation noise or redirection syntax."
-        return f"Special character ratio ({value:.1%}) within healthy bounds."
+            return f"Special character ratio ({value:.1%}) contributed toward the phishing classification based on patterns learned from the training data."
+        return f"Special character ratio ({value:.1%}) within expected baseline bounds."
 
-    if feature_name == "NoOfDegitsInURL" or feature_name == "DegitRatioInURL":
+    if feature_name in ["NoOfDegitsInURL", "DegitRatioInURL"]:
         if pushes_phishing:
-            return f"Elevated digit count ({int(value)}) in URL, often seen in auto-generated phishing domains."
-        return f"Low digit count ({int(value)}), typical for authentic human-readable brand names."
+            return f"Digit composition ({int(value)} digits) contributed toward the phishing classification based on patterns learned from the training data."
+        return f"Low digit count ({int(value)}), typical for authentic brand names."
 
     if feature_name == "LetterRatioInURL":
-        return f"Alphabetic composition ({value:.1%}) analyzed against benign lexical profiles."
+        return f"Alphabetic composition ({value:.1%}) contributed toward the classification based on lexical distributions in the training data."
 
     if feature_name in ["NoOfEqualsInURL", "NoOfQMarkInURL", "NoOfAmpersandInURL"]:
         if pushes_phishing:
-            return f"Heavy query parameter syntax indicates dynamic phishing parameter passing."
+            return f"Query parameter syntax ({int(value)}) contributed toward the phishing classification based on patterns learned from the training data."
         return f"Low query parameter activity ({int(value)})."
 
     if feature_name == "TLDLength":
         if pushes_phishing:
-            return f"Non-standard TLD length ({int(value)}) frequently associated with newer or suspicious TLDs."
+            return f"TLD length ({int(value)}) contributed toward the phishing classification based on patterns learned from the training data."
         return f"Standard TLD length ({int(value)}) matching common top-level registries."
 
-    return f"Feature value {value} contributes {shap_val:+.3f} toward the final risk assessment."
+    return f"This feature contributed {shap_val:+.3f} toward the classification based on patterns learned from the training data."
 
 def analyze_url(url: str, model_path="models/random_forest_model.joblib"):
     """

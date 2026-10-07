@@ -254,7 +254,7 @@ if url_input:
                 f"""
                 <div style="background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 1.35rem 1.5rem; height: 100%;">
                     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem;">
-                        <span style="font-weight: 700; color: #f8fafc; font-size: 1.1rem;">Model Confidence</span>
+                        <span style="font-weight: 700; color: #f8fafc; font-size: 1.1rem;">Prediction Probability</span>
                         <span style="font-size: 1.6rem; font-weight: 800; color: {'#ef4444' if is_phishing else '#10b981'};">{confidence:.1%}</span>
                     </div>
                     <div style="margin-bottom: 1rem;">
