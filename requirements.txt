@@ -6,3 +6,5 @@ seaborn==0.13.2
 jupyter==1.1.1
 notebook==7.6.2
 joblib==1.6.0
+streamlit>=1.30.0
+shap>=0.44.0

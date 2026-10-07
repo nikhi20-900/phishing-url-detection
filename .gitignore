@@ -4,8 +4,11 @@ __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 .DS_Store
+.agents/
+.claude/
 .env
 .env.*
 *.pkl
 *.joblib
+!models/random_forest_model.joblib
 models/*.h5
