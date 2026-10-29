@@ -8,32 +8,17 @@ Uses the exact configuration from notebook/01_dataset_analysis.ipynb:
 """
 
 import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import joblib
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, classification_report
+from src.features import extract_url_features, FEATURE_NAMES
 
-URL_FEATURES = [
-    "URLLength",
-    "DomainLength",
-    "IsDomainIP",
-    "TLDLength",
-    "NoOfSubDomain",
-    "HasObfuscation",
-    "NoOfObfuscatedChar",
-    "ObfuscationRatio",
-    "NoOfLettersInURL",
-    "LetterRatioInURL",
-    "NoOfDegitsInURL",
-    "DegitRatioInURL",
-    "NoOfEqualsInURL",
-    "NoOfQMarkInURL",
-    "NoOfAmpersandInURL",
-    "NoOfOtherSpecialCharsInURL",
-    "SpacialCharRatioInURL",
-    "IsHTTPS"
-]
+URL_FEATURES = FEATURE_NAMES
 
 def train_and_save_model(data_path="data/PhiUSIIL_Phishing_URL_Dataset.csv", model_dir="models"):
     print(f"Loading dataset from {data_path}...")
@@ -44,7 +29,9 @@ def train_and_save_model(data_path="data/PhiUSIIL_Phishing_URL_Dataset.csv", mod
     df_clean = df.drop_duplicates(subset="URL").copy()
     print(f"After removing duplicates: {df_clean.shape}")
 
-    X = df_clean[URL_FEATURES]
+    print("Extracting features using audited src.features.extract_url_features...")
+    feats = [extract_url_features(u) for u in df_clean["URL"]]
+    X = pd.DataFrame(feats, columns=URL_FEATURES)
     y = df_clean["label"]
 
     X_train, X_test, y_train, y_test = train_test_split(

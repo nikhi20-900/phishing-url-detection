@@ -18,7 +18,11 @@ def main():
     args = parser.parse_args()
 
     print(f"\n🔍 Analyzing URL: {args.url}...\n")
-    result = analyze_url(args.url)
+    try:
+        result = analyze_url(args.url)
+    except (ValueError, FileNotFoundError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
     status_icon = "🚨 PHISHING" if result["is_phishing"] else "✅ LEGITIMATE"
     print("=" * 60)
