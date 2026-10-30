@@ -1,0 +1,37 @@
+{
+  "evaluation_type": "domain_separated_holdout",
+  "split_seed": 16,
+  "model_random_state": 42,
+  "total_dataset_urls": 235370,
+  "total_registered_domains": 173145,
+  "train_urls": 183003,
+  "train_domains": 138516,
+  "train_phishing": 75471,
+  "train_legitimate": 107532,
+  "test_urls": 52367,
+  "test_domains": 34629,
+  "test_phishing": 25049,
+  "test_legitimate": 27318,
+  "domain_overlap": 0,
+  "metrics": {
+    "accuracy": 0.9966582007752974,
+    "phishing_precision": 0.9975198015841267,
+    "phishing_recall": 0.9954888418699349,
+    "phishing_f1": 0.9965032869103043,
+    "legitimate_precision": 0.9958712411852826,
+    "legitimate_recall": 0.9977304341459843,
+    "legitimate_f1": 0.9967999707425896,
+    "macro_f1": 0.996651628826447,
+    "roc_auc": 0.9982746928254312,
+    "pr_auc": 0.9988894297804661,
+    "brier_score": 0.002762555691436897,
+    "log_loss": 0.027921380152067504,
+    "ece_10_bins": 0.002163878998539562
+  },
+  "confusion_matrix": {
+    "true_phishing_tp": 24936,
+    "missed_phishing_fn": 113,
+    "falsely_flagged_legit_fp": 62,
+    "verified_legit_tn": 27256
+  }
+}
