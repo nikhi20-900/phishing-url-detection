@@ -52,8 +52,21 @@ def train_and_save_model(data_path="data/PhiUSIIL_Phishing_URL_Dataset.csv", mod
     )
     rf.fit(X_train, y_train)
 
+    if not hasattr(rf, "classes_"):
+        raise ValueError("Model does not expose 'classes_' attribute after fitting.")
+
+    classes = list(rf.classes_)
+    if set(classes) != {0, 1} or len(classes) != 2:
+        raise ValueError(
+            f"Invalid model class configuration: expected binary classes {{0, 1}}, got {classes}."
+        )
+
+    # Explicitly determine class indices from model.classes_
+    phishing_index = classes.index(0)
+    legitimate_index = classes.index(1)
+
     y_pred = rf.predict(X_test)
-    y_prob_phishing = rf.predict_proba(X_test)[:, 0]
+    y_prob_phishing = rf.predict_proba(X_test)[:, phishing_index]
 
     acc = accuracy_score(y_test, y_pred)
     prec = precision_score(y_test, y_pred, pos_label=0)
@@ -62,6 +75,7 @@ def train_and_save_model(data_path="data/PhiUSIIL_Phishing_URL_Dataset.csv", mod
     roc = roc_auc_score((y_test == 0).astype(int), y_prob_phishing)
 
     print("\nModel Evaluation on Test Set:")
+    print(f"  Classes  : {classes} (Phishing index: {phishing_index}, Legitimate index: {legitimate_index})")
     print(f"  Accuracy : {acc:.5f}")
     print(f"  Precision: {prec:.5f}")
     print(f"  Recall   : {rec:.5f}")
@@ -71,10 +85,13 @@ def train_and_save_model(data_path="data/PhiUSIIL_Phishing_URL_Dataset.csv", mod
     os.makedirs(model_dir, exist_ok=True)
     model_path = os.path.join(model_dir, "random_forest_model.joblib")
     
-    # Save model and metadata
+    # Save model and metadata with explicit class mappings and feature order
     artifact = {
         "model": rf,
-        "feature_names": URL_FEATURES,
+        "feature_names": list(URL_FEATURES),
+        "classes": classes,
+        "phishing_index": phishing_index,
+        "legitimate_index": legitimate_index,
         "metrics": {
             "accuracy": float(acc),
             "precision": float(prec),

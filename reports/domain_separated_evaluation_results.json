@@ -1,0 +1,39 @@
+{
+  "evaluation_type": "domain_separated_holdout",
+  "split_selection_method": "balanced_group_search(candidates=20)",
+  "split_seed": 14,
+  "candidate_seeds_searched": 20,
+  "model_random_state": 42,
+  "total_dataset_urls": 235370,
+  "total_registered_domains": 173145,
+  "train_urls": 188333,
+  "train_domains": 138516,
+  "train_phishing": 80406,
+  "train_legitimate": 107927,
+  "test_urls": 47037,
+  "test_domains": 34629,
+  "test_phishing": 20114,
+  "test_legitimate": 26923,
+  "domain_overlap": 0,
+  "metrics": {
+    "accuracy": 0.9973212577332738,
+    "phishing_precision": 0.9990013980427401,
+    "phishing_recall": 0.9947300387789599,
+    "phishing_f1": 0.9968611429425539,
+    "legitimate_precision": 0.9960753822799807,
+    "legitimate_recall": 0.9992571407346879,
+    "legitimate_f1": 0.9976637246903508,
+    "macro_f1": 0.9972624338164524,
+    "roc_auc": 0.9979623869679187,
+    "pr_auc": 0.9984701198089585,
+    "brier_score": 0.002534302406043348,
+    "log_loss": 0.025661331417312645,
+    "ece_10_bins": 0.0009619512250408843
+  },
+  "confusion_matrix": {
+    "true_phishing_tp": 20008,
+    "missed_phishing_fn": 106,
+    "falsely_flagged_legit_fp": 20,
+    "verified_legit_tn": 26903
+  }
+}

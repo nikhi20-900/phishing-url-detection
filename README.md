@@ -1,14 +1,15 @@
 # Phishing URL Detection: Machine Learning and Explainable AI
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![CI](https://github.com/nikhi20-900/phishing-url-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/nikhi20-900/phishing-url-detection/actions)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.9.0-orange.svg)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/Explainable_AI-SHAP-brightgreen.svg)](https://shap.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-v1.62-red.svg)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-85%20Passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-142%20Passed-success.svg)]()
 [![Test Accuracy](https://img.shields.io/badge/Test_Accuracy-99.72%25-blue.svg)]()
 [![ROC-AUC](https://img.shields.io/badge/ROC--AUC-0.9982-blueviolet.svg)]()
 
-An end-to-end cybersecurity system designed to identify phishing URLs using structural, lexical, and transport signals. Built with a calibrated Random Forest classifier and local Explainable AI (SHAP) attributions, this project provides transparent, interpretable risk assessments rather than opaque black-box verdicts.
+An end-to-end cybersecurity system designed to identify phishing URLs using structural, lexical, and transport signals. Built with a Random Forest classifier that outputs model-estimated probabilities and local Explainable AI (SHAP) attributions, this project provides transparent, interpretable risk assessments rather than opaque black-box verdicts.
 
 ---
 
@@ -86,6 +87,9 @@ flowchart TD
 
 ```text
 phishing-url-detection/
+|-- .github/
+|   `-- workflows/
+|       `-- ci.yml                  # GitHub Actions CI matrix (Python 3.10, 3.11, 3.12)
 |-- app/
 |   |-- __init__.py
 |   `-- main.py                     # Streamlit web application
@@ -96,21 +100,31 @@ phishing-url-detection/
 |   `-- random_forest_model.joblib  # Trained model artifact with feature metadata
 |-- notebook/
 |   `-- 01_dataset_analysis.ipynb   # Exploratory analysis and model benchmarks
+|-- reports/
+|   |-- calibration_reliability_diagram.png # 10-bin calibration curve and distribution
+|   |-- domain_separated_evaluation_results.json # Serialized evaluation and OOD metrics
+|   `-- phase_3_evaluation_and_leakage_audit.md # Complete Phase 3 audit and evaluation report
 |-- src/
 |   |-- __init__.py
 |   |-- cli.py                      # Command-line interface with structured error handling
+|   |-- evaluate_domain_split.py    # Public-suffix domain splitting & zero-overlap evaluation
 |   |-- features.py                 # RFC-compliant URL parser and 18-feature extraction
 |   |-- predict.py                  # Dynamic probability mapping and SHAP local attribution
 |   `-- train.py                    # Random Forest training pipeline
 |-- tests/
 |   |-- __init__.py
 |   |-- test_cli.py                 # CLI execution and error exit tests (8 tests)
-|   |-- test_feature_consistency.py # Feature extraction consistency tests (14 tests)
-|   |-- test_prediction.py          # Prediction and probability mapping tests (13 tests)
-|   |-- test_shap_explanations.py   # SHAP attribution and additive consistency tests (9 tests)
+|   |-- test_domain_evaluation.py   # Registered domain extraction & zero-overlap checks (11 tests)
+|   |-- test_error_handling.py      # Artifact metadata validation, failure isolation, and CLI suppression (16 tests)
+|   |-- test_feature_consistency.py # Feature extraction, bounds, and input validation (21 tests)
+|   |-- test_prediction.py          # Dynamic probability mapping and artifact compatibility (21 tests)
+|   |-- test_regression_protection.py # Invariant protections for classes, features, and SHAP (5 tests)
+|   |-- test_shap_explanations.py   # SHAP attribution, class alignment, and additive consistency (19 tests)
 |   `-- test_url_parsing.py         # URL parsing and RFC validation tests (41 tests)
 |-- .gitignore
-|-- requirements.txt
+|-- .python-version                 # Target Python runtime specification (3.11)
+|-- constraints.txt                 # Exact pinned dependency lockfile for deterministic builds
+|-- requirements.txt                # Bounded semantic requirements specification
 `-- README.md
 ```
 
@@ -140,17 +154,70 @@ The dataset encodes class labels as integers:
 
 Inference logic verifies this mapping dynamically via `model.classes_` rather than assuming index order.
 
-### Evaluated Model Test Metrics
+### Evaluated Model Test Metrics (Random Stratified Split)
 
-Metrics evaluated on the holdout test set (47,074 URLs) using features extracted by `src.features.extract_url_features`:
+Metrics evaluated on the holdout test set (47,074 URLs; 20,104 Phishing / 26,970 Legitimate) using features extracted by `src.features.extract_url_features`:
 
 | Metric | Score | Description |
-| :--- | :--- | :--- |
-| **Overall Accuracy** | **99.72%** | Ratio of correctly classified URLs across both classes |
-| **Phishing Precision** | **99.88%** | True phish divided by all instances flagged as phishing |
-| **Phishing Recall** | **99.46%** | True phish detected divided by all actual phishing URLs |
-| **Phishing F1-Score** | **99.67%** | Harmonic mean of phishing precision and recall |
+| :--- | :---: | :--- |
+| **Overall Accuracy** | **99.720%** | Ratio of correctly classified URLs across both classes |
+| **Phishing Precision** | **99.885%** | True phish divided by all instances flagged as phishing (23 false alarms) |
+| **Phishing Recall** | **99.458%** | True phish detected divided by all actual phishing URLs (109 missed phish) |
+| **Phishing F1-Score** | **99.671%** | Harmonic mean of phishing precision and recall |
 | **ROC-AUC** | **0.9982** | Area under the Receiver Operating Characteristic curve |
+| **PR-AUC** | **0.9987** | Area under the Precision-Recall curve |
+| **Log Loss** | **0.0239** | Multi-class cross-entropy loss |
+| **Brier Score** | **0.0024** | Mean squared probability error |
+| **Expected Calibration Error (ECE)** | **0.0006** | 10-bin expected discrepancy between confidence and empirical accuracy |
+
+### Domain-Separated Evaluation ($\mathcal{D}_{\text{train}} \cap \mathcal{D}_{\text{test}} = \emptyset$)
+
+A critical threat in URL classification is **domain memorization**: if subdomains or paths from the same registered domain appear in both training and test partitions, evaluation metrics can reflect memorized domain characteristics rather than generalizable structural patterns.
+
+#### Domain Terminology & Grouping Units
+To audit domain overlap rigorously, we distinguish two grouping units:
+- **Raw FQDN Hostnames (220,077 in dataset)**: Naive parsing (`urlparse.netloc`) counts subdomains separately (e.g. `mail.example.com` vs `shop.example.com`). In the standard random 80/20 split, **2,037 FQDN hostnames overlap**, representing 3,735 test URLs (7.93% of the test set).
+- **Public-Suffix Registered Domains (173,145 in dataset)**: Extracted via [`src/evaluate_domain_split.py`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/src/evaluate_domain_split.py), collapsing subdomains to the pay-level domain (`example.com`) with awareness of multi-part ccTLDs (`.co.uk`, `.ind.in`, `.com.au`).
+
+#### Primary Benchmark (Seed 14: Balanced Group Split)
+To evaluate genuine zero-day generalization, `find_balanced_group_split()` deterministically searches candidate seeds `[0..19]` strictly based on dataset-level criteria (target 20% test ratio, population class balance, zero domain overlap) **without evaluating model performance metrics**, eliminating model-driven selection bias.
+
+The primary benchmark partition (**Seed 14**) trained a fresh Random Forest strictly on 188,333 URLs (138,516 domains) and evaluated on 47,037 held-out URLs across **34,629 completely unseen domains** with zero domain overlap:
+
+| Metric | Random Split (Baseline) | Domain-Separated Split (Primary Benchmark: Seed 14) | Generalization Gap ($\Delta$) | Analysis & Threat Relevance |
+| :--- | :---: | :---: | :---: | :--- |
+| **Domain Overlap** | 2,037 FQDNs (4.51%) | **0 registered domains (0.00%)** | **-2,037 domains** | Strictly zero domain overlap enforced programmatically |
+| **Test Set Size** | 47,074 URLs | 47,037 URLs | -37 URLs | 19.98% of total cleaned dataset |
+| **Test Phishing URLs** | 20,104 (42.71%) | 20,114 (42.76%) | +10 URLs | Preserves 42.7% population threat prevalence |
+| **Test Legitimate URLs**| 26,970 (57.29%) | 26,923 (57.24%) | -47 URLs | Preserves 57.3% population legitimate prevalence |
+| **Accuracy** | **99.720%** | **99.732%** | **+0.012%** | Invariant performance across unseen registered domains |
+| **Phishing Precision (0)** | **99.885%** | **99.900%** | **+0.015%** | Only 20 false alarms across 26,923 unseen legitimate domains |
+| **Phishing Recall (0)** | **99.458%** | **99.473%** | **+0.015%** | Intercepts 20,008 / 20,114 zero-day phishing URLs |
+| **Phishing F1-Score (0)** | **99.671%** | **99.686%** | **+0.015%** | Harmonic mean of precision & recall maintained |
+| **Legitimate Precision (1)** | **99.597%** | **99.608%** | **+0.011%** | Clean domain precision preserved |
+| **Legitimate Recall (1)** | **99.915%** | **99.926%** | **+0.011%** | 26,903 / 26,923 benign domains confirmed safe |
+| **ROC-AUC** | **0.998203** | **0.997962** | **-0.000241** | Area under ROC curve remains effectively invariant |
+| **PR-AUC** | **0.998656** | **0.998470** | **-0.000186** | Area under Precision-Recall curve confirmed |
+| **Expected Calibration Error** | **0.000609** | **0.000962** | **+0.000353** | Minimal calibration divergence on unseen domains |
+
+#### Multi-Split Sensitivity Analysis
+To confirm results do not depend on an idiosyncratic domain partition, sensitivity evaluations were performed across 4 distinct grouped partitions on the current 173,145 registered domains:
+
+| Experiment | Seed | Test URLs | Phishing URLs | Legitimate URLs | Accuracy | Phishing Prec | Phishing Recall | Phishing F1 | ROC-AUC |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Primary Benchmark** | **14** | **47,037** | **20,114** | **26,923** | **99.732%** | **99.900%** | **99.473%** | **99.686%** | **0.99796** |
+| Sensitivity Run 1 | 16 | 52,367 | 25,049 | 27,318 | 99.666% | 99.752% | 99.549% | 99.650% | 0.99827 |
+| Sensitivity Run 2 | 7 | 45,891 | 18,721 | 27,170 | 99.728% | 99.855% | 99.477% | 99.666% | 0.99816 |
+| Sensitivity Run 3 | 5 | 47,402 | 20,668 | 26,734 | 99.793% | 99.917% | 99.608% | 99.763% | 0.99866 |
+| **Mean $\pm$ Std** | — | **48,174 $\pm$ 2,868** | **21,138 $\pm$ 2,733** | **27,036 $\pm$ 259** | **99.730% $\pm$ 0.052%** | **99.856% $\pm$ 0.074%** | **99.527% $\pm$ 0.065%** | **99.691% $\pm$ 0.050%** | **0.99826 $\pm$ 0.00029** |
+
+**Scientifically Defensible Finding**: Grouped domain evaluation reduces one major source of data leakage (cross-partition domain memorization), and performance remains consistently high across multiple independently grouped partitions ($\text{Accuracy} \ge 99.66\%$, $\text{Phishing Recall} \ge 99.47\%$). However, this does not prove immunity to evasion or that domain effects are absent in real-world deployment; it addresses benchmark leakage, but cannot eliminate dataset-specific collection biases or guarantee identical efficacy against novel adversarial techniques.
+
+#### Probability Calibration & Reliability Analysis
+While the global ECE is very low ($0.000962$), bin-by-bin reliability analysis reveals a crucial nuance:
+- **Extreme Bins**: $99.51\%$ of predictions concentrate in the extreme boundary bins ($[0.0, 0.1]$ and $[0.9, 1.0]$), where empirical accuracy matches confidence within $0.06\%$.
+- **Intermediate Bins**: In ambiguous intermediate ranges (e.g., $[0.4, 0.5]$), the uncalibrated Random Forest exhibits overconfidence (mean confidence of $44.2\%$ vs. empirical accuracy of $20.0\%$, a $24.2\%$ gap).
+- See [`reports/calibration_reliability_diagram.png`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/calibration_reliability_diagram.png) and [`reports/phase_3_evaluation_and_leakage_audit.md`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/phase_3_evaluation_and_leakage_audit.md) for full details.
 
 ---
 
@@ -236,6 +303,15 @@ prob_phishing = float(probabilities[phishing_index])
 prob_legitimate = float(probabilities[legitimate_index])
 ```
 
+Similarly, `src/train.py` dynamically resolves `phishing_index` from `rf.classes_` for evaluation metrics and test set probability calculations.
+
+### Model Probabilities and Probability Calibration
+
+The classifier outputs **model-estimated probabilities** computed via scikit-learn's `predict_proba()`, which averages the class probability distributions predicted by individual decision trees (derived from the class proportions in the leaf node reached by the sample across all trees in the ensemble).
+
+> [!NOTE]
+> The training pipeline does not explicitly perform probability calibration (e.g., via Platt scaling or isotonic regression). Outputs represent tree-averaged leaf probability distributions (model-estimated probabilities), not automatically calibrated probabilities. If formal probability calibration is evaluated in the future, it should be assessed on held-out validation data using calibration curves, expected calibration error (ECE), and Brier score metrics before deploying calibrated probability models (such as `CalibratedClassifierCV`).
+
 ### Decision Threshold
 
 The decision boundary is governed by a configurable `threshold` parameter (default: `0.5`):
@@ -271,10 +347,11 @@ When a URL receives a **Legitimate** verdict, the explanations explicitly state 
 
 ## 9. Installation and Environment Setup
 
-### Prerequisites
+### Prerequisites & Supported Python Versions
 
-- Python 3.10, 3.11, 3.12, 3.13, or 3.14
-- Git
+- **Supported Runtime**: **Python 3.10, 3.11, or 3.12** (Python 3.11 is recommended for optimal stability across all C-extensions).
+- **Experimental Support**: Python 3.13 and 3.14 (all tests pass, but upstream scientific packages like NumPy 2.5 and Matplotlib emit internal CPython deprecation warnings).
+- **System Tools**: Git
 
 ### Setup Instructions
 
@@ -287,9 +364,33 @@ cd phishing-url-detection
 python3 -m venv venv
 source venv/bin/activate
 
-# 3. Upgrade pip and install dependencies
+# 3. Upgrade pip
 pip install --upgrade pip
+
+# Option A: Standard installation with semantic version bounds
 pip install -r requirements.txt
+
+# Option B: Deterministic installation with tested exact constraints (recommended for reproducibility)
+pip install -r requirements.txt -c constraints.txt
+```
+
+### Verification and Reproducibility Quickstart
+
+After installing dependencies, verify the environment and run all components with these standard commands:
+
+```bash
+# 1. Run the complete automated test suite (131 tests)
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. pytest -v
+
+# 2. Retrain the Random Forest model artifact (optional; pre-trained artifact included)
+PYTHONPATH=. python3 src/train.py
+
+# 3. Run threat scan via CLI
+PYTHONPATH=. python3 src/cli.py "https://www.google.com"
+
+# 4. Launch the interactive Streamlit web dashboard
+streamlit run app/main.py
 ```
 
 ---
@@ -415,12 +516,29 @@ The application will be accessible at `http://localhost:8501`.
 
 ## 12. Automated Testing and Verification
 
-The repository includes an automated test suite comprising **85 unit, integration, and regression tests**.
+The repository includes an automated test suite comprising **142 unit, integration, and regression tests**.
 
 ### Running the Test Suite
 
+Execute the full suite using either `pytest` or Python's built-in `unittest` runner:
+
 ```bash
-python3 -m unittest discover tests -v
+# Option 1: pytest (recommended)
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. pytest -v
+
+# Option 2: Python standard library unittest
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. python3 -m unittest discover tests -v
+```
+
+### Reproducing the Domain-Separated Evaluation
+
+To execute the public-suffix-aware domain grouping, retrain on the domain-separated partition, verify zero domain overlap, and evaluate on unseen domains:
+
+```bash
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. python3 src/evaluate_domain_split.py
 ```
 
 ### Test Coverage by Module
@@ -428,11 +546,14 @@ python3 -m unittest discover tests -v
 | Test Module | Test Count | Scope of Verification |
 | :--- | :-: | :--- |
 | `tests/test_url_parsing.py` | 41 | Schemes, ports, credentials in authority, IPv4 octet bounds, bracketed IPv6, IDNA Punycode, malformed hosts |
-| `tests/test_feature_consistency.py` | 14 | 18-feature schema, ratio bounds [0, 1], 3-decimal rounding, dot-split IP handling, dataset row parity |
-| `tests/test_prediction.py` | 13 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity |
-| `tests/test_shap_explanations.py` | 9 | Phishing class index targeting, 2D/3D output shapes, finite value checks, additive consistency ($10^{-15}$ precision) |
+| `tests/test_feature_consistency.py` | 21 | 18-feature schema, ratio bounds [0, 1], 3-decimal rounding, missing/extra/reordered columns, NaN/Inf non-finite validation, unusual URLs |
+| `tests/test_prediction.py` | 21 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity, backward compatibility with older artifacts |
+| `tests/test_shap_explanations.py` | 19 | Phishing class alignment, 3D multi-class & 2D formats, model output verification, ambiguity rejection, additive consistency with floating-point tolerance on legitimate & phishing URLs |
+| `tests/test_error_handling.py` | 16 | Missing/truncated/corrupt artifacts, stored metadata validation vs estimator, unsupported schemes, clean CLI stderr reporting, SHAP failure isolation |
+| `tests/test_domain_evaluation.py` | 11 | Registered domain extraction (ccTLDs, IPv4/IPv6, userinfo, ports, localhost), zero-domain-overlap enforcement assertion checks, Expected Calibration Error (ECE) calculation |
 | `tests/test_cli.py` | 8 | Subprocess invocation, exit codes (0 vs. 1), clean stderr error formatting, validation rejection |
-| **Total Test Count** | **85** | **All 85 tests passing** |
+| `tests/test_regression_protection.py` | 5 | Invariant protection: 0=Phishing/1=Legitimate mapping, exact 18-feature order, dynamic class index selection, SHAP class alignment, artifact schema contract |
+| **Total Test Count** | **142** | **All 142 tests passing** |
 
 ### Whitespace and Git Integrity Verification
 
@@ -446,16 +567,16 @@ git diff --check
 
 ### Probabilistic Nature
 
-Model outputs are statistical estimates based on patterns learned from training data, not absolute guarantees of safety or malice.
+Model outputs are statistical model-estimated probabilities based on patterns learned from training data, not calibrated probabilities or absolute guarantees of safety or malice.
 
 - A URL flagged as **Legitimate (99.8%)** indicates strong structural resemblance to authentic web architecture; it does not guarantee that the remote server has not been compromised or host malicious content.
 - A URL flagged as **Phishing (100.0%)** reflects severe malicious structural indicators (e.g. unencrypted IP address with high special-character ratios); organizations should treat this as a high-risk indicator for automated isolation or analyst review.
 
 ### Evasion Techniques and Threat Evolution
 
-- **Adversarial Adaptation**: Sophisticated threat actors may mimic legitimate URL structures (e.g., using short HTTPS domain names with clean paths) to minimize lexical anomaly scores.
+- **Adversarial Adaptation & Bare Root Domain Limitation**: In our out-of-distribution stress testing across 7,747 novel TLD URLs, the model achieved $99.56\%$ accuracy but produced 34 false negatives. In-depth inspection revealed that adversaries engineered minimal URLs (e.g. `https://www.lglsvy.top`) using valid HTTPS encryption, short hostnames (22–30 chars), and zero path/query delimiters. Pure lexical features cannot distinguish these bare root domains without external signals (such as WHOIS domain creation age, passive DNS reputation, or SSL certificate authority).
 - **Defense-in-Depth**: This tool should be deployed as one layer of a multi-tiered security architecture alongside DNS filtering, SSL inspection, behavioral sandboxing, and endpoint protection.
-- **No Payload Execution**: This system does not inspect DOM structure, JavaScript execution, or SSL certificate chains.
+- **No Payload Execution**: This system evaluates URLs pre-flight and does not inspect DOM structure, JavaScript execution, or SSL certificate chains.
 
 ---
 

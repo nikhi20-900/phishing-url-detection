@@ -167,5 +167,121 @@ class TestPredictionCorrectness(unittest.TestCase):
         self.assertAlmostEqual(run1["prob_phishing"], run2["prob_phishing"], places=7)
         self.assertAlmostEqual(run1["prob_legitimate"], run2["prob_legitimate"], places=7)
 
+    # --- 6. Artifact & Feature Validation on Model Loading ---
+    def test_feature_columns_validation_in_get_class_probabilities(self):
+        mock = MockModel(classes=[0, 1], proba_return=[[0.85, 0.15]])
+        # Scramble columns
+        scrambled_cols = list(reversed(FEATURE_NAMES))
+        df_scrambled = pd.DataFrame([{f: 0 for f in scrambled_cols}], columns=scrambled_cols)
+        with self.assertRaises(ValueError) as ctx:
+            get_class_probabilities(mock, df_scrambled)
+        self.assertIn("Feature columns do not match", str(ctx.exception))
+
+    def test_load_model_rejects_invalid_classes(self):
+        import tempfile, joblib
+        from src.predict import clear_model_cache
+        clear_model_cache()
+
+        invalid_model = MockModel(classes=[1, 2], proba_return=[[0.5, 0.5]])
+        artifact = {"model": invalid_model, "feature_names": FEATURE_NAMES}
+
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump(artifact, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("Invalid model class configuration", str(ctx.exception))
+        clear_model_cache()
+
+    def test_load_model_rejects_feature_mismatch(self):
+        import tempfile, joblib
+        from src.predict import clear_model_cache
+        clear_model_cache()
+
+        valid_model = MockModel(classes=[0, 1], proba_return=[[0.5, 0.5]])
+        wrong_features = list(FEATURE_NAMES[:-1]) + ["UnknownFeature"]
+        artifact = {"model": valid_model, "feature_names": wrong_features}
+
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump(artifact, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("Feature mismatch", str(ctx.exception))
+        clear_model_cache()
+
+    def test_load_model_rejects_missing_model_key(self):
+        import tempfile, joblib
+        from src.predict import clear_model_cache
+        clear_model_cache()
+
+        artifact = {"metrics": {"accuracy": 0.99}, "feature_names": FEATURE_NAMES}
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump(artifact, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("missing required 'model' key", str(ctx.exception))
+        clear_model_cache()
+
+    def test_load_model_rejects_non_dict_non_estimator(self):
+        import tempfile, joblib
+        from src.predict import clear_model_cache
+        clear_model_cache()
+
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump("corrupted_string_artifact", tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("Invalid model artifact format", str(ctx.exception))
+        clear_model_cache()
+
+    def test_load_model_rejects_missing_feature_names_metadata(self):
+        import tempfile, joblib
+        from src.predict import clear_model_cache
+        clear_model_cache()
+
+        valid_model = MockModel(classes=[0, 1], proba_return=[[0.5, 0.5]])
+        artifact = {"model": valid_model}  # Missing feature_names and model lacks feature_names_in_
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump(artifact, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("missing 'feature_names' metadata", str(ctx.exception))
+        clear_model_cache()
+
+    def test_load_model_rejects_inconsistent_classes(self):
+        import tempfile, joblib
+        from src.predict import clear_model_cache
+        clear_model_cache()
+
+        valid_model = MockModel(classes=[0, 1], proba_return=[[0.5, 0.5]])
+        artifact = {"model": valid_model, "feature_names": FEATURE_NAMES, "classes": [1, 0]}
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump(artifact, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("does not match model.classes_", str(ctx.exception))
+        clear_model_cache()
+
+    def test_load_older_artifact_format_compatibility(self):
+        # Older artifact format that only has {'model': ..., 'feature_names': ..., 'metrics': ...}
+        # without new keys like 'classes' or 'phishing_index'
+        import tempfile, joblib
+        from src.predict import clear_model_cache
+        clear_model_cache()
+
+        # Load real model artifact, strip new keys to simulate an older artifact
+        real_model, _ = load_model_and_explainer()
+        older_artifact = {
+            "model": real_model,
+            "feature_names": FEATURE_NAMES,
+            "metrics": {"accuracy": 0.997}
+        }
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump(older_artifact, tmp.name)
+            m, exp = load_model_and_explainer(tmp.name)
+            self.assertIsNotNone(m)
+            self.assertIsNotNone(exp)
+            self.assertEqual(list(m.classes_), [0, 1])
+        clear_model_cache()
+
 if __name__ == "__main__":
     unittest.main()

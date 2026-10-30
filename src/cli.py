@@ -23,6 +23,9 @@ def main():
     except (ValueError, FileNotFoundError) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+    except Exception as e:
+        print(f"Error: An unexpected error occurred: {e}", file=sys.stderr)
+        sys.exit(1)
 
     status_icon = "🚨 PHISHING" if result["is_phishing"] else "✅ LEGITIMATE"
     print("=" * 60)
@@ -31,12 +34,16 @@ def main():
     print(f"RISK SCORES : Phishing: {result['prob_phishing']:.1%} | Legitimate: {result['prob_legitimate']:.1%}")
     print("=" * 60)
 
-    print("\n🎯 TOP 5 INFLUENCING FEATURES (SHAP):")
-    for idx, f in enumerate(result["top_5_features"], 1):
-        sign = "+" if f["shap_value"] > 0 else ""
-        print(f"  {idx}. {f['feature']} = {f['value']}")
-        print(f"     Impact: {f['direction']} ({sign}{f['shap_value']:.4f})")
-        print(f"     Note  : {f['interpretation']}\n")
+    if result.get("explanation_verified", False) and result["top_5_features"]:
+        print("\n🎯 TOP 5 INFLUENCING FEATURES (SHAP):")
+        for idx, f in enumerate(result["top_5_features"], 1):
+            sign = "+" if f["shap_value"] > 0 else ""
+            print(f"  {idx}. {f['feature']} = {f['value']}")
+            print(f"     Impact: {f['direction']} ({sign}{f['shap_value']:.4f})")
+            print(f"     Note  : {f['interpretation']}\n")
+    else:
+        err_msg = result.get("explanation_error") or "Feature explanation could not be verified."
+        print(f"\n⚠️  SHAP EXPLANATIONS: Suppressed ({err_msg})\n")
 
     print("📊 18 EXTRACTED FEATURES:")
     for k, v in result["features"].items():

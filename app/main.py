@@ -393,6 +393,7 @@ if url_input:
         prob_legit = result["prob_legitimate"]
         top_5 = result["top_5_features"]
         features_dict = result["features"]
+        explanation_verified = result.get("explanation_verified", False)
 
         st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
@@ -465,42 +466,45 @@ if url_input:
         st.subheader("🎯 Top 5 Features Influencing the Prediction")
         st.caption("Derived from local SHAP contribution values for this specific URL.")
 
-        for rank, feat in enumerate(top_5, 1):
-            pushes_phishing = feat["shap_value"] > 0
-            badge_class = "badge-phish" if pushes_phishing else "badge-legit"
-            badge_text = "Increases Phishing Risk" if pushes_phishing else "Supports Legitimate"
-            icon = "🚨" if pushes_phishing else "🛡️"
-            box_class = "phishing-driver" if pushes_phishing else "legit-driver"
+        if not explanation_verified:
+            st.warning("⚠️ Local feature explanation could not be independently verified as targeting the phishing class. Explanations are suppressed for safety.")
+        else:
+            for rank, feat in enumerate(top_5, 1):
+                pushes_phishing = feat["shap_value"] > 0
+                badge_class = "badge-phish" if pushes_phishing else "badge-legit"
+                badge_text = "Increases Phishing Risk" if pushes_phishing else "Supports Legitimate"
+                icon = "🚨" if pushes_phishing else "🛡️"
+                box_class = "phishing-driver" if pushes_phishing else "legit-driver"
 
-            val_display = (
-                f"{feat['value']:.4g}"
-                if isinstance(feat["value"], float) and not feat["value"].is_integer()
-                else f"{int(feat['value'])}"
-            )
+                val_display = (
+                    f"{feat['value']:.4g}"
+                    if isinstance(feat["value"], float) and not feat["value"].is_integer()
+                    else f"{int(feat['value'])}"
+                )
 
-            st.markdown(
-                f"""
-                <div class="top-feature-box {box_class}">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; align-items: center;">
-                            <span class="feat-rank">#{rank}</span>
-                            <span class="feat-name">{feat['feature']}</span>
-                            <span class="feat-category">{feat['category']}</span>
+                st.markdown(
+                    f"""
+                    <div class="top-feature-box {box_class}">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center;">
+                                <span class="feat-rank">#{rank}</span>
+                                <span class="feat-name">{feat['feature']}</span>
+                                <span class="feat-category">{feat['category']}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <span class="feat-val"><code>{val_display}</code></span>
+                                <span class="feat-badge {badge_class}">
+                                    {icon} {badge_text} ({feat['shap_value']:+.4f})
+                                </span>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <span class="feat-val"><code>{val_display}</code></span>
-                            <span class="feat-badge {badge_class}">
-                                {icon} {badge_text} ({feat['shap_value']:+.4f})
-                            </span>
+                        <div class="feat-note">
+                            {feat['interpretation']}
                         </div>
                     </div>
-                    <div class="feat-note">
-                        {feat['interpretation']}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+                    """,
+                    unsafe_allow_html=True
+                )
 
         st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
@@ -508,31 +512,34 @@ if url_input:
         st.subheader("🔬 SHAP Explanation (Explainable AI)")
         st.caption("How each lexical and structural signal pushed the model toward or away from a phishing verdict.")
 
-        shap_col1, shap_col2 = st.columns([3, 2], gap="medium")
+        if not explanation_verified:
+            st.info("Feature attribution visual breakdown is unavailable for unverified explanations.")
+        else:
+            shap_col1, shap_col2 = st.columns([3, 2], gap="medium")
 
-        with shap_col1:
-            fig = create_shap_plot(result, max_display=10)
-            st.pyplot(fig)
+            with shap_col1:
+                fig = create_shap_plot(result, max_display=10)
+                st.pyplot(fig)
 
-        with shap_col2:
-            st.markdown(
-                f"""
-                <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1.25rem;">
-                    <h4 style="margin-top: 0; color: #38bdf8; font-size: 1rem; font-weight: 700;">How to Interpret SHAP Values:</h4>
-                    <ul style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; padding-left: 1.15rem; margin-bottom: 0.75rem;">
-                        <li><b>Baseline Model Prior:</b> Prior probability across dataset for phishing is <b>{result['base_value_phishing']:.1%}</b>.</li>
-                        <li><b>Red Bars (+SHAP):</b> Signals that increased the probability of a <span style="color:#f87171; font-weight:bold;">Phishing</span> verdict.</li>
-                        <li><b>Green Bars (-SHAP):</b> Signals that supported a <span style="color:#34d399; font-weight:bold;">Legitimate</span> verdict.</li>
-                        <li><b>Bar Length:</b> Indicates relative feature contribution weight for this specific URL.</li>
-                    </ul>
-                    <hr style="border-color: rgba(255, 255, 255, 0.08); margin: 0.75rem 0;">
-                    <div style="color: #64748b; font-size: 0.8rem;">
-                        <i>Model: RandomForestClassifier (100 estimators, Gini criterion) trained on 235k PhiUSIIL URLs.</i>
+            with shap_col2:
+                st.markdown(
+                    f"""
+                    <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1.25rem;">
+                        <h4 style="margin-top: 0; color: #38bdf8; font-size: 1rem; font-weight: 700;">How to Interpret SHAP Values:</h4>
+                        <ul style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; padding-left: 1.15rem; margin-bottom: 0.75rem;">
+                            <li><b>Baseline Model Prior:</b> Prior probability across dataset for phishing is <b>{result['base_value_phishing']:.1%}</b>.</li>
+                            <li><b>Red Bars (+SHAP):</b> Signals that increased the probability of a <span style="color:#f87171; font-weight:bold;">Phishing</span> verdict.</li>
+                            <li><b>Green Bars (-SHAP):</b> Signals that supported a <span style="color:#34d399; font-weight:bold;">Legitimate</span> verdict.</li>
+                            <li><b>Bar Length:</b> Indicates relative feature contribution weight for this specific URL.</li>
+                        </ul>
+                        <hr style="border-color: rgba(255, 255, 255, 0.08); margin: 0.75rem 0;">
+                        <div style="color: #64748b; font-size: 0.8rem;">
+                            <i>Model: RandomForestClassifier (100 estimators, Gini criterion) trained on 235k PhiUSIIL URLs.</i>
+                        </div>
                     </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+                    """,
+                    unsafe_allow_html=True
+                )
 
         st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
@@ -544,10 +551,10 @@ if url_input:
                 desc = FEATURE_DESCRIPTIONS.get(name, "")
                 cat = FEATURE_CATEGORIES.get(name, "")
                 
-                # Find shap value if available
-                matching_impact = next((i for i in result["all_impacts"] if i["feature"] == name), None)
-                shap_str = f"{matching_impact['shap_value']:+.4f}" if matching_impact else "N/A"
-                impact_label = matching_impact["direction"] if matching_impact else "N/A"
+                # Find shap value if available and verified
+                matching_impact = next((i for i in result["all_impacts"] if i["feature"] == name), None) if explanation_verified else None
+                shap_str = f"{matching_impact['shap_value']:+.4f}" if matching_impact else ("N/A" if not explanation_verified else "N/A")
+                impact_label = matching_impact["direction"] if matching_impact else ("Unverified" if not explanation_verified else "N/A")
 
                 feature_rows.append({
                     "Feature": name,
