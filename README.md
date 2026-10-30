@@ -174,29 +174,49 @@ Metrics evaluated on the holdout test set (47,074 URLs; 20,104 Phishing / 26,970
 
 A critical threat in URL classification is **domain memorization**: if subdomains or paths from the same registered domain appear in both training and test partitions, evaluation metrics can reflect memorized domain characteristics rather than generalizable structural patterns.
 
-To evaluate genuine zero-day generalization, we implemented a public-suffix-aware domain grouper in [`src/evaluate_domain_split.py`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/src/evaluate_domain_split.py). A fresh Random Forest model was trained strictly on 183,003 URLs (138,516 registered domains) and evaluated on 52,367 held-out URLs from **34,629 completely unseen domains** with zero domain overlap:
+#### Domain Terminology & Grouping Units
+To audit domain overlap rigorously, we distinguish two grouping units:
+- **Raw FQDN Hostnames (220,077 in dataset)**: Naive parsing (`urlparse.netloc`) counts subdomains separately (e.g. `mail.example.com` vs `shop.example.com`). In the standard random 80/20 split, **2,037 FQDN hostnames overlap**, representing 3,735 test URLs (7.93% of the test set).
+- **Public-Suffix Registered Domains (173,145 in dataset)**: Extracted via [`src/evaluate_domain_split.py`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/src/evaluate_domain_split.py), collapsing subdomains to the pay-level domain (`example.com`) with awareness of multi-part ccTLDs (`.co.uk`, `.ind.in`, `.com.au`).
 
-| Metric | Random Split (Baseline) | Domain-Separated Split (Unseen Domains) | Generalization Gap ($\Delta$) | Analysis |
+#### Primary Benchmark (Seed 14: Balanced Group Split)
+To evaluate genuine zero-day generalization, `find_balanced_group_split()` deterministically searches candidate seeds `[0..19]` strictly based on dataset-level criteria (target 20% test ratio, population class balance, zero domain overlap) **without evaluating model performance metrics**, eliminating model-driven selection bias.
+
+The primary benchmark partition (**Seed 14**) trained a fresh Random Forest strictly on 188,333 URLs (138,516 domains) and evaluated on 47,037 held-out URLs across **34,629 completely unseen domains** with zero domain overlap:
+
+| Metric | Random Split (Baseline) | Domain-Separated Split (Primary Benchmark: Seed 14) | Generalization Gap ($\Delta$) | Analysis & Threat Relevance |
 | :--- | :---: | :---: | :---: | :--- |
-| **Domain Overlap** | 2,037 domains (4.51%) | **0 domains (0.00%)** | **-2,037 domains** | Strictly zero domain overlap enforced programmatically |
-| **Test Set Size** | 47,074 URLs | 52,367 URLs | +5,293 URLs | 22.25% of total dataset |
-| **Accuracy** | **99.720%** | **99.666%** | **-0.054%** | Minimal drop (-0.054%), confirming structural feature robustness |
-| **Phishing Precision** | **99.885%** | **99.752%** | **-0.133%** | 62 false alarms across 27,318 unseen legitimate domains |
-| **Phishing Recall** | **99.458%** | **99.549%** | **+0.091%** | Intercepts 24,936 / 25,049 unseen phishing URLs |
-| **Phishing F1-Score** | **99.671%** | **99.650%** | **-0.021%** | Near-identical harmonic mean performance |
-| **ROC-AUC** | **0.998203** | **0.998270** | **+0.000067** | Invariant discrimination capacity |
-| **Expected Calibration Error** | **0.000609** | **0.002164** | **+0.001555** | Minimal calibration divergence on unseen domains |
+| **Domain Overlap** | 2,037 FQDNs (4.51%) | **0 registered domains (0.00%)** | **-2,037 domains** | Strictly zero domain overlap enforced programmatically |
+| **Test Set Size** | 47,074 URLs | 47,037 URLs | -37 URLs | 19.98% of total cleaned dataset |
+| **Test Phishing URLs** | 20,104 (42.71%) | 20,114 (42.76%) | +10 URLs | Preserves 42.7% population threat prevalence |
+| **Test Legitimate URLs**| 26,970 (57.29%) | 26,923 (57.24%) | -47 URLs | Preserves 57.3% population legitimate prevalence |
+| **Accuracy** | **99.720%** | **99.732%** | **+0.012%** | Invariant performance across unseen registered domains |
+| **Phishing Precision (0)** | **99.885%** | **99.900%** | **+0.015%** | Only 20 false alarms across 26,923 unseen legitimate domains |
+| **Phishing Recall (0)** | **99.458%** | **99.473%** | **+0.015%** | Intercepts 20,008 / 20,114 zero-day phishing URLs |
+| **Phishing F1-Score (0)** | **99.671%** | **99.686%** | **+0.015%** | Harmonic mean of precision & recall maintained |
+| **Legitimate Precision (1)** | **99.597%** | **99.608%** | **+0.011%** | Clean domain precision preserved |
+| **Legitimate Recall (1)** | **99.915%** | **99.926%** | **+0.011%** | 26,903 / 26,923 benign domains confirmed safe |
+| **ROC-AUC** | **0.998203** | **0.997962** | **-0.000241** | Area under ROC curve remains effectively invariant |
+| **PR-AUC** | **0.998656** | **0.998470** | **-0.000186** | Area under Precision-Recall curve confirmed |
+| **Expected Calibration Error** | **0.000609** | **0.000962** | **+0.000353** | Minimal calibration divergence on unseen domains |
 
 #### Multi-Split Sensitivity Analysis
-To confirm results are invariant to partition selection, the domain-separated evaluation was executed across 3 independent grouped seeds (Seed 16, Seed 7, Seed 5):
-- **Mean Accuracy**: $99.714\% \pm 0.059\%$
-- **Mean Phishing Recall**: $99.493\% \pm 0.033\%$
-- **Mean ROC-AUC**: $0.99821 \pm 0.00014$
+To confirm results do not depend on an idiosyncratic domain partition, sensitivity evaluations were performed across 4 distinct grouped partitions on the current 173,145 registered domains:
+
+| Experiment | Seed | Test URLs | Phishing URLs | Legitimate URLs | Accuracy | Phishing Prec | Phishing Recall | Phishing F1 | ROC-AUC |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Primary Benchmark** | **14** | **47,037** | **20,114** | **26,923** | **99.732%** | **99.900%** | **99.473%** | **99.686%** | **0.99796** |
+| Sensitivity Run 1 | 16 | 52,367 | 25,049 | 27,318 | 99.666% | 99.752% | 99.549% | 99.650% | 0.99827 |
+| Sensitivity Run 2 | 7 | 45,891 | 18,721 | 27,170 | 99.728% | 99.855% | 99.477% | 99.666% | 0.99816 |
+| Sensitivity Run 3 | 5 | 47,402 | 20,668 | 26,734 | 99.793% | 99.917% | 99.608% | 99.763% | 0.99866 |
+| **Mean $\pm$ Std** | — | **48,174 $\pm$ 2,868** | **21,138 $\pm$ 2,733** | **27,036 $\pm$ 259** | **99.730% $\pm$ 0.052%** | **99.856% $\pm$ 0.074%** | **99.527% $\pm$ 0.065%** | **99.691% $\pm$ 0.050%** | **0.99826 $\pm$ 0.00029** |
+
+**Scientifically Defensible Finding**: Grouped domain evaluation reduces one major source of data leakage (cross-partition domain memorization), and performance remains consistently high across multiple independently grouped partitions ($\text{Accuracy} \ge 99.66\%$, $\text{Phishing Recall} \ge 99.47\%$). However, this does not prove immunity to evasion or that domain effects are absent in real-world deployment; it addresses benchmark leakage, but cannot eliminate dataset-specific collection biases or guarantee identical efficacy against novel adversarial techniques.
 
 #### Probability Calibration & Reliability Analysis
-While the global ECE is very low ($0.002164$), bin-by-bin reliability analysis reveals a crucial nuance:
-- **Extreme Bins**: $99.23\%$ of predictions concentrate in the extreme boundary bins ($[0.0, 0.1]$ and $[0.9, 1.0]$), where empirical accuracy matches confidence within $0.05\%$.
-- **Intermediate Bins**: In ambiguous intermediate ranges (e.g., $[0.6, 0.7]$), the uncalibrated Random Forest exhibits overconfidence (mean confidence of $66.1\%$ vs. empirical accuracy of $20.0\%$).
+While the global ECE is very low ($0.000962$), bin-by-bin reliability analysis reveals a crucial nuance:
+- **Extreme Bins**: $99.51\%$ of predictions concentrate in the extreme boundary bins ($[0.0, 0.1]$ and $[0.9, 1.0]$), where empirical accuracy matches confidence within $0.06\%$.
+- **Intermediate Bins**: In ambiguous intermediate ranges (e.g., $[0.4, 0.5]$), the uncalibrated Random Forest exhibits overconfidence (mean confidence of $44.2\%$ vs. empirical accuracy of $20.0\%$, a $24.2\%$ gap).
 - See [`reports/calibration_reliability_diagram.png`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/calibration_reliability_diagram.png) and [`reports/phase_3_evaluation_and_leakage_audit.md`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/phase_3_evaluation_and_leakage_audit.md) for full details.
 
 ---

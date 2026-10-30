@@ -13,7 +13,7 @@ import os
 import sys
 import json
 import time
-from typing import Tuple, Dict, Any, List, Set
+from typing import Tuple, Dict, Any, List, Set, Optional
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit
@@ -142,6 +142,16 @@ def find_balanced_group_split(
     """
     Find candidate GroupShuffleSplit that best preserves target size and class balance
     while strictly keeping all registered domains grouped.
+
+    Selection Criteria:
+    - Test-set ratio close to target (20%).
+    - Class distribution close to population prevalence.
+    - Zero overlap between registered domains in training and testing.
+    - Fixed, documented candidate-seed range (0..candidate_seeds-1) with deterministic scoring.
+
+    IMPORTANT: Selection is strictly based on dataset partitioning characteristics.
+    No model training, accuracy, precision, or recall metrics are used during split
+    selection, eliminating any form of model-driven selection bias.
     """
     pop_phish_pct = float((df[label_col] == 0).mean())
     best_split = None
@@ -150,6 +160,11 @@ def find_balanced_group_split(
     for seed in range(candidate_seeds):
         gss = GroupShuffleSplit(n_splits=1, test_size=target_test_ratio, random_state=seed)
         train_idx, test_idx = next(gss.split(df, df[label_col], groups=df[group_col]))
+
+        # Enforce zero domain overlap for candidate
+        train_doms = set(df.iloc[train_idx][group_col])
+        test_doms = set(df.iloc[test_idx][group_col])
+        verify_zero_domain_overlap(train_doms, test_doms)
 
         test_ratio = len(test_idx) / len(df)
         test_phish_pct = float((df.iloc[test_idx][label_col] == 0).mean())
@@ -165,7 +180,8 @@ def find_balanced_group_split(
 
 def run_domain_separated_evaluation(
     data_path: str = "data/PhiUSIIL_Phishing_URL_Dataset.csv",
-    split_seed: int = 16,
+    split_seed: Optional[int] = None,
+    candidate_seeds: int = 20,
     model_random_state: int = 42,
     output_dir: str = "reports"
 ) -> Dict[str, Any]:
@@ -173,7 +189,8 @@ def run_domain_separated_evaluation(
     Execute full domain-separated evaluation:
     1. Deduplicate dataset by URL.
     2. Extract registered domains using public-suffix parser.
-    3. Partition into train and held-out test domains (GroupShuffleSplit).
+    3. Partition into train and held-out test domains using find_balanced_group_split()
+       (or an explicit seed if specified).
     4. Verify zero domain overlap (D_train ∩ D_test = ∅).
     5. Train fresh Random Forest on domain-separated training partition.
     6. Evaluate on held-out unseen domains.
@@ -191,9 +208,21 @@ def run_domain_separated_evaluation(
     unique_domains = df_clean["reg_domain"].nunique()
     print(f"Extracted {unique_domains} registered domains in {t1 - t0:.2f}s")
 
-    # Perform group split using seed
-    gss = GroupShuffleSplit(n_splits=1, test_size=0.20, random_state=split_seed)
-    train_idx, test_idx = next(gss.split(df_clean, df_clean["label"], groups=df_clean["reg_domain"]))
+    # Perform group split
+    if split_seed is None:
+        print(f"Searching {candidate_seeds} candidate seeds for balanced group split (target test ratio=20%)...")
+        split_seed, train_idx, test_idx, test_ratio, test_phish_pct = find_balanced_group_split(
+            df_clean, target_test_ratio=0.20, candidate_seeds=candidate_seeds,
+            group_col="reg_domain", label_col="label"
+        )
+        selection_method = f"balanced_group_search(candidates={candidate_seeds})"
+        print(f"Selected optimal Seed {split_seed}: Test size = {len(test_idx)} ({test_ratio:.2%}), Phish% = {test_phish_pct:.2%}")
+    else:
+        gss = GroupShuffleSplit(n_splits=1, test_size=0.20, random_state=split_seed)
+        train_idx, test_idx = next(gss.split(df_clean, df_clean["label"], groups=df_clean["reg_domain"]))
+        selection_method = f"explicit_seed({split_seed})"
+        test_ratio = len(test_idx) / len(df_clean)
+        test_phish_pct = float((df_clean.iloc[test_idx]["label"] == 0).mean())
 
     train_data = df_clean.iloc[train_idx].copy()
     test_data = df_clean.iloc[test_idx].copy()
@@ -204,6 +233,7 @@ def run_domain_separated_evaluation(
     verify_zero_domain_overlap(train_domains, test_domains)
 
     print("\n--- Domain Separation Verification ---")
+    print(f"  Selection Method     : {selection_method}")
     print(f"  Split Seed           : {split_seed}")
     print(f"  Train Partition URLs : {len(train_data)} ({len(train_data)/len(df_clean):.2%}) across {len(train_domains)} domains")
     print(f"  Test Partition URLs  : {len(test_data)} ({len(test_data)/len(df_clean):.2%}) across {len(test_domains)} domains")
@@ -252,7 +282,9 @@ def run_domain_separated_evaluation(
 
     results = {
         "evaluation_type": "domain_separated_holdout",
+        "split_selection_method": selection_method,
         "split_seed": split_seed,
+        "candidate_seeds_searched": candidate_seeds if selection_method.startswith("balanced_group_search") else None,
         "model_random_state": model_random_state,
         "total_dataset_urls": len(df_clean),
         "total_registered_domains": unique_domains,

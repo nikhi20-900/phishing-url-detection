@@ -88,17 +88,23 @@ Total                           20,018                   27,056                4
 - **Train/Test Stratification**: The split preserves the 57.3% / 42.7% class distribution without leaking samples.
 
 ### 2.4 Domain Overlap Leakage (The Primary Generalization Risk)
-While URL deduplication prevents identical URL strings from crossing between train and test sets, standard random stratified splitting allows different URLs from the **same domain** to populate both splits:
 
-- **Total Unique Domains in Dataset**: 220,077 domains
-- **Training Set Unique Domains**: 176,935 domains
-- **Test Set Unique Domains**: 45,179 domains
-- **Overlapping Domains (seen in both Train & Test)**: **2,037 domains** (4.51% of all test domains)
-- **Test URLs from Domains Present in Training**: **3,735 URLs** (**7.93% of the test set**)
-- **Domain Label Purity in Dataset**:
-  - Out of 220,077 domains, **220,023 domains (99.976%)** are mono-class (100% Phishing or 100% Legitimate).
-  - Only **54 domains (0.024%)** host both phishing and legitimate URLs in the dataset.
-- **Significance**: When a random split places paths from `domain-x.com/page1` into the training set and `domain-x.com/page2` into the test set, the ensemble classifier can memorize domain-level lexical traits rather than generalizing to structural anomalies on previously unseen domains.
+While URL deduplication prevents identical URL strings from crossing between train and test sets, standard random stratified splitting allows different URLs from the **same domain** to populate both splits. To audit this risk rigorously, we distinguish two distinct domain grouping units:
+
+1. **Raw Fully Qualified Domain Names (FQDN Hostnames)**:
+   - Naive URL parsing evaluates the full network location (`urlparse.netloc` / `hostname`), counting each subdomain (e.g., `login.example.com` vs. `shop.example.com`) as an independent domain.
+   - **Total Unique FQDN Hostnames in Dataset**: **220,077 hostnames**
+   - **Training Set Unique FQDNs**: 176,935 hostnames
+   - **Test Set Unique FQDNs**: 45,179 hostnames
+   - **Overlapping FQDN Hostnames (seen in both Train & Test)**: **2,037 hostnames** (4.51% of test hostnames)
+   - **Test URLs from FQDNs Present in Training**: **3,735 URLs** (**7.93% of the test set**)
+   - **FQDN Label Purity**: Out of 220,077 hostnames, 220,023 (99.976%) are mono-class in the dataset; only 54 hostnames host both phishing and legitimate URLs.
+
+2. **Public-Suffix-Aware Registered Domains (Pay-Level Domains)**:
+   - Evaluated via [`src/evaluate_domain_split.py`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/src/evaluate_domain_split.py), collapsing multi-level subdomains and handling multi-part country code TLDs (`.co.uk`, `.ind.in`, `.com.au`).
+   - **Total Unique Registered Domains in Dataset**: **173,145 registered domains**
+   - Collapsing subdomains into registered domains reveals an even higher potential for shared structural leakage if not partitioned at the registered domain boundary.
+   - **Significance**: When a random split places `domain-x.com/page1` into training and `domain-x.com/page2` into testing, an ensemble model can memorize domain-level lexical traits rather than generalizing to structural anomalies on previously unseen domains.
 
 ---
 
@@ -135,70 +141,94 @@ We audited the exact mathematical agreement between the pre-computed CSV columns
 
 ## 4. Deliverable 3: Domain-Separated Evaluation Results & Comparison
 
-### 4.1 Methodology & Implementation
+### 4.1 Methodology & Split-Selection Procedure
 Implemented in [`src/evaluate_domain_split.py`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/src/evaluate_domain_split.py):
-1. **Public-Suffix-Aware Registered Domain Parser**: `extract_registered_domain()` resolves multi-level subdomains, multi-part ccTLDs (`.co.uk`, `.com.au`, `.ind.in`), IPv4/IPv6 literals, ports, and authority credentials.
+1. **Public-Suffix-Aware Registered Domain Parser**: `extract_registered_domain()` resolves multi-level subdomains, multi-part ccTLDs (`.co.uk`, `.com.au`, `.ind.in`), IPv4/IPv6 literals, ports, and authority credentials, yielding **173,145 unique registered domains**.
 2. **Programmatic Zero-Domain-Overlap Enforcement**:
    $$\mathcal{D}_{\text{train}} \cap \mathcal{D}_{\text{test}} = \emptyset$$
-   Verified programmatically; raises `AssertionError` if any domain crosses the split boundary.
-3. **Partition Characteristics (Seed 16)**:
-   - **Training Partition**: 183,003 URLs (77.75%) across 138,516 unique registered domains (75,471 Phishing / 107,532 Legitimate).
-   - **Held-Out Test Partition**: 52,367 URLs (22.25%) across 34,629 unique registered domains (25,049 Phishing / 27,318 Legitimate).
-   - **Retrained Estimator**: Fresh `RandomForestClassifier(100 estimators, random_state=42)` fitted strictly on the domain-separated training partition.
+   Verified programmatically; raises `AssertionError` if any registered domain crosses the split boundary.
+3. **Deterministic Balanced Split Selection (`find_balanced_group_split`)**:
+   - To achieve an authentic 80/20 grouped split without selection bias, candidate seeds in range `[0..19]` were evaluated exclusively on dataset-level partition properties:
+     - Minimizing deviation from target 20% test ratio ($|\text{ratio} - 0.20|$).
+     - Minimizing deviation from full-dataset class prevalence ($|\text{phish}\% - 42.71\%|$).
+     - Strict verification of zero domain overlap.
+   - **Crucial Methodological Safeguard**: No model training or evaluation metrics (accuracy, precision, recall) were used during split selection, preventing model-driven selection bias.
+   - **Selected Primary Benchmark Partition**: **Seed 14**
+     - **Training Partition**: 188,333 URLs (80.02%) across 138,516 unique registered domains (80,406 Phishing / 107,927 Legitimate).
+     - **Held-Out Test Partition**: 47,037 URLs (19.98%) across 34,629 unique registered domains (20,114 Phishing / 26,923 Legitimate).
+     - **Retrained Estimator**: Fresh `RandomForestClassifier(100 estimators, random_state=42)` fitted strictly on the domain-separated training partition.
 
-### 4.2 Measured Metrics Comparison: Random Split vs. Domain-Separated Split
+### 4.2 Measured Metrics Comparison: Random Split vs. Domain-Separated Split (Primary Benchmark: Seed 14)
 
-| Metric | Random Split (Baseline) | Domain-Separated Split (Unseen Domains) | Generalization Gap ($\Delta$) | Analysis & Threat Relevance |
+| Metric | Random Split (Baseline) | Domain-Separated Split (Primary Benchmark: Seed 14) | Generalization Gap ($\Delta$) | Analysis & Threat Relevance |
 | :--- | :---: | :---: | :---: | :--- |
-| **Domain Overlap** | 2,037 domains (4.51%) | **0 domains (0.00%)** | **-2,037 domains** | Strictly zero domain overlap enforced |
-| **Test Set Size** | 47,074 URLs | 52,367 URLs | +5,293 URLs | 22.25% of total dataset |
-| **Test Phishing URLs** | 20,104 (42.71%) | 25,049 (47.83%) | +4,945 URLs | Balanced threat representation |
-| **Test Legitimate URLs**| 26,970 (57.29%) | 27,318 (52.17%) | +348 URLs | Authentic web domain representation |
-| **Accuracy** | **99.720%** | **99.666%** | **-0.054%** | Minor drop (-0.05%), indicating strong structural robustness |
-| **Phishing Precision (0)** | **99.885%** | **99.752%** | **-0.133%** | 62 false alarms across 27,318 unseen legitimate domains |
-| **Phishing Recall (0)** | **99.458%** | **99.549%** | **+0.091%** | Intercepts 24,936 / 25,049 zero-day phishing URLs |
-| **Phishing F1-Score (0)** | **99.671%** | **99.650%** | **-0.021%** | Retains near-identical harmonic mean performance |
-| **Legitimate Precision (1)** | **99.597%** | **99.587%** | **-0.010%** | Clean domain precision preserved |
-| **Legitimate Recall (1)** | **99.915%** | **99.773%** | **-0.142%** | 27,256 / 27,318 benign domains verified |
-| **ROC-AUC** | **0.998203** | **0.998270** | **+0.000067** | Area under ROC curve remains effectively invariant |
-| **PR-AUC** | **0.998656** | **0.998894** | **+0.000238** | Area under Precision-Recall curve confirmed |
-| **Brier Score** | **0.002423** | **0.002761** | **+0.000338** | Mean squared probability error remains minimal |
-| **Log Loss** | **0.023910** | **0.027921** | **+0.004011** | Cross-entropy loss on unseen domains |
-| **Expected Calibration Error** | **0.000609** | **0.002164** | **+0.001555** | 10-bin expected discrepancy between confidence & accuracy |
+| **Domain Overlap** | 2,037 FQDNs (4.51%) | **0 registered domains (0.00%)** | **-2,037 domains** | Strictly zero domain overlap enforced programmatically |
+| **Test Set Size** | 47,074 URLs | 47,037 URLs | -37 URLs | 19.98% of total cleaned dataset |
+| **Test Phishing URLs** | 20,104 (42.71%) | 20,114 (42.76%) | +10 URLs | Preserves 42.7% population threat prevalence |
+| **Test Legitimate URLs**| 26,970 (57.29%) | 26,923 (57.24%) | -47 URLs | Preserves 57.3% population legitimate prevalence |
+| **Accuracy** | **99.720%** | **99.732%** | **+0.012%** | Invariant performance across unseen registered domains |
+| **Phishing Precision (0)** | **99.885%** | **99.900%** | **+0.015%** | Only 20 false alarms across 26,923 unseen legitimate domains |
+| **Phishing Recall (0)** | **99.458%** | **99.473%** | **+0.015%** | Intercepts 20,008 / 20,114 zero-day phishing URLs |
+| **Phishing F1-Score (0)** | **99.671%** | **99.686%** | **+0.015%** | Harmonic mean of precision & recall maintained |
+| **Legitimate Precision (1)** | **99.597%** | **99.608%** | **+0.011%** | Clean domain precision preserved |
+| **Legitimate Recall (1)** | **99.915%** | **99.926%** | **+0.011%** | 26,903 / 26,923 benign domains confirmed safe |
+| **Legitimate F1-Score (1)** | **99.756%** | **99.766%** | **+0.010%** | Benign class discrimination stability |
+| **ROC-AUC** | **0.998203** | **0.997962** | **-0.000241** | Area under ROC curve remains effectively invariant |
+| **PR-AUC** | **0.998656** | **0.998470** | **-0.000186** | Area under Precision-Recall curve confirmed |
+| **Brier Score** | **0.002423** | **0.002534** | **+0.000111** | Mean squared probability error remains minimal |
+| **Log Loss** | **0.023910** | **0.025661** | **+0.001751** | Cross-entropy loss on unseen domains |
+| **Expected Calibration Error** | **0.000609** | **0.000962** | **+0.000353** | 10-bin expected discrepancy between confidence & accuracy |
 
-### 4.3 Multi-Split Sensitivity Analysis
-To verify that results do not depend on an idiosyncratic domain partition, the evaluation was repeated across 3 independent grouped seeds (Seed 16, Seed 7, Seed 5):
+### Confusion Matrix (Primary Benchmark: Seed 14, $N = 47,037$)
 
-| Grouped Seed | Test URLs | Phishing URLs | Legitimate URLs | Accuracy | Phishing Prec | Phishing Recall | Phishing F1 | ROC-AUC |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Seed 16** | 47,145 | 19,966 | 27,179 | 99.743% | 99.925% | 99.469% | 99.696% | 0.99831 |
-| **Seed 7** | 47,258 | 20,674 | 26,584 | 99.752% | 99.903% | 99.531% | 99.717% | 0.99826 |
-| **Seed 5** | 48,228 | 21,253 | 26,975 | 99.645% | 99.717% | 99.478% | 99.597% | 0.99805 |
-| **Mean $\pm$ Std** | **47,544 $\pm$ 595** | **20,631 $\pm$ 645** | **26,913 $\pm$ 302** | **99.714% $\pm$ 0.059%** | **99.848% $\pm$ 0.114%** | **99.493% $\pm$ 0.033%** | **99.670% $\pm$ 0.064%** | **0.99821 $\pm$ 0.00014** |
+```text
+                        Predicted Phishing (0)    Predicted Legitimate (1)     Total
+Actual Phishing (0)             20,008 (TP)                 106 (FN)           20,114
+Actual Legitimate (1)               20 (FP)              26,903 (TN)           26,923
+Total                           20,028                   27,009                47,037
+```
 
-**Conclusion**: The domain-separated test results show remarkable stability ($\text{Std} < 0.06\%$ across accuracy and recall), proving that the detector's high performance is not driven by domain memorization.
+### 4.3 Sensitivity Analysis Across Alternative Grouped Seeds
+
+To ensure the evaluation does not depend on an idiosyncratic domain partition, the evaluation was repeated across 4 distinct grouped partitions on the current 173,145 registered domains.
+
+- **Primary Benchmark**: **Seed 14** (selected via the documented balancing procedure).
+- **Sensitivity Experiments**: **Seeds 16, 7, and 5** (alternative grouped seeds assessing partition variance).
+
+| Experiment | Seed | Test URLs | Phishing URLs | Legitimate URLs | Accuracy | Phishing Prec | Phishing Recall | Phishing F1 | ROC-AUC |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Primary Benchmark** | **14** | **47,037** | **20,114** | **26,923** | **99.732%** | **99.900%** | **99.473%** | **99.686%** | **0.99796** |
+| Sensitivity Run 1 | 16 | 52,367 | 25,049 | 27,318 | 99.666% | 99.752% | 99.549% | 99.650% | 0.99827 |
+| Sensitivity Run 2 | 7 | 45,891 | 18,721 | 27,170 | 99.728% | 99.855% | 99.477% | 99.666% | 0.99816 |
+| Sensitivity Run 3 | 5 | 47,402 | 20,668 | 26,734 | 99.793% | 99.917% | 99.608% | 99.763% | 0.99866 |
+| **Mean $\pm$ Std** | — | **48,174 $\pm$ 2,868** | **21,138 $\pm$ 2,733** | **27,036 $\pm$ 259** | **99.730% $\pm$ 0.052%** | **99.856% $\pm$ 0.074%** | **99.527% $\pm$ 0.065%** | **99.691% $\pm$ 0.050%** | **0.99826 $\pm$ 0.00029** |
+
+#### Scientifically Defensible Conclusion
+Grouped domain evaluation eliminates one major source of data leakage (cross-partition domain memorization), and performance remains consistently high across multiple independently grouped partitions ($\text{Accuracy} \ge 99.66\%$, $\text{Phishing Recall} \ge 99.47\%$).
+
+However, **this does not prove that the model is immune to evasion or that domain effects are absent in production**. Grouped evaluation reduces leakage within the benchmark dataset, but it does not eliminate dataset-specific collection biases (such as the specific curation sources used in PhiUSIIL) or guarantee identical detection efficacy against real-world zero-day attack campaigns that employ brand-new structural patterns.
 
 ### 4.4 Probability Calibration and Reliability Diagram Analysis
-While the calculated 10-bin ECE is low ($0.002164$), bin-by-bin analysis reveals an essential property of the Random Forest ensemble:
+While the calculated 10-bin ECE for the primary benchmark is low ($0.000962$), bin-by-bin analysis reveals an essential structural property of the Random Forest ensemble:
 
 ```text
        Bin      Sample Count    Observed Accuracy    Mean Confidence    Calibration Gap
-[0.0, 0.1]         27,222            0.0029               0.0028            0.0001
-[0.1, 0.2]             55            0.1636               0.1377            0.0260
-[0.2, 0.3]             44            0.2273               0.2455            0.0182
-[0.3, 0.4]             27            0.1852               0.3422            0.1570
-[0.4, 0.5]             21            0.4286               0.4476            0.0190
-[0.5, 0.6]             17            0.5294               0.5428            0.0133
-[0.6, 0.7]             55            0.2000               0.6609            0.4609  <-- Overconfident
-[0.7, 0.8]             46            0.8913               0.7534            0.1379
-[0.8, 0.9]            139            0.9784               0.8546            0.1238
-[0.9, 1.0]         24,741            0.9999               0.9977            0.0022
+[0.0, 0.1]         26,855            0.0032               0.0027            0.0004
+[0.1, 0.2]             71            0.0704               0.1256            0.0552
+[0.2, 0.3]             36            0.1944               0.2518            0.0573
+[0.3, 0.4]             27            0.1852               0.3407            0.1556
+[0.4, 0.5]             20            0.2000               0.4423            0.2423  <-- Overconfident
+[0.5, 0.6]             16            0.5000               0.5492            0.0492
+[0.6, 0.7]             15            0.7333               0.6516            0.0818
+[0.7, 0.8]             16            0.9375               0.7354            0.2021  <-- Underconfident
+[0.8, 0.9]             30            0.8000               0.8552            0.0552
+[0.9, 1.0]         19,951            0.9999               0.9994            0.0006
 ```
 
-- **Extreme Bimodal Polarization**: **51,963 out of 52,367 test instances (99.23%)** occupy the boundary bins $[0.0, 0.1]$ and $[0.9, 1.0]$.
-- **Intermediate Bin Overconfidence**: In the boundary region $[0.6, 0.7]$, the model predicts an average probability of $66.1\%$, while the true observed empirical frequency is only $20.0\%$ (a $46.1\%$ calibration gap).
-- **Practical Takeaway**: The low global ECE is primarily a byproduct of the extreme polarization of tree leaf votes, confirming our earlier documentation: raw Random Forest probability estimates are not formally calibrated and should be presented as tree-averaged heuristic risk scores.
-- A visual reliability diagram and confidence histogram have been generated and saved to [`reports/calibration_reliability_diagram.png`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/calibration_reliability_diagram.png).
+- **Extreme Bimodal Polarization**: **46,806 out of 47,037 test instances (99.51%)** occupy the boundary bins $[0.0, 0.1]$ and $[0.9, 1.0]$.
+- **Intermediate Bin Overconfidence**: In intermediate probability ranges (e.g. $[0.4, 0.5]$ and $[0.7, 0.8]$), calibration gaps range from $20.2\%$ to $24.2\%$.
+- **Practical Takeaway**: The low global ECE is driven by the extreme concentration of tree votes at the extremes. Raw Random Forest probability estimates are not formally calibrated probabilities and should be presented as tree-averaged heuristic risk scores.
+- A visual reliability diagram and confidence histogram for the Primary Benchmark (Seed 14) are saved at [`reports/calibration_reliability_diagram.png`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/calibration_reliability_diagram.png).
 
 ---
 
@@ -230,6 +260,6 @@ Inspection of the 34 false negatives on novel TLDs revealed a distinct adversary
 - [x] **Task 3.1 — Establish Baseline**: Exact holdout metrics, confusion matrix, loss, and ECE recorded.
 - [x] **Task 3.2 — Audit Data Leakage**: Duplicates, label integrity, preprocessing scope, feature construction semantics, and domain overlap audited.
 - [x] **Task 3.3 — Implement Domain-Grouped Split**: Public-suffix parser and zero-domain-overlap enforcement built in `src/evaluate_domain_split.py`.
-- [x] **Task 3.4 — Measure Generalization Gap**: Retrained on domain-separated partitions across 3 seeds; confirmed minimal drop ($\Delta\text{Accuracy} = -0.054\%$, $\Delta\text{Recall} = +0.091\%$).
+- [x] **Task 3.4 — Measure Generalization Gap**: Evaluated primary benchmark (Seed 14, 47,037 test URLs, zero domain overlap) and sensitivity across 4 seeds; confirmed consistent performance across partitions ($\text{Accuracy} = 99.732\%$, $\Delta\text{Accuracy} = +0.012\%$).
 - [x] **Task 3.5 — Out-of-Distribution Stress Test**: Evaluated IP literals, shared hosting, obfuscation, and novel TLDs; identified root-cause failure mode on bare HTTPS root domains.
 - [x] **Automated Test Suite**: Added 11 new tests in `tests/test_domain_evaluation.py`; all **142 tests passing**.
