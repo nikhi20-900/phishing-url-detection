@@ -1,6 +1,7 @@
 # Phishing URL Detection: Machine Learning and Explainable AI
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![CI](https://github.com/nikhi20-900/phishing-url-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/nikhi20-900/phishing-url-detection/actions)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.9.0-orange.svg)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/Explainable_AI-SHAP-brightgreen.svg)](https://shap.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-v1.62-red.svg)](https://streamlit.io/)
@@ -86,6 +87,9 @@ flowchart TD
 
 ```text
 phishing-url-detection/
+|-- .github/
+|   `-- workflows/
+|       `-- ci.yml                  # GitHub Actions CI matrix (Python 3.10, 3.11, 3.12)
 |-- app/
 |   |-- __init__.py
 |   `-- main.py                     # Streamlit web application
@@ -112,7 +116,9 @@ phishing-url-detection/
 |   |-- test_shap_explanations.py   # SHAP attribution, class alignment, and additive consistency (19 tests)
 |   `-- test_url_parsing.py         # URL parsing and RFC validation tests (41 tests)
 |-- .gitignore
-|-- requirements.txt
+|-- .python-version                 # Target Python runtime specification (3.11)
+|-- constraints.txt                 # Exact pinned dependency lockfile for deterministic builds
+|-- requirements.txt                # Bounded semantic requirements specification
 `-- README.md
 ```
 
@@ -282,10 +288,11 @@ When a URL receives a **Legitimate** verdict, the explanations explicitly state 
 
 ## 9. Installation and Environment Setup
 
-### Prerequisites
+### Prerequisites & Supported Python Versions
 
-- Python 3.10, 3.11, 3.12, 3.13, or 3.14
-- Git
+- **Supported Runtime**: **Python 3.10, 3.11, or 3.12** (Python 3.11 is recommended for optimal stability across all C-extensions).
+- **Experimental Support**: Python 3.13 and 3.14 (all tests pass, but upstream scientific packages like NumPy 2.5 and Matplotlib emit internal CPython deprecation warnings).
+- **System Tools**: Git
 
 ### Setup Instructions
 
@@ -298,9 +305,14 @@ cd phishing-url-detection
 python3 -m venv venv
 source venv/bin/activate
 
-# 3. Upgrade pip and install dependencies
+# 3. Upgrade pip
 pip install --upgrade pip
+
+# Option A: Standard installation with semantic version bounds
 pip install -r requirements.txt
+
+# Option B: Deterministic installation with tested exact constraints (recommended for reproducibility)
+pip install -r requirements.txt -c constraints.txt
 ```
 
 ### Verification and Reproducibility Quickstart
@@ -308,7 +320,7 @@ pip install -r requirements.txt
 After installing dependencies, verify the environment and run all components with these standard commands:
 
 ```bash
-# 1. Run the complete automated test suite (125 tests)
+# 1. Run the complete automated test suite (131 tests)
 export MPLCONFIGDIR=/tmp/mpl
 PYTHONPATH=. pytest -v
 

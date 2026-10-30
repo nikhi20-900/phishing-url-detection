@@ -1,0 +1,13 @@
+# Tested and verified dependency constraints for deterministic installation
+joblib==1.5.3
+matplotlib==3.11.1
+numpy==2.5.2
+pandas==3.0.5
+pytest==9.1.1
+scikit-learn==1.9.0
+seaborn==0.13.2
+shap==0.52.0
+streamlit==1.62.0
+watchdog==6.0.0
+jupyter==1.1.1
+notebook==7.6.2
