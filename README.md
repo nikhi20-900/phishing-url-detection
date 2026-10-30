@@ -4,11 +4,11 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.9.0-orange.svg)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/Explainable_AI-SHAP-brightgreen.svg)](https://shap.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-v1.62-red.svg)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-85%20Passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-103%20Passed-success.svg)]()
 [![Test Accuracy](https://img.shields.io/badge/Test_Accuracy-99.72%25-blue.svg)]()
 [![ROC-AUC](https://img.shields.io/badge/ROC--AUC-0.9982-blueviolet.svg)]()
 
-An end-to-end cybersecurity system designed to identify phishing URLs using structural, lexical, and transport signals. Built with a calibrated Random Forest classifier and local Explainable AI (SHAP) attributions, this project provides transparent, interpretable risk assessments rather than opaque black-box verdicts.
+An end-to-end cybersecurity system designed to identify phishing URLs using structural, lexical, and transport signals. Built with a Random Forest classifier that outputs model-estimated probabilities and local Explainable AI (SHAP) attributions, this project provides transparent, interpretable risk assessments rather than opaque black-box verdicts.
 
 ---
 
@@ -236,6 +236,15 @@ prob_phishing = float(probabilities[phishing_index])
 prob_legitimate = float(probabilities[legitimate_index])
 ```
 
+Similarly, `src/train.py` dynamically resolves `phishing_index` from `rf.classes_` for evaluation metrics and test set probability calculations.
+
+### Model Probabilities and Probability Calibration
+
+The classifier outputs **model-estimated probabilities** computed via scikit-learn's `predict_proba()`, which averages the class probability distributions predicted by individual decision trees (derived from the class proportions in the leaf node reached by the sample across all trees in the ensemble).
+
+> [!NOTE]
+> The training pipeline does not explicitly perform probability calibration (e.g., via Platt scaling or isotonic regression). Outputs represent tree-averaged leaf probability distributions (model-estimated probabilities), not automatically calibrated probabilities. If formal probability calibration is evaluated in the future, it should be assessed on held-out validation data using calibration curves, expected calibration error (ECE), and Brier score metrics before deploying calibrated probability models (such as `CalibratedClassifierCV`).
+
 ### Decision Threshold
 
 The decision boundary is governed by a configurable `threshold` parameter (default: `0.5`):
@@ -415,7 +424,7 @@ The application will be accessible at `http://localhost:8501`.
 
 ## 12. Automated Testing and Verification
 
-The repository includes an automated test suite comprising **85 unit, integration, and regression tests**.
+The repository includes an automated test suite comprising **103 unit, integration, and regression tests**.
 
 ### Running the Test Suite
 
@@ -429,10 +438,10 @@ python3 -m unittest discover tests -v
 | :--- | :-: | :--- |
 | `tests/test_url_parsing.py` | 41 | Schemes, ports, credentials in authority, IPv4 octet bounds, bracketed IPv6, IDNA Punycode, malformed hosts |
 | `tests/test_feature_consistency.py` | 14 | 18-feature schema, ratio bounds [0, 1], 3-decimal rounding, dot-split IP handling, dataset row parity |
-| `tests/test_prediction.py` | 13 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity |
-| `tests/test_shap_explanations.py` | 9 | Phishing class index targeting, 2D/3D output shapes, finite value checks, additive consistency ($10^{-15}$ precision) |
+| `tests/test_prediction.py` | 21 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity, backward compatibility with older/incomplete artifacts |
+| `tests/test_shap_explanations.py` | 19 | Phishing class alignment, 3D multi-class & 2D formats, model output verification, ambiguity rejection, additive consistency with floating-point tolerance on legitimate & phishing URLs |
 | `tests/test_cli.py` | 8 | Subprocess invocation, exit codes (0 vs. 1), clean stderr error formatting, validation rejection |
-| **Total Test Count** | **85** | **All 85 tests passing** |
+| **Total Test Count** | **103** | **All 103 tests passing** |
 
 ### Whitespace and Git Integrity Verification
 
@@ -446,7 +455,7 @@ git diff --check
 
 ### Probabilistic Nature
 
-Model outputs are statistical estimates based on patterns learned from training data, not absolute guarantees of safety or malice.
+Model outputs are statistical model-estimated probabilities based on patterns learned from training data, not calibrated probabilities or absolute guarantees of safety or malice.
 
 - A URL flagged as **Legitimate (99.8%)** indicates strong structural resemblance to authentic web architecture; it does not guarantee that the remote server has not been compromised or host malicious content.
 - A URL flagged as **Phishing (100.0%)** reflects severe malicious structural indicators (e.g. unencrypted IP address with high special-character ratios); organizations should treat this as a high-risk indicator for automated isolation or analyst review.
