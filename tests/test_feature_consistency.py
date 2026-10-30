@@ -203,5 +203,102 @@ class TestFeatureConsistency(unittest.TestCase):
         self.assertEqual(feats["NoOfDegitsInURL"], 0)
         self.assertEqual(feats["IsHTTPS"], 1)
 
+    # --- 8. Feature Input Validation (Missing, Extra, Non-finite, Scrambled) ---
+    def test_feature_input_missing_columns_rejected(self):
+        from src.predict import get_class_probabilities, load_model_and_explainer
+        model, _ = load_model_and_explainer()
+        # 17 features (missing IsHTTPS)
+        cols_17 = FEATURE_NAMES[:-1]
+        df_17 = pd.DataFrame([{c: 1.0 for c in cols_17}], columns=cols_17)
+        with self.assertRaises(ValueError) as ctx:
+            get_class_probabilities(model, df_17)
+        self.assertIn("Feature columns do not match expected FEATURE_NAMES", str(ctx.exception))
+
+    def test_feature_input_extra_columns_rejected(self):
+        from src.predict import get_class_probabilities, load_model_and_explainer
+        model, _ = load_model_and_explainer()
+        cols_19 = FEATURE_NAMES + ["ExtraUnexpectedFeature"]
+        df_19 = pd.DataFrame([{c: 1.0 for c in cols_19}], columns=cols_19)
+        with self.assertRaises(ValueError) as ctx:
+            get_class_probabilities(model, df_19)
+        self.assertIn("Feature columns do not match expected FEATURE_NAMES", str(ctx.exception))
+
+    def test_feature_input_nan_values_rejected(self):
+        from src.predict import get_class_probabilities, load_model_and_explainer
+        import numpy as np
+        model, _ = load_model_and_explainer()
+        df_nan = pd.DataFrame([{c: 1.0 for c in FEATURE_NAMES}], columns=FEATURE_NAMES)
+        df_nan.iloc[0, 2] = np.nan
+        with self.assertRaises(ValueError) as ctx:
+            get_class_probabilities(model, df_nan)
+        self.assertIn("contains missing (NaN) values", str(ctx.exception))
+
+    def test_feature_input_inf_values_rejected(self):
+        from src.predict import get_class_probabilities, load_model_and_explainer
+        import numpy as np
+        model, _ = load_model_and_explainer()
+        df_inf = pd.DataFrame([{c: 1.0 for c in FEATURE_NAMES}], columns=FEATURE_NAMES)
+        df_inf.iloc[0, 3] = np.inf
+        with self.assertRaises(ValueError) as ctx:
+            get_class_probabilities(model, df_inf)
+        self.assertIn("non-finite values", str(ctx.exception))
+
+    def test_shap_input_non_finite_rejected(self):
+        from src.predict import compute_shap_explanation, load_model_and_explainer
+        import numpy as np
+        _, explainer = load_model_and_explainer()
+        df_nan = pd.DataFrame([{c: 1.0 for c in FEATURE_NAMES}], columns=FEATURE_NAMES)
+        df_nan.iloc[0, 0] = np.nan
+        with self.assertRaises(ValueError) as ctx:
+            compute_shap_explanation(explainer, df_nan, phishing_index=0)
+        self.assertIn("missing (NaN) values", str(ctx.exception))
+
+    # --- 9. Unusual and Valid URL Feature Extraction ---
+    def test_unusual_urls_feature_extraction(self):
+        # IPv6 URL
+        url_v6 = "http://[2001:db8::1]:8080/path"
+        f_v6 = extract_url_features(url_v6)
+        self.assertEqual(f_v6["IsDomainIP"], 1)
+        self.assertEqual(f_v6["IsHTTPS"], 0)
+
+        # Credentials authority URL
+        url_cred = "https://user:password@target.org:8443/login"
+        f_cred = extract_url_features(url_cred)
+        self.assertEqual(f_cred["IsHTTPS"], 1)
+        self.assertEqual(f_cred["IsDomainIP"], 0)
+
+        # Internationalized domain (IDNA Unicode)
+        url_idna = "https://münchen.de/path"
+        f_idna = extract_url_features(url_idna)
+        self.assertEqual(f_idna["IsHTTPS"], 1)
+        self.assertGreater(f_idna["DomainLength"], 0)
+
+        # Heavy percent-encoding
+        url_pct = "http://example.com/%2e%2e/%2f%20%7e%21"
+        f_pct = extract_url_features(url_pct)
+        self.assertEqual(f_pct["HasObfuscation"], 1)
+        self.assertGreater(f_pct["NoOfObfuscatedChar"], 0)
+        self.assertGreater(f_pct["ObfuscationRatio"], 0.0)
+
+    # --- 10. Malformed URLs Rejected Safely ---
+    def test_malformed_urls_raise_clear_error(self):
+        malformed = [
+            "ftp://files.example.com",
+            "javascript:alert(1)",
+            "mailto:admin@site.com",
+            "data:text/html,test",
+            "http://example.com:99999",
+            "http://example.com:-5",
+            "http://..invalid..domain",
+            "http://invalid-.com",
+            "http://-invalid.com",
+            "http://256.100.1.1/",
+            "",
+            "   "
+        ]
+        for bad_url in malformed:
+            with self.assertRaises(ValueError):
+                extract_url_features(bad_url)
+
 if __name__ == "__main__":
     unittest.main()

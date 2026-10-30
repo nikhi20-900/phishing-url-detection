@@ -4,7 +4,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.9.0-orange.svg)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/Explainable_AI-SHAP-brightgreen.svg)](https://shap.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-v1.62-red.svg)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-103%20Passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-125%20Passed-success.svg)]()
 [![Test Accuracy](https://img.shields.io/badge/Test_Accuracy-99.72%25-blue.svg)]()
 [![ROC-AUC](https://img.shields.io/badge/ROC--AUC-0.9982-blueviolet.svg)]()
 
@@ -105,9 +105,11 @@ phishing-url-detection/
 |-- tests/
 |   |-- __init__.py
 |   |-- test_cli.py                 # CLI execution and error exit tests (8 tests)
-|   |-- test_feature_consistency.py # Feature extraction consistency tests (14 tests)
-|   |-- test_prediction.py          # Prediction and probability mapping tests (13 tests)
-|   |-- test_shap_explanations.py   # SHAP attribution and additive consistency tests (9 tests)
+|   |-- test_error_handling.py      # Artifact failure, malformed host, and error isolation (10 tests)
+|   |-- test_feature_consistency.py # Feature extraction, bounds, and input validation (21 tests)
+|   |-- test_prediction.py          # Dynamic probability mapping and artifact compatibility (21 tests)
+|   |-- test_regression_protection.py # Invariant protections for classes, features, and SHAP (5 tests)
+|   |-- test_shap_explanations.py   # SHAP attribution, class alignment, and additive consistency (19 tests)
 |   `-- test_url_parsing.py         # URL parsing and RFC validation tests (41 tests)
 |-- .gitignore
 |-- requirements.txt
@@ -301,6 +303,25 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### Verification and Reproducibility Quickstart
+
+After installing dependencies, verify the environment and run all components with these standard commands:
+
+```bash
+# 1. Run the complete automated test suite (125 tests)
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. pytest -v
+
+# 2. Retrain the Random Forest model artifact (optional; pre-trained artifact included)
+PYTHONPATH=. python3 src/train.py
+
+# 3. Run threat scan via CLI
+PYTHONPATH=. python3 src/cli.py "https://www.google.com"
+
+# 4. Launch the interactive Streamlit web dashboard
+streamlit run app/main.py
+```
+
 ---
 
 ## 10. Command-Line Interface (CLI)
@@ -424,12 +445,20 @@ The application will be accessible at `http://localhost:8501`.
 
 ## 12. Automated Testing and Verification
 
-The repository includes an automated test suite comprising **103 unit, integration, and regression tests**.
+The repository includes an automated test suite comprising **125 unit, integration, and regression tests**.
 
 ### Running the Test Suite
 
+Execute the full suite using either `pytest` or Python's built-in `unittest` runner:
+
 ```bash
-python3 -m unittest discover tests -v
+# Option 1: pytest (recommended)
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. pytest -v
+
+# Option 2: Python standard library unittest
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. python3 -m unittest discover tests -v
 ```
 
 ### Test Coverage by Module
@@ -437,11 +466,13 @@ python3 -m unittest discover tests -v
 | Test Module | Test Count | Scope of Verification |
 | :--- | :-: | :--- |
 | `tests/test_url_parsing.py` | 41 | Schemes, ports, credentials in authority, IPv4 octet bounds, bracketed IPv6, IDNA Punycode, malformed hosts |
-| `tests/test_feature_consistency.py` | 14 | 18-feature schema, ratio bounds [0, 1], 3-decimal rounding, dot-split IP handling, dataset row parity |
-| `tests/test_prediction.py` | 21 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity, backward compatibility with older/incomplete artifacts |
+| `tests/test_feature_consistency.py` | 21 | 18-feature schema, ratio bounds [0, 1], 3-decimal rounding, missing/extra/reordered columns, NaN/Inf non-finite validation, unusual URLs |
+| `tests/test_prediction.py` | 21 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity, backward compatibility with older artifacts |
 | `tests/test_shap_explanations.py` | 19 | Phishing class alignment, 3D multi-class & 2D formats, model output verification, ambiguity rejection, additive consistency with floating-point tolerance on legitimate & phishing URLs |
+| `tests/test_error_handling.py` | 10 | Missing/truncated/corrupt model artifacts, unsupported schemes, malformed hostnames, clean CLI stderr reporting, SHAP failure isolation |
 | `tests/test_cli.py` | 8 | Subprocess invocation, exit codes (0 vs. 1), clean stderr error formatting, validation rejection |
-| **Total Test Count** | **103** | **All 103 tests passing** |
+| `tests/test_regression_protection.py` | 5 | Invariant protection: 0=Phishing/1=Legitimate mapping, exact 18-feature order, dynamic class index selection, SHAP class alignment, artifact schema contract |
+| **Total Test Count** | **125** | **All 125 tests passing** |
 
 ### Whitespace and Git Integrity Verification
 

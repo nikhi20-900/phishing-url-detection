@@ -43,13 +43,17 @@ def load_model_and_explainer(model_path="models/random_forest_model.joblib"):
     global _MODEL_CACHE, _EXPLAINER_CACHE, _LOADED_PATH
     if _MODEL_CACHE is None or _LOADED_PATH != model_path:
         if not os.path.exists(model_path):
-            dataset_path = "data/PhiUSIIL_Phishing_URL_Dataset.csv"
-            if os.path.exists(dataset_path):
-                from src.train import train_and_save_model
-                model_dir = os.path.dirname(model_path) or "models"
-                train_and_save_model(data_path=dataset_path, model_dir=model_dir)
+            if model_path == "models/random_forest_model.joblib":
+                dataset_path = "data/PhiUSIIL_Phishing_URL_Dataset.csv"
+                if os.path.exists(dataset_path):
+                    from src.train import train_and_save_model
+                    model_dir = os.path.dirname(model_path) or "models"
+                    train_and_save_model(data_path=dataset_path, model_dir=model_dir)
+                else:
+                    raise FileNotFoundError(f"Model artifact not found at '{model_path}'. Run src/train.py first.")
             else:
-                raise FileNotFoundError(f"Model artifact not found at {model_path}. Run src/train.py first.")
+                raise FileNotFoundError(f"Model artifact not found at '{model_path}'.")
+
         try:
             artifact = joblib.load(model_path)
         except Exception as e:
@@ -198,7 +202,8 @@ def get_class_probabilities(model, features_df: pd.DataFrame) -> dict:
     Validates that:
     - model.classes_ contains exactly the expected binary classes {0, 1},
       where 0 = Phishing and 1 = Legitimate.
-    - features_df columns and their order match FEATURE_NAMES.
+    - features_df has exactly 18 features matching FEATURE_NAMES in exact order.
+    - features_df contains no missing (NaN) or infinite values.
 
     Returns:
         dict: {
@@ -208,8 +213,8 @@ def get_class_probabilities(model, features_df: pd.DataFrame) -> dict:
             "legitimate_index": int
         }
     Raises:
-        ValueError: If model does not have classes_ or if classes_ != {0, 1},
-                    or if feature columns do not match FEATURE_NAMES.
+        ValueError: If model does not have classes_, if classes_ != {0, 1},
+                    or if feature columns are missing, extra, reordered, or non-finite.
     """
     if not hasattr(model, "classes_"):
         raise ValueError("Model does not expose 'classes_' attribute.")
@@ -221,11 +226,17 @@ def get_class_probabilities(model, features_df: pd.DataFrame) -> dict:
         )
 
     if isinstance(features_df, pd.DataFrame):
-        if list(features_df.columns) != FEATURE_NAMES:
+        if len(features_df.columns) != len(FEATURE_NAMES) or list(features_df.columns) != FEATURE_NAMES:
             raise ValueError(
-                f"Feature columns do not match expected FEATURE_NAMES order: "
-                f"{list(features_df.columns)} vs {FEATURE_NAMES}."
+                f"Feature columns do not match expected FEATURE_NAMES ({len(FEATURE_NAMES)} features):\n"
+                f"Got ({len(features_df.columns)}): {list(features_df.columns)}\n"
+                f"Expected: {FEATURE_NAMES}"
             )
+        if features_df.isna().any().any():
+            raise ValueError("Input feature DataFrame contains missing (NaN) values.")
+        vals_arr = features_df.to_numpy(dtype=float)
+        if not np.all(np.isfinite(vals_arr)):
+            raise ValueError("Input feature DataFrame contains non-finite values (Inf or -Inf).")
 
     probabilities = model.predict_proba(features_df)[0]
     phishing_index = classes.index(0)
@@ -277,11 +288,17 @@ def compute_shap_explanation(
                     or failure to verify that the explanation matches the phishing model output.
     """
     if isinstance(features_df, pd.DataFrame):
-        if list(features_df.columns) != FEATURE_NAMES:
+        if len(features_df.columns) != len(FEATURE_NAMES) or list(features_df.columns) != FEATURE_NAMES:
             raise ValueError(
-                f"SHAP input columns do not match FEATURE_NAMES order: "
-                f"{list(features_df.columns)} vs {FEATURE_NAMES}."
+                f"SHAP input columns do not match FEATURE_NAMES order ({len(FEATURE_NAMES)} expected):\n"
+                f"Got ({len(features_df.columns)}): {list(features_df.columns)}\n"
+                f"Expected: {FEATURE_NAMES}"
             )
+        if features_df.isna().any().any():
+            raise ValueError("SHAP input features contain missing (NaN) values.")
+        vals_arr = features_df.to_numpy(dtype=float)
+        if not np.all(np.isfinite(vals_arr)):
+            raise ValueError("SHAP input features contain non-finite values (Inf or -Inf).")
 
     shap_res = explainer(features_df)
     vals = getattr(shap_res, "values", shap_res)
@@ -471,36 +488,55 @@ def analyze_url(url: str, model_path="models/random_forest_model.joblib", thresh
     confidence = prob_phishing if is_phishing else prob_legitimate
 
     # 3. SHAP local explanation (dynamically targeting phishing_index and verified against prob_phishing)
-    shap_info = compute_shap_explanation(
-        explainer,
-        features_df,
-        phishing_index=phishing_index,
-        expected_phishing_prob=prob_phishing
-    )
-    shap_phishing = shap_info["shap_values"]
-    base_phishing = shap_info["base_value"]
+    explanation_verified = False
+    explanation_error = None
+    all_impacts = []
+    top_5_features = []
+    base_phishing = 0.427
+    target_class = "Phishing"
+    explanation_target = "Phishing risk contribution (negative values support Legitimate)"
 
-    # 4. Feature impacts
-    impacts = []
-    for name, val, sv in zip(FEATURE_NAMES, features_df.iloc[0], shap_phishing):
-        sv_float = float(sv)
-        impact_dir = "Increases Phishing Risk" if sv_float > 0 else "Supports Legitimate"
-        cyber_note = interpret_feature_cybersecurity(name, float(val), sv_float)
+    try:
+        shap_info = compute_shap_explanation(
+            explainer,
+            features_df,
+            phishing_index=phishing_index,
+            expected_phishing_prob=prob_phishing
+        )
+        shap_phishing = shap_info["shap_values"]
+        base_phishing = shap_info["base_value"]
+        target_class = shap_info["target_class"]
+        explanation_target = shap_info["explanation_target"]
+        explanation_verified = shap_info.get("verified", False)
 
-        impacts.append({
-            "feature": name,
-            "category": FEATURE_CATEGORIES.get(name, "General"),
-            "description": FEATURE_DESCRIPTIONS.get(name, ""),
-            "value": float(val),
-            "shap_value": sv_float,
-            "abs_shap": abs(sv_float),
-            "direction": impact_dir,
-            "interpretation": cyber_note
-        })
+        # 4. Feature impacts
+        impacts = []
+        for name, val, sv in zip(FEATURE_NAMES, features_df.iloc[0], shap_phishing):
+            sv_float = float(sv)
+            impact_dir = "Increases Phishing Risk" if sv_float > 0 else "Supports Legitimate"
+            cyber_note = interpret_feature_cybersecurity(name, float(val), sv_float)
 
-    # Sort by absolute SHAP value to find top drivers
-    impacts_sorted = sorted(impacts, key=lambda x: x["abs_shap"], reverse=True)
-    top_5_features = impacts_sorted[:5]
+            impacts.append({
+                "feature": name,
+                "category": FEATURE_CATEGORIES.get(name, "General"),
+                "description": FEATURE_DESCRIPTIONS.get(name, ""),
+                "value": float(val),
+                "shap_value": sv_float,
+                "abs_shap": abs(sv_float),
+                "direction": impact_dir,
+                "interpretation": cyber_note
+            })
+
+        # Sort by absolute SHAP value to find top drivers
+        all_impacts = sorted(impacts, key=lambda x: x["abs_shap"], reverse=True)
+        top_5_features = all_impacts[:5]
+
+    except Exception as e:
+        # Crucial safety guarantee: explanation failure does NOT alter prediction or probabilities
+        explanation_verified = False
+        explanation_error = str(e)
+        all_impacts = []
+        top_5_features = []
 
     return {
         "url": url,
@@ -513,11 +549,12 @@ def analyze_url(url: str, model_path="models/random_forest_model.joblib", thresh
         "features": features_dict,
         "features_df": features_df,
         "base_value_phishing": base_phishing,
-        "target_class": shap_info["target_class"],
+        "target_class": target_class,
         "target_class_index": phishing_index,
-        "explanation_target": shap_info["explanation_target"],
-        "explanation_verified": shap_info.get("verified", False),
-        "all_impacts": impacts_sorted,
+        "explanation_target": explanation_target,
+        "explanation_verified": explanation_verified,
+        "explanation_error": explanation_error,
+        "all_impacts": all_impacts,
         "top_5_features": top_5_features
     }
 
@@ -525,6 +562,15 @@ def create_shap_plot(analysis_result, max_display=10):
     """
     Create a clean matplotlib horizontal bar plot for SHAP contributions.
     """
+    if not analysis_result.get("all_impacts"):
+        fig, ax = plt.subplots(figsize=(8, 3), dpi=150)
+        fig.patch.set_facecolor("#0e1726")
+        ax.set_facecolor("#0e1726")
+        ax.text(0.5, 0.5, "SHAP feature explanations suppressed or unavailable",
+                color="#94a3b8", ha="center", va="center", fontsize=10)
+        ax.axis("off")
+        return fig
+
     impacts = analysis_result["all_impacts"][:max_display]
     impacts.reverse()  # Top feature on top
 
