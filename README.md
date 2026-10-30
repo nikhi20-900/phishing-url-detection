@@ -4,7 +4,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.9.0-orange.svg)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/Explainable_AI-SHAP-brightgreen.svg)](https://shap.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-v1.62-red.svg)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-125%20Passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-131%20Passed-success.svg)]()
 [![Test Accuracy](https://img.shields.io/badge/Test_Accuracy-99.72%25-blue.svg)]()
 [![ROC-AUC](https://img.shields.io/badge/ROC--AUC-0.9982-blueviolet.svg)]()
 
@@ -105,7 +105,7 @@ phishing-url-detection/
 |-- tests/
 |   |-- __init__.py
 |   |-- test_cli.py                 # CLI execution and error exit tests (8 tests)
-|   |-- test_error_handling.py      # Artifact failure, malformed host, and error isolation (10 tests)
+|   |-- test_error_handling.py      # Artifact metadata validation, failure isolation, and CLI suppression (16 tests)
 |   |-- test_feature_consistency.py # Feature extraction, bounds, and input validation (21 tests)
 |   |-- test_prediction.py          # Dynamic probability mapping and artifact compatibility (21 tests)
 |   |-- test_regression_protection.py # Invariant protections for classes, features, and SHAP (5 tests)
@@ -445,7 +445,7 @@ The application will be accessible at `http://localhost:8501`.
 
 ## 12. Automated Testing and Verification
 
-The repository includes an automated test suite comprising **125 unit, integration, and regression tests**.
+The repository includes an automated test suite comprising **131 unit, integration, and regression tests**.
 
 ### Running the Test Suite
 
@@ -469,10 +469,10 @@ PYTHONPATH=. python3 -m unittest discover tests -v
 | `tests/test_feature_consistency.py` | 21 | 18-feature schema, ratio bounds [0, 1], 3-decimal rounding, missing/extra/reordered columns, NaN/Inf non-finite validation, unusual URLs |
 | `tests/test_prediction.py` | 21 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity, backward compatibility with older artifacts |
 | `tests/test_shap_explanations.py` | 19 | Phishing class alignment, 3D multi-class & 2D formats, model output verification, ambiguity rejection, additive consistency with floating-point tolerance on legitimate & phishing URLs |
-| `tests/test_error_handling.py` | 10 | Missing/truncated/corrupt model artifacts, unsupported schemes, malformed hostnames, clean CLI stderr reporting, SHAP failure isolation |
+| `tests/test_error_handling.py` | 16 | Missing/truncated/corrupt artifacts, stored metadata validation vs estimator, unsupported schemes, clean CLI stderr reporting, SHAP failure isolation |
 | `tests/test_cli.py` | 8 | Subprocess invocation, exit codes (0 vs. 1), clean stderr error formatting, validation rejection |
 | `tests/test_regression_protection.py` | 5 | Invariant protection: 0=Phishing/1=Legitimate mapping, exact 18-feature order, dynamic class index selection, SHAP class alignment, artifact schema contract |
-| **Total Test Count** | **125** | **All 125 tests passing** |
+| **Total Test Count** | **131** | **All 131 tests passing** |
 
 ### Whitespace and Git Integrity Verification
 

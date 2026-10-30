@@ -33,6 +33,20 @@ class MockFailingExplainer:
     def __call__(self, df):
         raise RuntimeError(self.error_message)
 
+class DummyModelWithWrongFeatures:
+    def __init__(self):
+        self.classes_ = np.array([0, 1])
+        self.feature_names_in_ = np.array(["wrong_feature"] * 18)
+    def predict_proba(self, X):
+        return np.array([[0.5, 0.5]])
+
+class DummyModelWithWrongCount:
+    def __init__(self):
+        self.classes_ = np.array([0, 1])
+        self.n_features_in_ = 10  # Expected 18
+    def predict_proba(self, X):
+        return np.array([[0.5, 0.5]])
+
 class TestErrorHandling(unittest.TestCase):
     """Test suite for error handling, defensive bounds, and explanation isolation."""
 
@@ -149,6 +163,11 @@ class TestErrorHandling(unittest.TestCase):
             self.assertAlmostEqual(res["prob_legitimate"], expected_prob_legit, places=7)
             self.assertAlmostEqual(res["confidence"], expected_conf, places=7)
 
+            # All 18 extracted features remain fully available and intact
+            self.assertEqual(len(res["features"]), 18)
+            self.assertEqual(list(res["features"].keys()), FEATURE_NAMES)
+            self.assertEqual(res["features"], baseline["features"])
+
             # Explanation should be marked unverified
             self.assertFalse(res["explanation_verified"])
             self.assertIn("TreeExplainer internal error", res["explanation_error"])
@@ -173,6 +192,7 @@ class TestErrorHandling(unittest.TestCase):
         self.assertTrue(baseline["explanation_verified"])
         expected_prob_phish = baseline["prob_phishing"]
         expected_prob_legit = baseline["prob_legitimate"]
+        expected_conf = baseline["confidence"]
 
         import src.predict
         real_load = src.predict.load_model_and_explainer
@@ -188,12 +208,105 @@ class TestErrorHandling(unittest.TestCase):
             self.assertTrue(res["is_phishing"])
             self.assertAlmostEqual(res["prob_phishing"], expected_prob_phish, places=7)
             self.assertAlmostEqual(res["prob_legitimate"], expected_prob_legit, places=7)
+            self.assertAlmostEqual(res["confidence"], expected_conf, places=7)
+
+            # All 18 extracted features remain fully available and intact
+            self.assertEqual(len(res["features"]), 18)
+            self.assertEqual(list(res["features"].keys()), FEATURE_NAMES)
+            self.assertEqual(res["features"], baseline["features"])
 
             self.assertFalse(res["explanation_verified"])
             self.assertIn("Corrupted attribution matrix", res["explanation_error"])
             self.assertEqual(res["top_5_features"], [])
             self.assertEqual(res["all_impacts"], [])
 
+        finally:
+            src.predict.load_model_and_explainer = real_load
+            clear_model_cache()
+
+    # --- 5. Artifact Metadata Validation Against Loaded Model ---
+    def test_artifact_mismatched_classes_rejected(self):
+        model, _ = load_model_and_explainer()
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump({
+                "model": model,
+                "feature_names": FEATURE_NAMES,
+                "classes": [1, 0]  # Mismatch: model.classes_ is [0, 1]
+            }, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("does not match model.classes_", str(ctx.exception))
+
+    def test_artifact_mismatched_phishing_index_rejected(self):
+        model, _ = load_model_and_explainer()
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump({
+                "model": model,
+                "feature_names": FEATURE_NAMES,
+                "classes": [0, 1],
+                "phishing_index": 1  # Inconsistent: class 0 is at index 0, not 1
+            }, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("artifact 'phishing_index'", str(ctx.exception))
+
+    def test_artifact_mismatched_legitimate_index_rejected(self):
+        model, _ = load_model_and_explainer()
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump({
+                "model": model,
+                "feature_names": FEATURE_NAMES,
+                "classes": [0, 1],
+                "legitimate_index": 0  # Inconsistent: class 1 is at index 1, not 0
+            }, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("artifact 'legitimate_index'", str(ctx.exception))
+
+    def test_artifact_mismatched_feature_names_in_rejected(self):
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump({
+                "model": DummyModelWithWrongFeatures(),
+                "feature_names": FEATURE_NAMES
+            }, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("model.feature_names_in_ does not match", str(ctx.exception))
+
+    def test_artifact_mismatched_n_features_in_rejected(self):
+        with tempfile.NamedTemporaryFile(suffix=".joblib") as tmp:
+            joblib.dump({
+                "model": DummyModelWithWrongCount(),
+                "feature_names": FEATURE_NAMES
+            }, tmp.name)
+            with self.assertRaises(ValueError) as ctx:
+                load_model_and_explainer(tmp.name)
+            self.assertIn("model.n_features_in_", str(ctx.exception))
+
+    # --- 6. CLI Output Formatting During Explanation Failure ---
+    def test_cli_output_suppresses_explanation_gracefully(self):
+        import io
+        from unittest.mock import patch
+        import src.predict
+        from src.cli import main
+
+        real_load = src.predict.load_model_and_explainer
+        try:
+            model, _ = real_load()
+            failing_explainer = MockFailingExplainer("Attribution timeout")
+            src.predict.load_model_and_explainer = lambda path=None: (model, failing_explainer)
+
+            with patch("sys.argv", ["cli.py", "https://www.google.com"]), \
+                 patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+                main()
+                out = mock_stdout.getvalue()
+
+            self.assertIn("VERDICT     : ✅ LEGITIMATE", out)
+            self.assertIn("PROBABILITY :", out)
+            self.assertIn("⚠️  SHAP EXPLANATIONS: Suppressed (Attribution timeout)", out)
+            self.assertIn("📊 18 EXTRACTED FEATURES:", out)
+            for feat in FEATURE_NAMES:
+                self.assertIn(feat, out)
         finally:
             src.predict.load_model_and_explainer = real_load
             clear_model_cache()

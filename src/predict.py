@@ -93,13 +93,44 @@ def load_model_and_explainer(model_path="models/random_forest_model.joblib"):
                     f"Incomplete model artifact at '{model_path}': missing 'feature_names' metadata."
                 )
 
-            # If artifact contains explicit classes or phishing_index, verify consistency with model.classes_
-            if "classes" in artifact and hasattr(model, "classes_"):
-                if list(artifact["classes"]) != list(model.classes_):
+            # Cross-validate model feature metadata against schema
+            if hasattr(model, "feature_names_in_"):
+                if list(model.feature_names_in_) != FEATURE_NAMES:
                     raise ValueError(
-                        f"Inconsistent model artifact: artifact 'classes' {artifact['classes']} "
-                        f"does not match model.classes_ {list(model.classes_)}."
+                        f"Inconsistent model artifact: model.feature_names_in_ does not match inference schema:\n"
+                        f"Model features: {list(model.feature_names_in_)}\n"
+                        f"Expected features: {FEATURE_NAMES}"
                     )
+
+            if hasattr(model, "n_features_in_") and model.n_features_in_ != len(FEATURE_NAMES):
+                raise ValueError(
+                    f"Inconsistent model artifact: model.n_features_in_ ({model.n_features_in_}) "
+                    f"does not match expected feature count ({len(FEATURE_NAMES)})."
+                )
+
+            # Cross-validate stored class metadata against loaded model.classes_
+            if hasattr(model, "classes_"):
+                model_classes = list(model.classes_)
+                if "classes" in artifact:
+                    if list(artifact["classes"]) != model_classes:
+                        raise ValueError(
+                            f"Inconsistent model artifact: artifact 'classes' {artifact['classes']} "
+                            f"does not match model.classes_ {model_classes}."
+                        )
+                if "phishing_index" in artifact and 0 in model_classes:
+                    expected_phishing_idx = model_classes.index(0)
+                    if artifact["phishing_index"] != expected_phishing_idx:
+                        raise ValueError(
+                            f"Inconsistent model artifact: artifact 'phishing_index' ({artifact['phishing_index']}) "
+                            f"does not match model.classes_ index for class 0 ({expected_phishing_idx})."
+                        )
+                if "legitimate_index" in artifact and 1 in model_classes:
+                    expected_legit_idx = model_classes.index(1)
+                    if artifact["legitimate_index"] != expected_legit_idx:
+                        raise ValueError(
+                            f"Inconsistent model artifact: artifact 'legitimate_index' ({artifact['legitimate_index']}) "
+                            f"does not match model.classes_ index for class 1 ({expected_legit_idx})."
+                        )
         else:
             # Bare model artifact (older legacy format)
             model = artifact
