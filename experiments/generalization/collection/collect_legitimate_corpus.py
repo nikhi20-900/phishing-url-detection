@@ -245,6 +245,7 @@ def prepare_review_queue(input_df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str
             "tld": dims.get("tld", ""),
             "path": dims.get("path", ""),
             "path_depth": dims.get("path_depth", 0),
+            "has_path": dims.get("has_path", False),
             "is_multilevel_path": dims.get("is_multilevel_path", False),
             "has_trailing_slash": dims.get("has_trailing_slash", False),
             "has_query": dims.get("has_query", False),

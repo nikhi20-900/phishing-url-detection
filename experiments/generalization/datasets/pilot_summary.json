@@ -1,0 +1,66 @@
+{
+  "input_rows": 605,
+  "syntax_invalid_or_bad_status": 0,
+  "valid_candidates": 605,
+  "duplicate_exact_after_first_occurrence": 0,
+  "duplicate_normalized_after_first_occurrence": 0,
+  "unique_exact_urls": 605,
+  "unique_normalized_keys": 605,
+  "review_status_counts": {
+    "approved": 602,
+    "rejected": 3
+  },
+  "independent_syntax_dimensions": {
+    "multilevel_path_count": 596,
+    "multilevel_path_rate": 0.9851,
+    "trailing_slash_count": 308,
+    "trailing_slash_rate": 0.5091,
+    "query_string_count": 147,
+    "query_string_rate": 0.243,
+    "fragment_count": 4,
+    "fragment_rate": 0.0066,
+    "special_chars_count": 591,
+    "special_chars_rate": 0.9769,
+    "https_count": 604,
+    "https_rate": 0.9983
+  },
+  "dimensional_co_occurrences": {
+    "multilevel_path_and_query": 138,
+    "multilevel_path_and_trailing_slash": 303,
+    "query_and_trailing_slash": 78,
+    "multilevel_path_query_and_trailing_slash": 73
+  },
+  "risk_heuristics": {
+    "candidates_with_risk_flags": 6,
+    "flag_breakdown": {
+      "possible_user_generated_content": 4,
+      "possible_open_redirect": 1,
+      "insecure_http": 1
+    }
+  },
+  "domain_diversity": {
+    "unique_registered_domains": 101,
+    "top_registered_domains": {
+      "apache.org": 18,
+      "ietf.org": 7,
+      "python.org": 7,
+      "harvard.edu": 6,
+      "caltech.edu": 6,
+      "princeton.edu": 6,
+      "yale.edu": 6,
+      "cam.ac.uk": 6,
+      "ethz.ch": 6,
+      "u-tokyo.ac.jp": 6
+    },
+    "top_tlds": {
+      "org": 292,
+      "gov": 96,
+      "edu": 49,
+      "uk": 24,
+      "ca": 24
+    }
+  },
+  "normalization_version": "candidate-normalization-v1",
+  "label_assignment": "none; candidate review queue only",
+  "exact_model_input_preserved": true
+}

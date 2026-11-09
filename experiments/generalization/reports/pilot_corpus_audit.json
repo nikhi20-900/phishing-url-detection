@@ -1,0 +1,203 @@
+{
+  "timestamp": "2026-11-09T16:02:52.549034+00:00",
+  "overall_summary": {
+    "total_candidates": 605,
+    "approved_candidates": 602,
+    "rejected_candidates": 3,
+    "pending_candidates": 0,
+    "overall_status": "PASS"
+  },
+  "audit_1_domain_diversity": {
+    "status": "PASS",
+    "metrics": {
+      "unique_registered_domains": 98,
+      "total_urls": 602,
+      "hhi_index": 106.01,
+      "hhi_interpretation": "Unconcentrated / High Diversity",
+      "shannon_entropy_bits": 6.5961,
+      "normalized_entropy": 0.9972,
+      "gini_coefficient": 0.0229,
+      "top1_domain": "apache.org",
+      "top1_share": 0.0299,
+      "top5_share": 0.0498,
+      "top10_share": 0.0997,
+      "max_urls_per_domain": 18,
+      "median_urls_per_domain": 6.0
+    },
+    "top_10_domains": {
+      "apache.org": 18,
+      "ietf.org": 7,
+      "python.org": 7,
+      "harvard.edu": 6,
+      "caltech.edu": 6,
+      "princeton.edu": 6,
+      "yale.edu": 6,
+      "cam.ac.uk": 6,
+      "ethz.ch": 6,
+      "u-tokyo.ac.jp": 6
+    },
+    "tld_distribution": {
+      "org": 290,
+      "gov": 96,
+      "edu": 48,
+      "uk": 24,
+      "ca": 24,
+      "int": 24,
+      "au": 18,
+      "com": 18,
+      "ch": 12,
+      "io": 12
+    },
+    "pass_criteria": {
+      "min_unique_domains_50": true,
+      "max_top1_share_under_10pct": true,
+      "max_top5_share_under_25pct": true,
+      "hhi_under_1500": true
+    }
+  },
+  "audit_2_risk_flags_and_verification": {
+    "status": "PASS",
+    "total_candidates": 605,
+    "flagged_candidates_count": 6,
+    "flagged_rate": 0.0099,
+    "flag_breakdown": {
+      "possible_user_generated_content": 4,
+      "possible_open_redirect": 1,
+      "insecure_http": 1
+    },
+    "review_outcomes_for_flagged": {
+      "approved": 3,
+      "rejected": 3
+    },
+    "overall_review_status": {
+      "approved": 602,
+      "rejected": 3
+    },
+    "verification_methods_distribution": {
+      "academic_institutional_directory_audit": 120,
+      "governmental_authoritative_registry_audit": 120,
+      "standards_consortium_specification_audit": 120,
+      "opensource_canonical_documentation_audit": 120,
+      "international_multilateral_registry_audit": 120,
+      "institutional_seed": 1,
+      "community_wiki_audit": 1,
+      "manual_audit": 1,
+      "manual_standards_registry_audit": 1,
+      "official_blog_review": 1
+    },
+    "approved_rationale_coverage": 1.0,
+    "rejected_cases_audited": [
+      {
+        "url": "https://www.example-uni.edu/~student99/personal-project/report.html",
+        "reason": "REJECTED: User-generated content without institutional oversight",
+        "risk_flags": "possible_user_generated_content"
+      },
+      {
+        "url": "https://wiki.archlinux.org/title/Special:RecentChanges?limit=50&days=7",
+        "reason": "REJECTED: Volatile unmoderated wiki edit log",
+        "risk_flags": "possible_user_generated_content"
+      },
+      {
+        "url": "https://portal.open-standards.org/redirect.php?url=https://unverified-third-party.com/",
+        "reason": "REJECTED: Potential open redirect vulnerability target",
+        "risk_flags": "possible_open_redirect"
+      }
+    ],
+    "pass_criteria": {
+      "risk_flags_exercised": true,
+      "approved_rationale_100pct": true,
+      "all_rejected_cases_documented": true
+    }
+  },
+  "audit_3_structural_feature_coverage": {
+    "status": "PASS",
+    "phiusiil_legitimate_baseline": {
+      "N": 134850,
+      "has_path_rate": 0.0,
+      "path_depth_ge_2_rate": 0.0,
+      "trailing_slash_rate": 0.0,
+      "has_query_rate": 0.0,
+      "has_fragment_rate": 0.0,
+      "NoOfOtherSpecialCharsInURL_mean": 0.0,
+      "NoOfOtherSpecialCharsInURL_pct_ge_2": 0.0,
+      "SpacialCharRatioInURL_mean": 0.0528,
+      "SpacialCharRatioInURL_pct_ge_0_0785": 0.0,
+      "URLLength_mean": 30.64,
+      "URLLength_std": 6.42
+    },
+    "pilot_corpus_distribution": {
+      "N": 602,
+      "has_path_rate": 1.0,
+      "path_depth_ge_2_rate": 0.9867,
+      "trailing_slash_rate": 0.5116,
+      "has_query_rate": 0.2409,
+      "has_equals_rate": 0.2409,
+      "has_amp_rate": 0.0033,
+      "NoOfOtherSpecialCharsInURL_mean": 8.2226,
+      "NoOfOtherSpecialCharsInURL_median": 8.0,
+      "NoOfOtherSpecialCharsInURL_pct_ge_2": 1.0,
+      "SpacialCharRatioInURL_mean": 0.1175,
+      "SpacialCharRatioInURL_median": 0.116,
+      "SpacialCharRatioInURL_pct_ge_0_0785": 0.995,
+      "URLLength_mean": 74.47,
+      "URLLength_std": 12.6,
+      "URLLength_min": 36,
+      "URLLength_max": 113
+    },
+    "contrast_analysis": {
+      "deep_link_gain": "+98.7% (PhiUSIIL: 0.0% vs Pilot: 98.7%)",
+      "trailing_slash_gain": "+51.2% (PhiUSIIL: 0.0% vs Pilot: 51.2%)",
+      "query_parameter_gain": "+24.1% (PhiUSIIL: 0.0% vs Pilot: 24.1%)",
+      "special_chars_boundary_penetration": "100.0% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 0.0%)",
+      "special_char_ratio_boundary_penetration": "99.5% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 0.0%)"
+    },
+    "pass_criteria": {
+      "deep_link_coverage_gt_80pct": true,
+      "trailing_slash_coverage_gt_30pct": true,
+      "query_coverage_gt_15pct": true,
+      "special_chars_penetration_gt_80pct": true,
+      "ratio_threshold_penetration_gt_60pct": true
+    }
+  },
+  "audit_4_quarantine_overlap": {
+    "status": "PASS",
+    "pilot_urls_evaluated": 602,
+    "quarantined_benchmark_urls": 1047,
+    "curated_legitimate_urls": 500,
+    "exact_collisions_with_benchmark": 0,
+    "normalized_collisions_with_benchmark": 0,
+    "exact_collisions_with_curated": 0,
+    "normalized_collisions_with_curated": 0,
+    "quarantine_guarantee_maintained": true,
+    "collision_details": {
+      "exact_benchmark_samples": [],
+      "norm_benchmark_samples": []
+    },
+    "pass_criteria": {
+      "zero_exact_benchmark_collisions": true,
+      "zero_normalized_benchmark_collisions": true,
+      "zero_exact_curated_collisions": true,
+      "zero_normalized_curated_collisions": true
+    }
+  },
+  "audit_5_provenance_reproducibility": {
+    "status": "PASS",
+    "total_rows": 605,
+    "approved_rows": 602,
+    "missing_required_fields": {},
+    "missing_approved_reviewer_count": 0,
+    "missing_approved_verification_method_count": 0,
+    "missing_approved_source_count": 0,
+    "deterministic_reproducibility": {
+      "original_sha256": "791a7bdbe086b0f1196a21380dc3b344689d3564996a157f16ac3dcd534166e6",
+      "reproduced_sha256": "791a7bdbe086b0f1196a21380dc3b344689d3564996a157f16ac3dcd534166e6",
+      "deterministic_match": true
+    },
+    "pass_criteria": {
+      "all_base_columns_complete": true,
+      "approved_reviewers_100pct": true,
+      "approved_methods_100pct": true,
+      "deterministic_reingestion_match": true
+    }
+  }
+}
