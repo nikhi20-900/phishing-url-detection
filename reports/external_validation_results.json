@@ -1,0 +1,541 @@
+{
+  "evaluation_phase": "Phase 4: External Validation & False-Negative Analysis",
+  "timestamp_utc": "2026-10-30T21:42:48.532288+00:00",
+  "model_path": "models/random_forest_model.joblib",
+  "benchmark_dataset": "data/external/external_validation_benchmark.csv",
+  "dataset_summary": {
+    "total_raw_records": 1047,
+    "total_validated_records": 1047,
+    "total_excluded_records": 0,
+    "phishing_count": 547,
+    "legitimate_count": 500,
+    "source_distribution": {
+      "Curated-Authoritative-Web-Corpus": 500,
+      "OpenPhish-Community": 300,
+      "PhishTank-Verified": 247
+    }
+  },
+  "exclusions": [],
+  "overlap_audit": {
+    "reference_dataset": "data/PhiUSIIL_Phishing_URL_Dataset.csv",
+    "reference_unique_urls": 235370,
+    "reference_unique_hostnames": 220077,
+    "reference_unique_registered_domains": 173145,
+    "external_benchmark_total": {
+      "total_urls": 1047,
+      "exact_url_overlap_count": 0,
+      "exact_url_overlap_rate": 0.0,
+      "total_unique_hostnames": 593,
+      "hostname_overlap_count": 40,
+      "hostname_overlap_rate": 0.06745362563237774,
+      "sample_hostname_overlap": [
+        "e.vg",
+        "s.id",
+        "storage.googleapis.com",
+        "www.acm.org",
+        "www.anu.edu.au"
+      ],
+      "total_unique_registered_domains": 316,
+      "registered_domain_overlap_count": 89,
+      "registered_domain_overlap_rate": 0.28164556962025317,
+      "sample_registered_domain_overlap": [
+        "4everland.app",
+        "acm.org",
+        "amazon.com",
+        "amazonaws.com",
+        "anu.edu.au"
+      ]
+    },
+    "external_benchmark_phishing_slice": {
+      "total_urls": 547,
+      "exact_url_overlap_count": 0,
+      "exact_url_overlap_rate": 0.0,
+      "total_unique_hostnames": 509,
+      "hostname_overlap_count": 4,
+      "hostname_overlap_rate": 0.007858546168958742,
+      "sample_hostname_overlap": [
+        "e.vg",
+        "s.id",
+        "storage.googleapis.com",
+        "www.dropbox.com"
+      ],
+      "total_unique_registered_domains": 241,
+      "registered_domain_overlap_count": 36,
+      "registered_domain_overlap_rate": 0.14937759336099585,
+      "sample_registered_domain_overlap": [
+        "4everland.app",
+        "amazonaws.com",
+        "azurewebsites.net",
+        "blogspot.com",
+        "com.bd"
+      ]
+    },
+    "external_benchmark_legitimate_slice": {
+      "total_urls": 500,
+      "exact_url_overlap_count": 0,
+      "exact_url_overlap_rate": 0.0,
+      "total_unique_hostnames": 84,
+      "hostname_overlap_count": 36,
+      "hostname_overlap_rate": 0.42857142857142855,
+      "sample_hostname_overlap": [
+        "www.acm.org",
+        "www.anu.edu.au",
+        "www.apache.org",
+        "www.berkeley.edu",
+        "www.britannica.com"
+      ],
+      "total_unique_registered_domains": 75,
+      "registered_domain_overlap_count": 53,
+      "registered_domain_overlap_rate": 0.7066666666666667,
+      "sample_registered_domain_overlap": [
+        "acm.org",
+        "amazon.com",
+        "anu.edu.au",
+        "apache.org",
+        "berkeley.edu"
+      ]
+    }
+  },
+  "combined_benchmark_metrics": {
+    "sample_size": 1047,
+    "accuracy": 0.5501432664756447,
+    "phishing_precision": 0.5374015748031497,
+    "phishing_recall": 0.9981718464351006,
+    "phishing_f1": 0.6986564299424184,
+    "legitimate_precision": 0.967741935483871,
+    "legitimate_recall": 0.06,
+    "legitimate_f1": 0.11299435028248588,
+    "macro_f1": 0.4058253901124521,
+    "roc_auc": 0.682745886654479,
+    "pr_auc": 0.6381480254462827,
+    "brier_score": 0.4219901325350706,
+    "log_loss": 10.26847049552074,
+    "ece_10_bins": 0.4329729423582245,
+    "confusion_matrix": {
+      "true_phishing_tp": 546,
+      "missed_phishing_fn": 1,
+      "falsely_flagged_legit_fp": 470,
+      "verified_legit_tn": 30
+    }
+  },
+  "phishing_feed_slice_metrics": {
+    "sample_size": 547,
+    "accuracy": 0.9981718464351006,
+    "phishing_precision": 1.0,
+    "phishing_recall": 0.9981718464351006,
+    "phishing_f1": 0.9990850869167429,
+    "legitimate_precision": 0.0,
+    "legitimate_recall": 0.0,
+    "legitimate_f1": 0.0,
+    "macro_f1": 0.9990850869167429,
+    "roc_auc": null,
+    "pr_auc": null,
+    "brier_score": 0.0031142017186900827,
+    "log_loss": null,
+    "ece_10_bins": 0.009402449926673065,
+    "confusion_matrix": {
+      "true_phishing_tp": 546,
+      "missed_phishing_fn": 1,
+      "falsely_flagged_legit_fp": 0,
+      "verified_legit_tn": 0
+    }
+  },
+  "legitimate_corpus_slice_metrics": {
+    "sample_size": 500,
+    "accuracy": 0.06,
+    "phishing_precision": 0.0,
+    "phishing_recall": 0.0,
+    "phishing_f1": 0.0,
+    "legitimate_precision": 1.0,
+    "legitimate_recall": 0.06,
+    "legitimate_f1": 0.11320754716981132,
+    "macro_f1": 0.11320754716981132,
+    "roc_auc": null,
+    "pr_auc": null,
+    "brier_score": 0.8802404008481909,
+    "log_loss": null,
+    "ece_10_bins": 0.9142916215179022,
+    "confusion_matrix": {
+      "true_phishing_tp": 0,
+      "missed_phishing_fn": 0,
+      "falsely_flagged_legit_fp": 470,
+      "verified_legit_tn": 30
+    }
+  },
+  "source_slice_metrics": {
+    "OpenPhish-Community": {
+      "sample_size": 300,
+      "accuracy": 1.0,
+      "phishing_precision": 1.0,
+      "phishing_recall": 1.0,
+      "phishing_f1": 1.0,
+      "legitimate_precision": 0.0,
+      "legitimate_recall": 0.0,
+      "legitimate_f1": 0.0,
+      "macro_f1": 1.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": 0.0008868989158163263,
+      "log_loss": null,
+      "ece_10_bins": 0.00386607142857138,
+      "confusion_matrix": {
+        "true_phishing_tp": 300,
+        "missed_phishing_fn": 0,
+        "falsely_flagged_legit_fp": 0,
+        "verified_legit_tn": 0
+      }
+    },
+    "PhishTank-Verified": {
+      "sample_size": 247,
+      "accuracy": 0.9959514170040485,
+      "phishing_precision": 1.0,
+      "phishing_recall": 0.9959514170040485,
+      "phishing_f1": 0.9979716024340771,
+      "legitimate_precision": 0.0,
+      "legitimate_recall": 0.0,
+      "legitimate_f1": 0.0,
+      "macro_f1": 0.9979716024340771,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": 0.00581942779505497,
+      "log_loss": null,
+      "ece_10_bins": 0.016126796280642407,
+      "confusion_matrix": {
+        "true_phishing_tp": 246,
+        "missed_phishing_fn": 1,
+        "falsely_flagged_legit_fp": 0,
+        "verified_legit_tn": 0
+      }
+    },
+    "Curated-Authoritative-Web-Corpus": {
+      "sample_size": 500,
+      "accuracy": 0.06,
+      "phishing_precision": 0.0,
+      "phishing_recall": 0.0,
+      "phishing_f1": 0.0,
+      "legitimate_precision": 1.0,
+      "legitimate_recall": 0.06,
+      "legitimate_f1": 0.11320754716981132,
+      "macro_f1": 0.11320754716981132,
+      "roc_auc": null,
+      "pr_auc": null,
+      "brier_score": 0.8802404008481909,
+      "log_loss": null,
+      "ece_10_bins": 0.9142916215179022,
+      "confusion_matrix": {
+        "true_phishing_tp": 0,
+        "missed_phishing_fn": 0,
+        "falsely_flagged_legit_fp": 470,
+        "verified_legit_tn": 30
+      }
+    }
+  },
+  "phase_3_false_negative_reproduction": {
+    "status": "verified_reproducible",
+    "split_seed": 14,
+    "model_random_state": 42,
+    "test_phishing_total": 20114,
+    "false_negative_count": 106,
+    "false_negative_rate": 0.005269961221040072,
+    "sample_false_negatives": [
+      {
+        "url": "https://www.omahanewsbulletin.com",
+        "prob_phishing": 0.0015096809336284222
+      },
+      {
+        "url": "https://www.sharestion.com",
+        "prob_phishing": 0.0022212081783351263
+      },
+      {
+        "url": "https://www.xn--ingenieurbro-brasnic-yec.de",
+        "prob_phishing": 0.3
+      },
+      {
+        "url": "https://www.mistoreosqv-jp.top",
+        "prob_phishing": 0.002775630034080362
+      },
+      {
+        "url": "https://www.mygov3-au.top",
+        "prob_phishing": 0.246803946053946
+      }
+    ],
+    "feature_means": {
+      "URLLength": 29.28301886792453,
+      "DomainLength": 21.08490566037736,
+      "IsDomainIP": 0.0,
+      "TLDLength": 2.7264150943396226,
+      "NoOfSubDomain": 1.2358490566037736,
+      "HasObfuscation": 0.0,
+      "NoOfObfuscatedChar": 0.0,
+      "ObfuscationRatio": 0.0,
+      "NoOfLettersInURL": 15.273584905660377,
+      "LetterRatioInURL": 0.49794339622641515,
+      "NoOfDegitsInURL": 0.3867924528301887,
+      "DegitRatioInURL": 0.016566037735849054,
+      "NoOfEqualsInURL": 0.0,
+      "NoOfQMarkInURL": 0.0,
+      "NoOfAmpersandInURL": 0.0,
+      "NoOfOtherSpecialCharsInURL": 1.6226415094339623,
+      "SpacialCharRatioInURL": 0.0544622641509434,
+      "IsHTTPS": 1.0
+    }
+  },
+  "error_diagnostics": {
+    "external_false_negative_count": 1,
+    "external_false_negative_cases": [
+      {
+        "url": "https://www.gonoconlatarjetaverde.com.mx/",
+        "source": "PhishTank-Verified",
+        "prob_phishing": 0.15,
+        "features": {
+          "URLLength": 41.0,
+          "DomainLength": 32.0,
+          "IsDomainIP": 0.0,
+          "TLDLength": 2.0,
+          "NoOfSubDomain": 2.0,
+          "HasObfuscation": 0.0,
+          "NoOfObfuscatedChar": 0.0,
+          "ObfuscationRatio": 0.0,
+          "NoOfLettersInURL": 26.0,
+          "LetterRatioInURL": 0.634,
+          "NoOfDegitsInURL": 0.0,
+          "DegitRatioInURL": 0.0,
+          "NoOfEqualsInURL": 0.0,
+          "NoOfQMarkInURL": 0.0,
+          "NoOfAmpersandInURL": 0.0,
+          "NoOfOtherSpecialCharsInURL": 3.0,
+          "SpacialCharRatioInURL": 0.073,
+          "IsHTTPS": 1.0
+        },
+        "top_shap_contributions": [
+          {
+            "feature": "IsHTTPS",
+            "value": 1.0,
+            "shap_value": -0.12897749816554518
+          },
+          {
+            "feature": "NoOfOtherSpecialCharsInURL",
+            "value": 3.0,
+            "shap_value": 0.12441752842977578
+          },
+          {
+            "feature": "NoOfDegitsInURL",
+            "value": 0.0,
+            "shap_value": -0.07917816567553508
+          },
+          {
+            "feature": "DegitRatioInURL",
+            "value": 0.0,
+            "shap_value": -0.06473516281168389
+          },
+          {
+            "feature": "TLDLength",
+            "value": 2.0,
+            "shap_value": -0.05306529181183738
+          }
+        ]
+      }
+    ],
+    "external_false_positive_count": 470,
+    "external_false_positive_cases": [
+      {
+        "url": "https://www.mit.edu/research",
+        "source": "Curated-Authoritative-Web-Corpus",
+        "prob_phishing": 0.96,
+        "features": {
+          "URLLength": 28.0,
+          "DomainLength": 11.0,
+          "IsDomainIP": 0.0,
+          "TLDLength": 3.0,
+          "NoOfSubDomain": 1.0,
+          "HasObfuscation": 0.0,
+          "NoOfObfuscatedChar": 0.0,
+          "ObfuscationRatio": 0.0,
+          "NoOfLettersInURL": 14.0,
+          "LetterRatioInURL": 0.5,
+          "NoOfDegitsInURL": 0.0,
+          "DegitRatioInURL": 0.0,
+          "NoOfEqualsInURL": 0.0,
+          "NoOfQMarkInURL": 0.0,
+          "NoOfAmpersandInURL": 0.0,
+          "NoOfOtherSpecialCharsInURL": 2.0,
+          "SpacialCharRatioInURL": 0.071,
+          "IsHTTPS": 1.0
+        },
+        "top_shap_contributions": [
+          {
+            "feature": "DomainLength",
+            "value": 11.0,
+            "shap_value": 0.35837400063872904
+          },
+          {
+            "feature": "SpacialCharRatioInURL",
+            "value": 0.071,
+            "shap_value": 0.1141351279871638
+          },
+          {
+            "feature": "IsHTTPS",
+            "value": 1.0,
+            "shap_value": -0.10523066131336899
+          },
+          {
+            "feature": "NoOfOtherSpecialCharsInURL",
+            "value": 2.0,
+            "shap_value": 0.09478722150645948
+          },
+          {
+            "feature": "NoOfSubDomain",
+            "value": 1.0,
+            "shap_value": 0.06518497873135386
+          }
+        ]
+      },
+      {
+        "url": "https://www.mit.edu/research?ref=docs&view=standard",
+        "source": "Curated-Authoritative-Web-Corpus",
+        "prob_phishing": 0.96,
+        "features": {
+          "URLLength": 51.0,
+          "DomainLength": 11.0,
+          "IsDomainIP": 0.0,
+          "TLDLength": 3.0,
+          "NoOfSubDomain": 1.0,
+          "HasObfuscation": 0.0,
+          "NoOfObfuscatedChar": 0.0,
+          "ObfuscationRatio": 0.0,
+          "NoOfLettersInURL": 33.0,
+          "LetterRatioInURL": 0.647,
+          "NoOfDegitsInURL": 0.0,
+          "DegitRatioInURL": 0.0,
+          "NoOfEqualsInURL": 2.0,
+          "NoOfQMarkInURL": 1.0,
+          "NoOfAmpersandInURL": 1.0,
+          "NoOfOtherSpecialCharsInURL": 2.0,
+          "SpacialCharRatioInURL": 0.118,
+          "IsHTTPS": 1.0
+        },
+        "top_shap_contributions": [
+          {
+            "feature": "SpacialCharRatioInURL",
+            "value": 0.118,
+            "shap_value": 0.18196756372953224
+          },
+          {
+            "feature": "DomainLength",
+            "value": 11.0,
+            "shap_value": 0.1341874383123941
+          },
+          {
+            "feature": "LetterRatioInURL",
+            "value": 0.647,
+            "shap_value": 0.09333226728614097
+          },
+          {
+            "feature": "IsHTTPS",
+            "value": 1.0,
+            "shap_value": -0.0655462779303038
+          },
+          {
+            "feature": "NoOfLettersInURL",
+            "value": 33.0,
+            "shap_value": 0.05912262967895892
+          }
+        ]
+      },
+      {
+        "url": "https://www.mit.edu/research?highlight=true&section=intro",
+        "source": "Curated-Authoritative-Web-Corpus",
+        "prob_phishing": 0.9533333333333333,
+        "features": {
+          "URLLength": 57.0,
+          "DomainLength": 11.0,
+          "IsDomainIP": 0.0,
+          "TLDLength": 3.0,
+          "NoOfSubDomain": 1.0,
+          "HasObfuscation": 0.0,
+          "NoOfObfuscatedChar": 0.0,
+          "ObfuscationRatio": 0.0,
+          "NoOfLettersInURL": 39.0,
+          "LetterRatioInURL": 0.684,
+          "NoOfDegitsInURL": 0.0,
+          "DegitRatioInURL": 0.0,
+          "NoOfEqualsInURL": 2.0,
+          "NoOfQMarkInURL": 1.0,
+          "NoOfAmpersandInURL": 1.0,
+          "NoOfOtherSpecialCharsInURL": 2.0,
+          "SpacialCharRatioInURL": 0.105,
+          "IsHTTPS": 1.0
+        },
+        "top_shap_contributions": [
+          {
+            "feature": "SpacialCharRatioInURL",
+            "value": 0.105,
+            "shap_value": 0.164512119286375
+          },
+          {
+            "feature": "LetterRatioInURL",
+            "value": 0.684,
+            "shap_value": 0.13157029411325566
+          },
+          {
+            "feature": "DomainLength",
+            "value": 11.0,
+            "shap_value": 0.09573596608063571
+          },
+          {
+            "feature": "NoOfLettersInURL",
+            "value": 39.0,
+            "shap_value": 0.07487318859531704
+          },
+          {
+            "feature": "IsHTTPS",
+            "value": 1.0,
+            "shap_value": -0.06161270424379049
+          }
+        ]
+      }
+    ],
+    "feature_comparison": {
+      "false_positives_mean": {
+        "URLLength": 40.16382978723404,
+        "DomainLength": 14.504255319148935,
+        "IsDomainIP": 0.0,
+        "TLDLength": 2.7595744680851064,
+        "NoOfSubDomain": 1.0680851063829788,
+        "HasObfuscation": 0.0,
+        "NoOfObfuscatedChar": 0.0,
+        "ObfuscationRatio": 0.0,
+        "NoOfLettersInURL": 25.131914893617022,
+        "LetterRatioInURL": 0.5968829787234042,
+        "NoOfDegitsInURL": 0.20851063829787234,
+        "DegitRatioInURL": 0.004982978723404256,
+        "NoOfEqualsInURL": 0.42127659574468085,
+        "NoOfQMarkInURL": 0.21063829787234042,
+        "NoOfAmpersandInURL": 0.21063829787234042,
+        "NoOfOtherSpecialCharsInURL": 3.4446808510638296,
+        "SpacialCharRatioInURL": 0.1031468085106383,
+        "IsHTTPS": 1.0
+      },
+      "true_negatives_mean": {
+        "URLLength": 22.8,
+        "DomainLength": 12.533333333333333,
+        "IsDomainIP": 0.0,
+        "TLDLength": 2.4,
+        "NoOfSubDomain": 1.5666666666666667,
+        "HasObfuscation": 0.0,
+        "NoOfObfuscatedChar": 0.0,
+        "ObfuscationRatio": 0.0,
+        "NoOfLettersInURL": 8.2,
+        "LetterRatioInURL": 0.34850000000000014,
+        "NoOfDegitsInURL": 0.03333333333333333,
+        "DegitRatioInURL": 0.0017666666666666666,
+        "NoOfEqualsInURL": 0.0,
+        "NoOfQMarkInURL": 0.0,
+        "NoOfAmpersandInURL": 0.0,
+        "NoOfOtherSpecialCharsInURL": 2.566666666666667,
+        "SpacialCharRatioInURL": 0.11186666666666673,
+        "IsHTTPS": 1.0
+      }
+    }
+  }
+}
