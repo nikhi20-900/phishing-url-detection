@@ -15,3 +15,15 @@ __pycache__/
 *.joblib
 !models/random_forest_model.joblib
 models/*.h5
+
+# Private academic presentation files
+/BCA5_MSE2_PPT_TEMPLATE.pptx
+/BCA_MSE2_Explainable_Phishing_URL_Detection_10_Slides_Detailed.pdf
+/project stage ppt.key
+
+# Temporary review archive
+/experiments_issue4_review.zip
+
+# Raw external threat feed snapshots (redistribution-restricted upstream sources)
+/data/external/phishing_feed_openphish.txt
+/data/external/phishing_feed_phishtank.csv

@@ -5,7 +5,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.9.0-orange.svg)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/Explainable_AI-SHAP-brightgreen.svg)](https://shap.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-v1.62-red.svg)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-142%20Passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-175%20Passed-success.svg)]()
 [![Test Accuracy](https://img.shields.io/badge/Test_Accuracy-99.72%25-blue.svg)]()
 [![ROC-AUC](https://img.shields.io/badge/ROC--AUC-0.9982-blueviolet.svg)]()
 
@@ -94,6 +94,11 @@ phishing-url-detection/
 |   |-- __init__.py
 |   `-- main.py                     # Streamlit web application
 |-- data/
+|   |-- external/                   # Phase 4 independent external evaluation feeds & benchmarks
+|   |   |-- external_validation_benchmark.csv # Consolidated 1,047-URL external benchmark
+|   |   |-- legitimate_curated.csv  # 500 authoritative academic, gov, and reference URLs
+|   |   |-- phishing_feed_openphish.txt # 300 active OpenPhish zero-day URLs
+|   |   `-- phishing_feed_phishtank.csv # 247 verified online PhishTank threat URLs
 |   `-- PhiUSIIL_Phishing_URL_Dataset.csv   # Benchmark training dataset
 |-- models/
 |   |-- .gitkeep
@@ -103,11 +108,14 @@ phishing-url-detection/
 |-- reports/
 |   |-- calibration_reliability_diagram.png # 10-bin calibration curve and distribution
 |   |-- domain_separated_evaluation_results.json # Serialized evaluation and OOD metrics
-|   `-- phase_3_evaluation_and_leakage_audit.md # Complete Phase 3 audit and evaluation report
+|   |-- external_validation_results.json # Phase 4 serialized external benchmark and error metrics
+|   |-- phase_3_evaluation_and_leakage_audit.md # Complete Phase 3 audit and evaluation report
+|   `-- phase_4_external_validation_and_fn_analysis.md # Phase 4 external evaluation & error report
 |-- src/
 |   |-- __init__.py
 |   |-- cli.py                      # Command-line interface with structured error handling
 |   |-- evaluate_domain_split.py    # Public-suffix domain splitting & zero-overlap evaluation
+|   |-- external_validation.py      # Phase 4 external validation pipeline & error analysis
 |   |-- features.py                 # RFC-compliant URL parser and 18-feature extraction
 |   |-- predict.py                  # Dynamic probability mapping and SHAP local attribution
 |   `-- train.py                    # Random Forest training pipeline
@@ -116,6 +124,7 @@ phishing-url-detection/
 |   |-- test_cli.py                 # CLI execution and error exit tests (8 tests)
 |   |-- test_domain_evaluation.py   # Registered domain extraction & zero-overlap checks (11 tests)
 |   |-- test_error_handling.py      # Artifact metadata validation, failure isolation, and CLI suppression (16 tests)
+|   |-- test_external_validation.py # External feed parsing, overlap audit, and metric handling (13 tests)
 |   |-- test_feature_consistency.py # Feature extraction, bounds, and input validation (21 tests)
 |   |-- test_prediction.py          # Dynamic probability mapping and artifact compatibility (21 tests)
 |   |-- test_regression_protection.py # Invariant protections for classes, features, and SHAP (5 tests)
@@ -218,6 +227,42 @@ While the global ECE is very low ($0.000962$), bin-by-bin reliability analysis r
 - **Extreme Bins**: $99.51\%$ of predictions concentrate in the extreme boundary bins ($[0.0, 0.1]$ and $[0.9, 1.0]$), where empirical accuracy matches confidence within $0.06\%$.
 - **Intermediate Bins**: In ambiguous intermediate ranges (e.g., $[0.4, 0.5]$), the uncalibrated Random Forest exhibits overconfidence (mean confidence of $44.2\%$ vs. empirical accuracy of $20.0\%$, a $24.2\%$ gap).
 - See [`reports/calibration_reliability_diagram.png`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/calibration_reliability_diagram.png) and [`reports/phase_3_evaluation_and_leakage_audit.md`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/phase_3_evaluation_and_leakage_audit.md) for full details.
+
+### 4.4 External Validation & False-Negative Analysis (Phase 4)
+
+> [!NOTE]
+> **External Validation — Preliminary Findings**
+> Phase 4 evaluates the frozen Random Forest model against an external URL benchmark. Initial results indicate a substantial generalization gap, particularly for legitimate deep links. The reported 94% false-positive rate requires further verification of dataset provenance, domain overlap, label mapping, and metric calculations.
+> These findings are preliminary and should not be interpreted as definitive evidence of production performance. The model remains unchanged while the external evaluation is reviewed. (Tracking review checklist: [#3](https://github.com/nikhi20-900/phishing-url-detection/issues/3), [#4](https://github.com/nikhi20-900/phishing-url-detection/issues/4), [#5](https://github.com/nikhi20-900/phishing-url-detection/issues/5), [#6](https://github.com/nikhi20-900/phishing-url-detection/issues/6)).
+
+To evaluate whether the Random Forest model generalizes beyond the PhiUSIIL distribution, Phase 4 stress-tests the frozen model against an independent external validation benchmark ($N=1,047$) comprising:
+- **547 active zero-day phishing URLs** from OpenPhish ($N=300$) and PhishTank ($N=247$).
+- **500 curated authoritative legitimate URLs** with realistic subpaths and query strings across academic, governmental, standards bodies, and open-source ecosystems.
+
+#### Empirical External Benchmark Performance
+
+| Evaluation Partition | Sample Size | Phishing Caught (TP) | Phishing Missed (FN) | False Alarms (FP) | Verified Legit (TN) | Accuracy | Phishing Recall | Phishing Precision |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Combined Benchmark** | **1,047** | **546** | **1** | **470** | **30** | **55.01%** | **99.82%** | **53.74%** |
+| OpenPhish Threat Feed | 300 | 300 | 0 | 0 | 0 | 100.00% | 100.00% | 100.00% |
+| PhishTank Verified Feed | 247 | 246 | 1 | 0 | 0 | 99.60% | 99.60% | 100.00% |
+| Curated Legitimate Corpus | 500 | 0 | 0 | 470 | 30 | 6.00% | N/A | N/A (FPR: 94.0%) |
+
+#### Key Diagnostic Findings & Scientific Vulnerabilities
+
+1. **Near-Perfect Threat Catch Rate (99.82% Recall):** The model caught 546 of 547 active external phishing links, demonstrating strong sensitivity to deceptive lexical patterns across contemporary zero-day campaigns.
+2. **Overlap Audit (Complete URL Independence):**
+   - **Exact URLs:** **0 / 1,047 (0.00%)** overlap against PhiUSIIL (100% URL novelty).
+   - **Hostnames:** 4 / 509 phishing hostnames (0.79%) overlapped (cloud storage and URL shorteners: `storage.googleapis.com`, `s.id`).
+   - **Registered Domains:** 36 / 241 phishing registered domains (14.94%) overlapped due to shared modern hosting platforms (`pages.dev`, `vercel.app`, `github.io`, `gitbook.io`).
+3. **The Root Domain False-Negative Archetype:**
+   - Reproducing the Phase 3 Seed 14 domain-separated split verified the exact **106 false negatives** reported in Phase 3.
+   - The single missed external phishing link (`https://www.gonoconlatarjetaverde.com.mx/`, $P(\text{Phish})=0.15$) and all 106 Phase 3 false negatives share an identical archetype: **bare HTTPS root domains with zero query parameters, zero digits, and zero path routing**.
+   - Purely lexical classifiers cannot distinguish freshly registered deceptive roots from legitimate corporate portals without non-lexical signals (WHOIS domain age, TLS certificate telemetry, or DOM content analysis).
+4. **Benign Covariate Shift & Path Complexity Flaw (94.0% FPR):**
+   - The model triggered 470 false positives across 500 legitimate URLs because benign URLs in PhiUSIIL were almost exclusively homepage roots (mean length 26.2, mean domain length 19.2, zero query parameters).
+   - The Random Forest decision trees learned that path depth, slashes, and query delimiters are strong indicators of phishing. When presented with authentic deep links (e.g., `https://www.mit.edu/research`), the model misclassifies them as phishing with high confidence.
+   - Detailed forensic evidence and SHAP attributions are documented in [`reports/phase_4_external_validation_and_fn_analysis.md`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/phase_4_external_validation_and_fn_analysis.md) and [`reports/external_validation_results.json`](file:///Users/nikhilchhetri/Desktop/phishing-url-detection/reports/external_validation_results.json).
 
 ---
 
@@ -516,7 +561,7 @@ The application will be accessible at `http://localhost:8501`.
 
 ## 12. Automated Testing and Verification
 
-The repository includes an automated test suite comprising **142 unit, integration, and regression tests**.
+The repository includes an automated test suite comprising **175 unit, integration, and regression tests**.
 
 ### Running the Test Suite
 
@@ -532,13 +577,22 @@ export MPLCONFIGDIR=/tmp/mpl
 PYTHONPATH=. python3 -m unittest discover tests -v
 ```
 
-### Reproducing the Domain-Separated Evaluation
+### Reproducing the Domain-Separated Evaluation (Phase 3)
 
 To execute the public-suffix-aware domain grouping, retrain on the domain-separated partition, verify zero domain overlap, and evaluate on unseen domains:
 
 ```bash
 export MPLCONFIGDIR=/tmp/mpl
 PYTHONPATH=. python3 src/evaluate_domain_split.py
+```
+
+### Reproducing External Validation & False-Negative Analysis (Phase 4)
+
+To audit external feed ingestions, compute overlap metrics against PhiUSIIL, run inference against the external benchmark, reproduce the 106 Phase 3 false negatives, and execute SHAP error diagnostics:
+
+```bash
+export MPLCONFIGDIR=/tmp/mpl
+PYTHONPATH=. python3 src/external_validation.py
 ```
 
 ### Test Coverage by Module
@@ -550,10 +604,12 @@ PYTHONPATH=. python3 src/evaluate_domain_split.py
 | `tests/test_prediction.py` | 21 | Dynamic probability extraction, reversed `model.classes_`, threshold boundary conditions, interface parity, backward compatibility with older artifacts |
 | `tests/test_shap_explanations.py` | 19 | Phishing class alignment, 3D multi-class & 2D formats, model output verification, ambiguity rejection, additive consistency with floating-point tolerance on legitimate & phishing URLs |
 | `tests/test_error_handling.py` | 16 | Missing/truncated/corrupt artifacts, stored metadata validation vs estimator, unsupported schemes, clean CLI stderr reporting, SHAP failure isolation |
+| `tests/test_external_validation.py` | 27 | Multi-feed ingestion, benchmark integrity checks, exclusion tracking, 3-tier overlap auditing, duplicate ID/URL guards, and robust metric handling on single-class slices |
 | `tests/test_domain_evaluation.py` | 11 | Registered domain extraction (ccTLDs, IPv4/IPv6, userinfo, ports, localhost), zero-domain-overlap enforcement assertion checks, Expected Calibration Error (ECE) calculation |
 | `tests/test_cli.py` | 8 | Subprocess invocation, exit codes (0 vs. 1), clean stderr error formatting, validation rejection |
+| `tests/test_e0_and_diversity_audit.py` | 6 | Frozen model immutability invariant, synthetic metric edge cases, structural profiling, and E0 scorecard / diversity audit schema validation |
 | `tests/test_regression_protection.py` | 5 | Invariant protection: 0=Phishing/1=Legitimate mapping, exact 18-feature order, dynamic class index selection, SHAP class alignment, artifact schema contract |
-| **Total Test Count** | **142** | **All 142 tests passing** |
+| **Total Test Count** | **175** | **All 175 tests passing** |
 
 ### Whitespace and Git Integrity Verification
 
@@ -575,6 +631,7 @@ Model outputs are statistical model-estimated probabilities based on patterns le
 ### Evasion Techniques and Threat Evolution
 
 - **Adversarial Adaptation & Bare Root Domain Limitation**: In our out-of-distribution stress testing across 7,747 novel TLD URLs, the model achieved $99.56\%$ accuracy but produced 34 false negatives. In-depth inspection revealed that adversaries engineered minimal URLs (e.g. `https://www.lglsvy.top`) using valid HTTPS encryption, short hostnames (22–30 chars), and zero path/query delimiters. Pure lexical features cannot distinguish these bare root domains without external signals (such as WHOIS domain creation age, passive DNS reputation, or SSL certificate authority).
+- **Benign Path Complexity & Covariate Shift**: As demonstrated in Phase 4 external validation, benign URLs in the benchmark training dataset consisted almost exclusively of bare root domain homepages. Consequently, the model associates path complexity, slashes, and parameter delimiters with phishing, resulting in a high false-positive rate on authentic deep links (e.g. `https://www.mit.edu/research`). Purely lexical URL classifiers must be augmented with deep-path benign training samples and domain reputation before standalone production deployment.
 - **Defense-in-Depth**: This tool should be deployed as one layer of a multi-tiered security architecture alongside DNS filtering, SSL inspection, behavioral sandboxing, and endpoint protection.
 - **No Payload Execution**: This system evaluates URLs pre-flight and does not inspect DOM structure, JavaScript execution, or SSL certificate chains.
 
