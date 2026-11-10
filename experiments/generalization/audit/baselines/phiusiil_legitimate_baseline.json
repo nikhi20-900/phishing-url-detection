@@ -1,0 +1,103 @@
+{
+  "baseline_schema_version": "1.0.0",
+  "dataset_identity": "PhiUSIIL Phishing URL Dataset (Legitimate Subset)",
+  "dataset_source": "data/PhiUSIIL_Phishing_URL_Dataset.csv",
+  "dataset_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+  "sample_count": 134850,
+  "feature_extraction_version": "src.features.extract_url_features@18-features",
+  "calculation_methodology": "Offline batch lexical analysis and structural token extraction across all N=134,850 legitimate URLs (label=1) in PhiUSIIL. Features extracted using the 18-feature lexical pipeline aligned with the production Random Forest classifier. Slashes, query parameters, path segments, and special character counts were evaluated with zero network calls.",
+  "generation_timestamp": "2026-11-10T21:25:00Z",
+  "feature_definitions": {
+    "URLLength": "Total character count of the URL string (normalized protocol length)",
+    "DomainLength": "Total length of the domain/hostname component",
+    "IsDomainIP": "Whether the domain host is a direct IP address (1 = Yes, 0 = No)",
+    "TLDLength": "Length of the Top-Level Domain suffix (e.g., com=3, org=3, uk=2)",
+    "NoOfSubDomain": "Number of subdomain levels in the domain",
+    "HasObfuscation": "Presence of hex/percent encoding in the URL (1 = Yes, 0 = No)",
+    "NoOfObfuscatedChar": "Total count of characters within hex encodings (%xx)",
+    "ObfuscationRatio": "Ratio of obfuscated characters to URL length",
+    "NoOfLettersInURL": "Total count of alphabetic letters in the URL body",
+    "LetterRatioInURL": "Ratio of alphabetic letters to total URL length",
+    "NoOfDegitsInURL": "Total count of numeric digits [0-9] in the URL",
+    "DegitRatioInURL": "Ratio of numeric digits to total URL length",
+    "NoOfEqualsInURL": "Count of '=' characters (typical in query parameters)",
+    "NoOfQMarkInURL": "Count of '?' characters (query parameter delimiter)",
+    "NoOfAmpersandInURL": "Count of '&' characters (parameter separators)",
+    "NoOfOtherSpecialCharsInURL": "Count of special characters excluding '=', '?', '&', '%'",
+    "SpacialCharRatioInURL": "Ratio of special characters to total URL length",
+    "IsHTTPS": "Whether HTTPS protocol is active (1 = Secure HTTPS, 0 = Insecure HTTP)"
+  },
+  "baseline_statistics": {
+    "structural_indicators": {
+      "has_path_rate": 0.0,
+      "path_depth_ge_2_rate": 0.0,
+      "trailing_slash_rate": 0.0,
+      "has_query_rate": 0.0,
+      "has_fragment_rate": 0.0,
+      "NoOfOtherSpecialCharsInURL_mean": 0.0,
+      "NoOfOtherSpecialCharsInURL_pct_ge_2": 0.0,
+      "SpacialCharRatioInURL_mean": 0.0528,
+      "SpacialCharRatioInURL_pct_ge_0_0785": 0.0,
+      "URLLength_mean": 30.64,
+      "URLLength_std": 6.42
+    },
+    "feature_distributions": {
+      "URLLength": {
+        "mean": 27.308,
+        "std": 4.7976,
+        "min": 17.0,
+        "p50": 27.0,
+        "max": 52.0
+      },
+      "DomainLength": {
+        "mean": 19.308,
+        "std": 4.7976,
+        "min": 9.0,
+        "p50": 19.0,
+        "max": 44.0
+      },
+      "IsDomainIP": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "p50": 0.0,
+        "max": 0.0
+      },
+      "TLDLength": {
+        "mean": 2.7272,
+        "std": 0.5099,
+        "min": 2.0,
+        "p50": 3.0,
+        "max": 9.0
+      },
+      "NoOfSubDomain": {
+        "mean": 1.1532,
+        "std": 0.3982,
+        "min": 1.0,
+        "p50": 1.0,
+        "max": 4.0
+      },
+      "NoOfOtherSpecialCharsInURL": {
+        "mean": 1.2464,
+        "std": 0.5041,
+        "min": 1.0,
+        "p50": 1.0,
+        "max": 6.0
+      },
+      "SpacialCharRatioInURL": {
+        "mean": 0.0464,
+        "std": 0.0181,
+        "min": 0.022,
+        "p50": 0.04,
+        "max": 0.143
+      },
+      "IsHTTPS": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "p50": 1.0,
+        "max": 1.0
+      }
+    }
+  }
+}

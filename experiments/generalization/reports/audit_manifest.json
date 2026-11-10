@@ -1,0 +1,95 @@
+{
+  "manifest_version": "audit-manifest-v1",
+  "execution_timestamp_utc": "2026-11-10T16:03:21.581448+00:00",
+  "audit_overall_status": "PASS",
+  "environment": {
+    "git_commit": "6e5147785feb0c55a4e30ea4a6a8c398140812d2",
+    "git_branch": "phase-5-audit-integrity-hardening",
+    "python_version": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "darwin",
+    "package_versions": {
+      "pandas": "3.0.5",
+      "numpy": "2.5.2",
+      "scipy": "1.18.0",
+      "sklearn": "1.9.0",
+      "joblib": "1.5.3",
+      "pytest": "9.1.1"
+    }
+  },
+  "pipeline_versions": {
+    "audit_script_version": "pilot-audit-v1.2",
+    "review_queue_hash_version": "review-queue-hash-v1",
+    "normalization_policy_version": "candidate-normalization-v1",
+    "feature_extraction_version": "src.features.extract_url_features@18-features"
+  },
+  "inputs": {
+    "raw_candidates": {
+      "exists": true,
+      "path": "experiments/generalization/datasets/pilot_candidates_raw.csv",
+      "size_bytes": 234341,
+      "sha256": "1797c62100464ba3b074961a8f4dfa4ba29be5d12673dde46b1a6f359e2b321b"
+    },
+    "review_queue": {
+      "exists": true,
+      "path": "experiments/generalization/datasets/pilot_review_queue.csv",
+      "size_bytes": 472787,
+      "sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360",
+      "dataset_hash": "27207125e4b9c5f074c94c50b0727f5945e4a68ef4d2192965bc4cd9be46ce47"
+    },
+    "approved_corpus": {
+      "exists": true,
+      "path": "experiments/generalization/datasets/approved_pilot_corpus.csv",
+      "size_bytes": 470598,
+      "sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb"
+    },
+    "baseline_artifact": {
+      "exists": true,
+      "path": "experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json",
+      "size_bytes": 3891,
+      "sha256": "f54898c15821c14b562b43a17ebd3f70b99f5306dc146d2713ee962518f54440",
+      "schema_version": "1.0.0",
+      "dataset_identity": "PhiUSIIL Phishing URL Dataset (Legitimate Subset)",
+      "sample_count": 134850
+    },
+    "quarantined_benchmark": {
+      "exists": true,
+      "path": "data/external/external_validation_benchmark.csv",
+      "size_bytes": 230717,
+      "sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3"
+    }
+  },
+  "outputs": {
+    "json_report": {
+      "exists": true,
+      "path": "experiments/generalization/reports/pilot_corpus_audit.json",
+      "size_bytes": 7727,
+      "sha256": "4b2a92feabb3758cbfe727ead50130b60e0753e7c333106a834fb6efc68bb5ee"
+    },
+    "md_report": {
+      "exists": true,
+      "path": "experiments/generalization/reports/pilot_corpus_audit.md",
+      "size_bytes": 11497,
+      "sha256": "9219133994c3a240e473276fa2eb72e32bb06d32f6cf9460cd1a88dfb837768c"
+    }
+  },
+  "reproducibility": {
+    "deterministic_fields": [
+      "inputs.raw_candidates.sha256",
+      "inputs.review_queue.dataset_hash",
+      "inputs.approved_corpus.sha256",
+      "inputs.baseline_artifact.sha256",
+      "inputs.quarantined_benchmark.sha256",
+      "pipeline_versions"
+    ],
+    "variable_fields": [
+      "execution_timestamp_utc",
+      "outputs.json_report.sha256",
+      "outputs.md_report.sha256"
+    ],
+    "variable_fields_rationale": "Report hashes vary across runs strictly because they embed execution timestamps; all underlying metrics, tables, and audit findings are deterministic."
+  },
+  "methodological_limitations": {
+    "dataset_integrity_vs_ground_truth": "The audit verifies cryptographic record integrity, pipeline reproducibility, and compliance with the collection review protocol. It DOES NOT prove the real-world factual legitimacy or runtime safety of the 602 approved URLs.",
+    "reputation_bias_warning": "Institutional domain standing (.edu, .gov, standards bodies) and HTTP 200 responses are collection criteria, not proof of innocence. Pages can harbor unvetted user uploads, open redirects, or compromised endpoints. Explicit page-level rationale was recorded for every approved record, but live threats require ongoing operational monitoring."
+  }
+}
