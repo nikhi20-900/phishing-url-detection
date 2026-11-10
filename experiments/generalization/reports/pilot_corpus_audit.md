@@ -1,6 +1,6 @@
 # Phase 5 Legitimate Pilot Corpus Audit Report
 
-**Generated:** 2026-11-10 16:03:21Z
+**Generated:** 2026-11-10 16:34:16Z
 **Target Milestone:** Produce a verified pilot corpus and audit report before scaling collection.
 **Pilot Size:** 605 candidate URLs (602 verified approved, 3 rejected).
 **Overall Audit Result:** **PASS** (All 5 mandatory scientific audits passed).
@@ -97,14 +97,14 @@ To address the covariate shift and 100% syntactic vacuum discovered during Phase
 | **Has Query Parameter (`?`)** | 0.00% | **24.09%** | +24.1% (PhiUSIIL: 0.0% vs Pilot: 24.1%) |
 | **Has `=` in Query** | 0.00% | **24.09%** | +24.09% |
 | **Has `&` in Query** | 0.00% | **0.33%** | +0.33% |
-| **`NoOfOtherSpecialCharsInURL` Mean** | 0.00 | **8.22** (median 8.0) | Massive coverage expansion |
-| **`NoOfOtherSpecialCharsInURL >= 2`** | 0.00% | **100.00%** | 100.0% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 0.0%) |
-| **`SpacialCharRatioInURL` Mean** | 0.0528 | **0.1175** (median 0.116) | Realistic special char ratio |
-| **`SpacialCharRatioInURL >= 0.0785`** | 0.00% | **99.50%** | 99.5% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 0.0%) |
-| **URL Length Mean $\pm$ Std** | 30.6 $\pm$ 6.4 | **74.5 $\pm$ 12.6** (range 36–113) | Natural length distribution |
+| **`NoOfOtherSpecialCharsInURL` Mean** | 1.24 | **8.22** (median 8.0) | Deep-link feature coverage |
+| **`NoOfOtherSpecialCharsInURL >= 2`** | 21.4% | **100.0%** | 100.0% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 21.4%) |
+| **`SpacialCharRatioInURL` Mean** | 0.0465 | **0.1175** (median 0.116) | Complex URL path ratio |
+| **`SpacialCharRatioInURL >= 0.0785`** | 8.9% | **99.5%** | 99.5% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 8.9%) |
+| **URL Length Mean $\pm$ Std** | 27.2 $\pm$ 4.8 | **74.5 $\pm$ 12.6** (range 36–113) | Deep-link length distribution |
 
-> [!IMPORTANT]
-> In PhiUSIIL, the decision trees placed splits at `NoOfOtherSpecialCharsInURL >= 1.5` and `SpacialCharRatioInURL >= 0.0785`. Because 0.00% of legitimate training URLs crossed these thresholds, legitimate deep links were classified as phishing 94.00% of the time. The pilot corpus places **100.0%** of its samples above `NoOfOtherSpecialCharsInURL >= 2` and **99.5%** above `SpacialCharRatioInURL >= 0.0785`, providing the exact feature exposure required for robust retraining.
+> [!NOTE]
+> **Distribution-Coverage Observations:** In the Phase 4 external benchmark, the frozen model exhibited a 94.00% false-positive rate on curated legitimate deep links. In the PhiUSIIL legitimate training partition, 0.0% of URLs possess paths or query parameters, and only 21.4% have `NoOfOtherSpecialCharsInURL >= 2` (mean: 1.24). In contrast, the pilot corpus samples benign deep-link structures across 98 domains, where 98.7% have path depth >= 2, 51.2% have trailing slashes, 24.1% have queries, and 100.0% have >= 2 special characters. These structural differences represent distribution-coverage observations across benign deep links, but do not imply causal guarantees for model retraining or performance.
 
 ---
 
@@ -131,9 +131,9 @@ The evaluation benchmark remains an unviolated, out-of-sample test set.
   - Approved records (602): All have valid syntax, no duplicates, valid reviewer, verification method, and explicit legitimacy rationale.
   - Rejected records (3): All have documented rejection rationale, reviewer, and verification method.
   - Pending records (0): 0 pending records promoted into approved corpus.
-- **Complete Review Queue SHA-256 Hash (`review-queue-hash-v1`):**
-  - Original Review Queue: `27207125e4b9c5f074c94c50b0727f5945e4a68ef4d2192965bc4cd9be46ce47`
-  - Reproduced Review Queue: `27207125e4b9c5f074c94c50b0727f5945e4a68ef4d2192965bc4cd9be46ce47`
+- **Complete Review Queue SHA-256 Hash (`review-queue-hash-v2-canonical-json`):**
+  - Original Review Queue: `1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3`
+  - Reproduced Review Queue: `1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3`
   - Deterministic Match: **VERIFIED (Exact Match)**
   - **What the Hash Proves:** Verifies deterministic reproducibility of the entire ingestion pipeline and ensures that no row, column, metadata field (reviewer, verification method, rationale), or syntax flag was altered or dropped. It does not prove the real-world factual correctness of human review decisions.
 
@@ -143,7 +143,7 @@ The evaluation benchmark remains an unviolated, out-of-sample test set.
 
 > [!WARNING]
 > **What This Audit Proves vs What It Does Not Prove:**
-> 1. **Dataset Integrity $\neq$ Ground-Truth Innocence:** The cryptographic dataset hash (`27207125e4b9c5f0...`) and provenance completeness checks verify that the data pipeline executed deterministically and without post-collection tampering. They **do not prove** that the live web pages at those 602 URLs are guaranteed to be benign or safe in perpetuity.
+> 1. **Dataset Integrity $\neq$ Ground-Truth Innocence:** The cryptographic dataset hash (`1b7bb4d165dea3b0...`) and provenance completeness checks verify that the data pipeline executed deterministically and without post-collection tampering. They **do not prove** that the live web pages at those 602 URLs are guaranteed to be benign or safe in perpetuity.
 > 2. **Reputation Bias Warning:** Institutional domains (`.edu`, `.gov`, standards consortia, open-source documentation) were used as high-quality collection seeds, but domain reputation alone does not constitute proof of legitimacy. Institutional domains regularly host unvetted student directories, user-contributed wikis, blogs, and potential open redirect endpoints.
 > 3. **HTTP 200 $\neq$ Benign:** Returning an HTTP 200 response or serving active content does not verify that a page is free of compromised content or credential-harvesting forms.
 > 4. **Human Review Governance:** Every approved URL underwent page-level human review with an explicit `legitimacy_reason` recorded in the manifest. However, human review is subject to operational limitations. Production deployment requires defense-in-depth, continuous live threat feed cross-referencing, and periodic re-auditing.

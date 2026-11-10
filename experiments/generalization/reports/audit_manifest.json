@@ -1,10 +1,19 @@
 {
   "manifest_version": "audit-manifest-v1",
-  "execution_timestamp_utc": "2026-11-10T16:03:21.581448+00:00",
+  "execution_timestamp_utc": "2026-11-10T16:34:16.892674+00:00",
   "audit_overall_status": "PASS",
-  "environment": {
-    "git_commit": "6e5147785feb0c55a4e30ea4a6a8c398140812d2",
+  "git_metadata": {
     "git_branch": "phase-5-audit-integrity-hardening",
+    "audited_source_commit": "7bb8d4a9f2531ae9b203d347a0ba3884adaab053",
+    "working_tree_clean_at_audit": false,
+    "working_tree_state": "dirty (8 modified/untracked files)",
+    "manifest_identity_policy": "audited_source_commit records the repository commit evaluated during audit execution. When committed, this manifest's containing commit will be a child of (or identical to) audited_source_commit. To independently verify: 'git log -1 --format=%H' identifies the containing commit, and 'git log -1 --format=%P' contains audited_source_commit."
+  },
+  "environment": {
+    "git_commit": "7bb8d4a9f2531ae9b203d347a0ba3884adaab053",
+    "audited_source_commit": "7bb8d4a9f2531ae9b203d347a0ba3884adaab053",
+    "git_branch": "phase-5-audit-integrity-hardening",
+    "working_tree_clean": false,
     "python_version": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
     "platform": "darwin",
     "package_versions": {
@@ -17,8 +26,8 @@
     }
   },
   "pipeline_versions": {
-    "audit_script_version": "pilot-audit-v1.2",
-    "review_queue_hash_version": "review-queue-hash-v1",
+    "audit_script_version": "pilot-audit-v1.3",
+    "review_queue_hash_version": "review-queue-hash-v2-canonical-json",
     "normalization_policy_version": "candidate-normalization-v1",
     "feature_extraction_version": "src.features.extract_url_features@18-features"
   },
@@ -34,7 +43,7 @@
       "path": "experiments/generalization/datasets/pilot_review_queue.csv",
       "size_bytes": 472787,
       "sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360",
-      "dataset_hash": "27207125e4b9c5f074c94c50b0727f5945e4a68ef4d2192965bc4cd9be46ce47"
+      "dataset_hash": "1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3"
     },
     "approved_corpus": {
       "exists": true,
@@ -45,8 +54,8 @@
     "baseline_artifact": {
       "exists": true,
       "path": "experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json",
-      "size_bytes": 3891,
-      "sha256": "f54898c15821c14b562b43a17ebd3f70b99f5306dc146d2713ee962518f54440",
+      "size_bytes": 7237,
+      "sha256": "48542ab05180f79dc35995e69fa7f8a8ae780f4d1b32aaa81179feb402a52ecf",
       "schema_version": "1.0.0",
       "dataset_identity": "PhiUSIIL Phishing URL Dataset (Legitimate Subset)",
       "sample_count": 134850
@@ -62,14 +71,14 @@
     "json_report": {
       "exists": true,
       "path": "experiments/generalization/reports/pilot_corpus_audit.json",
-      "size_bytes": 7727,
-      "sha256": "4b2a92feabb3758cbfe727ead50130b60e0753e7c333106a834fb6efc68bb5ee"
+      "size_bytes": 7756,
+      "sha256": "44de8f5f3f06349fb074698f7839c891c701206a43fb1783b8bb9255bde6ea89"
     },
     "md_report": {
       "exists": true,
       "path": "experiments/generalization/reports/pilot_corpus_audit.md",
-      "size_bytes": 11497,
-      "sha256": "9219133994c3a240e473276fa2eb72e32bb06d32f6cf9460cd1a88dfb837768c"
+      "size_bytes": 11734,
+      "sha256": "b9914e9ebe0de20d473a9ae997ba7ad584e531e5834981f6039d251a1c6175b6"
     }
   },
   "reproducibility": {
@@ -90,6 +99,7 @@
   },
   "methodological_limitations": {
     "dataset_integrity_vs_ground_truth": "The audit verifies cryptographic record integrity, pipeline reproducibility, and compliance with the collection review protocol. It DOES NOT prove the real-world factual legitimacy or runtime safety of the 602 approved URLs.",
-    "reputation_bias_warning": "Institutional domain standing (.edu, .gov, standards bodies) and HTTP 200 responses are collection criteria, not proof of innocence. Pages can harbor unvetted user uploads, open redirects, or compromised endpoints. Explicit page-level rationale was recorded for every approved record, but live threats require ongoing operational monitoring."
+    "reputation_bias_warning": "Institutional domain standing (.edu, .gov, standards bodies) and HTTP 200 responses are collection criteria, not proof of innocence. Pages can harbor unvetted user uploads, open redirects, or compromised endpoints. Explicit page-level rationale was recorded for every approved record, but live threats require ongoing operational monitoring.",
+    "distribution_coverage_scope": "Structural differences between the pilot corpus and PhiUSIIL legitimate URLs represent distribution-coverage observations across benign deep links. They expand syntactic coverage but do not constitute causal proof of model performance or guarantees of robust retraining."
   }
 }

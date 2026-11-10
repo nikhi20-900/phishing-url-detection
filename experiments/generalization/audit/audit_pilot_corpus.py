@@ -20,6 +20,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import subprocess
 import sys
 from collections import Counter
@@ -44,8 +45,8 @@ from experiments.generalization.collection.collect_legitimate_corpus import (
 from src.evaluate_domain_split import extract_registered_domain
 from src.features import FEATURE_NAMES, extract_url_features
 
-AUDIT_SCRIPT_VERSION = "pilot-audit-v1.2"
-REVIEW_QUEUE_HASH_VERSION = "review-queue-hash-v1"
+AUDIT_SCRIPT_VERSION = "pilot-audit-v1.3"
+REVIEW_QUEUE_HASH_VERSION = "review-queue-hash-v2-canonical-json"
 AUDIT_MANIFEST_VERSION = "audit-manifest-v1"
 NORMALIZATION_POLICY_VERSION = "candidate-normalization-v1"
 FEATURE_EXTRACTION_VERSION = "src.features.extract_url_features@18-features"
@@ -62,6 +63,7 @@ CANONICAL_QUEUE_COLUMNS = (
     "reviewer",
     "notes",
     "legitimacy_reason",
+    "input_row",
     "normalization_version",
     "normalized_dedupe_key",
     "syntax_valid",
@@ -111,51 +113,76 @@ REQUIRED_STRUCTURAL_INDICATORS = (
 )
 
 
-def normalize_field_for_hash(val: Any) -> str:
-    """Normalize field values consistently for deterministic cryptographic hashing."""
-    if val is None or pd.isna(val) or val == "":
-        return "__NULL__"
-    if isinstance(val, (bool, np.bool_)):
-        return "true" if val else "false"
-    return str(val).strip()
-
-
 def compute_review_queue_hash(queue_df: pd.DataFrame) -> str:
-    """Compute a deterministic SHA-256 hash of the complete review queue dataset.
+    """Compute a deterministic SHA-256 hash of the complete review queue dataset using canonical JSON encoding.
 
-    Serialization policy (review-queue-hash-v1):
-    1. Serialization header: includes REVIEW_QUEUE_HASH_VERSION and canonical column list.
-    2. Deterministic row sorting: sorted primarily by 'candidate_id', secondarily by 'url_exact'.
-    3. Canonical column projection: strictly projects CANONICAL_QUEUE_COLUMNS.
-    4. Deterministic value normalization:
-       - Null / None / NaN is serialized as '__NULL__'
-       - Booleans are serialized as 'true' or 'false'
-       - Strings/numbers are stripped and UTF-8 encoded
-    5. Each record is serialized as a deterministic newline-terminated string.
+    Serialization policy (review-queue-hash-v2-canonical-json):
+    1. Schema strictness:
+       - Rejects missing canonical columns and unexpected columns.
+       - Rejects duplicate candidate_id entries.
+    2. Deterministic row sorting:
+       - Rows are sorted primarily by 'candidate_id' (unique key), secondarily by 'url_exact'.
+    3. Unambiguous typed serialization:
+       - Null / None / NaN is serialized as JSON null.
+       - Booleans are serialized as JSON true / false (preserving boolean vs string type distinctions).
+       - Integers and floats preserve numeric types.
+       - Strings preserve exact contents and whitespace (no delimiter collisions, no sentinel collisions).
+       - Each record is serialized using RFC 8785 / canonical JSON formatting (sort_keys=True, separators=(',', ':')).
+    4. Deterministic hashing:
+       - Hashes policy version, canonical column list, and each newline-terminated canonical record.
 
     WHAT THIS HASH PROVES:
-    Verifies end-to-end data integrity and deterministic reproducibility of the
-    candidate review queue from raw ingestion. Guarantees that no row, column,
-    metadata field (e.g., reviewer, verification_method, legitimacy_reason),
-    or syntax dimension was altered or corrupted post-generation.
+    Guarantees that no row, column, metadata field (e.g., reviewer, verification_method, legitimacy_reason),
+    or syntax dimension was altered, injected, or corrupted post-generation.
     DOES NOT PROVE:
     It does not prove the real-world truth or correctness of human reviewer judgements.
     """
-    hasher = hashlib.sha256()
-    hasher.update(f"{REVIEW_QUEUE_HASH_VERSION}\n".encode("utf-8"))
-    hasher.update(("|".join(CANONICAL_QUEUE_COLUMNS) + "\n").encode("utf-8"))
-
     if queue_df.empty:
+        hasher = hashlib.sha256()
+        hasher.update(f"{REVIEW_QUEUE_HASH_VERSION}\n".encode("utf-8"))
         hasher.update(b"__EMPTY_QUEUE__\n")
         return hasher.hexdigest()
 
-    sort_cols = [c for c in ["candidate_id", "url_exact"] if c in queue_df.columns]
-    sorted_df = queue_df.sort_values(by=sort_cols).reset_index(drop=True) if sort_cols else queue_df
+    # Reject missing canonical columns and unexpected columns
+    actual_cols = set(queue_df.columns)
+    canonical_cols = set(CANONICAL_QUEUE_COLUMNS)
+    if actual_cols != canonical_cols:
+        missing = sorted(canonical_cols - actual_cols)
+        unexpected = sorted(actual_cols - canonical_cols)
+        err_parts = []
+        if missing:
+            err_parts.append(f"Missing canonical columns: {missing}")
+        if unexpected:
+            err_parts.append(f"Unexpected columns: {unexpected}")
+        raise ValueError(f"Queue columns mismatch canonical schema. {'; '.join(err_parts)}")
+
+    # Reject duplicate candidate IDs
+    if queue_df.duplicated(subset=["candidate_id"]).any():
+        dup_ids = queue_df[queue_df.duplicated(subset=["candidate_id"])]["candidate_id"].tolist()
+        raise ValueError(f"Duplicate candidate_id found in review queue: {dup_ids[:5]}")
+
+    hasher = hashlib.sha256()
+    hasher.update(f"{REVIEW_QUEUE_HASH_VERSION}\n".encode("utf-8"))
+    hasher.update(json.dumps(CANONICAL_QUEUE_COLUMNS, separators=(",", ":")).encode("utf-8") + b"\n")
+
+    sorted_df = queue_df.sort_values(by=["candidate_id", "url_exact"]).reset_index(drop=True)
 
     for _, row in sorted_df.iterrows():
-        row_tokens = [normalize_field_for_hash(row.get(col, None)) for col in CANONICAL_QUEUE_COLUMNS]
-        record_line = "|".join(row_tokens) + "\n"
-        hasher.update(record_line.encode("utf-8"))
+        row_obj: dict[str, Any] = {}
+        for col in CANONICAL_QUEUE_COLUMNS:
+            val = row[col]
+            if val is None or pd.isna(val) or val == "":
+                row_obj[col] = None
+            elif isinstance(val, (bool, np.bool_)):
+                row_obj[col] = bool(val)
+            elif isinstance(val, (int, np.integer)):
+                row_obj[col] = int(val)
+            elif isinstance(val, (float, np.floating)):
+                row_obj[col] = float(val)
+            else:
+                row_obj[col] = str(val)
+        row_json = json.dumps(row_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        hasher.update(row_json.encode("utf-8") + b"\n")
 
     return hasher.hexdigest()
 
@@ -381,8 +408,28 @@ def audit_risk_flags_and_verification(review_queue_df: pd.DataFrame) -> dict[str
     }
 
 
-def validate_baseline_artifact(baseline_path: Path) -> tuple[bool, str, dict[str, Any]]:
-    """Validate schema, feature definitions, data types, and statistics of baseline artifact."""
+def validate_baseline_artifact(
+    baseline_path: Path, raw_dataset_path: Path | None = None
+) -> tuple[bool, str, dict[str, Any]]:
+    """Validate schema, SHA-256 format, provenance, and internal consistency of baseline artifact.
+
+    Validation rules:
+    1. Schema conformance: validates presence of required keys, positive sample_count,
+       and complete 18 model features in feature_definitions.
+    2. SHA-256 formatting: requires exactly 64 lowercase hexadecimal characters.
+    3. Structural indicators: requires numeric types and probability bounds [0.0, 1.0] for rates.
+    4. Internal consistency: reconciles structural indicators against feature distribution summaries.
+       URLLength_mean, NoOfOtherSpecialCharsInURL_mean, and SpacialCharRatioInURL_mean must match.
+    5. Provenance verification:
+       - If raw_dataset_path exists (or data/PhiUSIIL_Phishing_URL_Dataset.csv is found),
+         verifies that the raw dataset SHA-256 matches the artifact's dataset_sha256.
+       - If the raw dataset is unavailable, verifies that the artifact is explicitly classified
+         as a historical reference in 'verification_status'.
+
+    IMPORTANT: Schema validation confirms structural integrity and type safety; it does not
+    itself prove empirical source data correctness. Source correctness is established by
+    cryptographic SHA-256 matching of the raw dataset.
+    """
     if not baseline_path.exists():
         return False, f"Baseline artifact not found at {baseline_path}", {}
 
@@ -400,6 +447,11 @@ def validate_baseline_artifact(baseline_path: Path) -> tuple[bool, str, dict[str
 
     if not isinstance(data["sample_count"], int) or data["sample_count"] <= 0:
         return False, f"Invalid sample_count: {data.get('sample_count')}", {}
+
+    # Validate dataset SHA-256 format
+    dataset_sha = data.get("dataset_sha256", "")
+    if not isinstance(dataset_sha, str) or not re.match(r"^[a-f0-9]{64}$", dataset_sha):
+        return False, f"Invalid or malformed dataset_sha256 format: '{dataset_sha}'", {}
 
     feat_defs = data.get("feature_definitions", {})
     if not isinstance(feat_defs, dict):
@@ -425,16 +477,54 @@ def validate_baseline_artifact(baseline_path: Path) -> tuple[bool, str, dict[str
         if ind.endswith("_rate") and not (0.0 <= val <= 1.0):
             return False, f"structural_indicators['{ind}'] rate must be between 0.0 and 1.0, got {val}", {}
 
+    feat_dists = stats.get("feature_distributions", {})
+    if not isinstance(feat_dists, dict):
+        return False, "feature_distributions must be an object", {}
+
+    # Internal consistency: reconcile structural indicators with feature distributions
+    if "URLLength" in feat_dists and "URLLength_mean" in indicators:
+        dist_mean = feat_dists["URLLength"].get("mean")
+        ind_mean = indicators["URLLength_mean"]
+        if dist_mean is not None and abs(dist_mean - ind_mean) > 1e-3:
+            return False, f"Contradictory URLLength_mean: structural={ind_mean} vs distribution={dist_mean}", {}
+
+    if "NoOfOtherSpecialCharsInURL" in feat_dists and "NoOfOtherSpecialCharsInURL_mean" in indicators:
+        dist_mean = feat_dists["NoOfOtherSpecialCharsInURL"].get("mean")
+        ind_mean = indicators["NoOfOtherSpecialCharsInURL_mean"]
+        if dist_mean is not None and abs(dist_mean - ind_mean) > 1e-3:
+            return False, f"Contradictory NoOfOtherSpecialCharsInURL_mean: structural={ind_mean} vs distribution={dist_mean}", {}
+
+    if "SpacialCharRatioInURL" in feat_dists and "SpacialCharRatioInURL_mean" in indicators:
+        dist_mean = feat_dists["SpacialCharRatioInURL"].get("mean")
+        ind_mean = indicators["SpacialCharRatioInURL_mean"]
+        if dist_mean is not None and abs(dist_mean - ind_mean) > 1e-3:
+            return False, f"Contradictory SpacialCharRatioInURL_mean: structural={ind_mean} vs distribution={dist_mean}", {}
+
+    # Check raw dataset provenance if available
+    target_raw = raw_dataset_path or (ROOT / data.get("dataset_source", ""))
+    if target_raw.exists():
+        actual_sha = hashlib.sha256(target_raw.read_bytes()).hexdigest()
+        if actual_sha != dataset_sha:
+            return False, f"Raw dataset SHA-256 mismatch: expected {dataset_sha}, found {actual_sha} at {target_raw}", {}
+    else:
+        status = data.get("verification_status", "")
+        if "historical_reference" not in status and "verified_against_local_source" not in status:
+            return False, (
+                f"Raw dataset not found at {target_raw} and artifact is not explicitly classified "
+                "as historical_reference in 'verification_status'"
+            ), {}
+
     return True, "", data
 
 
 def audit_structural_feature_coverage(
     approved_df: pd.DataFrame,
     baseline_path: Path | None = None,
+    raw_dataset_path: Path | None = None,
 ) -> dict[str, Any]:
     """Audit 3: Structural feature coverage against versioned PhiUSIIL legitimate baseline."""
     target_baseline = baseline_path or (ROOT / "experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json")
-    valid_baseline, baseline_err, baseline_data = validate_baseline_artifact(target_baseline)
+    valid_baseline, baseline_err, baseline_data = validate_baseline_artifact(target_baseline, raw_dataset_path)
 
     if not valid_baseline:
         return {
@@ -542,8 +632,14 @@ def audit_structural_feature_coverage(
             "deep_link_gain": f"+{pilot_multilevel_path * 100:.1f}% (PhiUSIIL: 0.0% vs Pilot: {pilot_multilevel_path * 100:.1f}%)",
             "trailing_slash_gain": f"+{pilot_trailing_slash * 100:.1f}% (PhiUSIIL: 0.0% vs Pilot: {pilot_trailing_slash * 100:.1f}%)",
             "query_parameter_gain": f"+{pilot_has_query * 100:.1f}% (PhiUSIIL: 0.0% vs Pilot: {pilot_has_query * 100:.1f}%)",
-            "special_chars_boundary_penetration": f"{pilot_spec_chars_ge_2 * 100:.1f}% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 0.0%)",
-            "special_char_ratio_boundary_penetration": f"{pilot_spec_ratio_ge_threshold * 100:.1f}% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 0.0%)",
+            "special_chars_boundary_penetration": (
+                f"{pilot_spec_chars_ge_2 * 100:.1f}% cross NoOfOtherSpecialCharsInURL >= 2 "
+                f"(PhiUSIIL: {phiusiil_legit.get('NoOfOtherSpecialCharsInURL_pct_ge_2', 0.0) * 100:.1f}%)"
+            ),
+            "special_char_ratio_boundary_penetration": (
+                f"{pilot_spec_ratio_ge_threshold * 100:.1f}% cross SpacialCharRatioInURL >= 0.0785 "
+                f"(PhiUSIIL: {phiusiil_legit.get('SpacialCharRatioInURL_pct_ge_0_0785', 0.0) * 100:.1f}%)"
+            ),
         },
         "pass_criteria": {
             "baseline_artifact_valid": True,
@@ -735,9 +831,22 @@ def audit_provenance_and_reproducibility(
     raw_df = load_candidates(raw_input_path)
     reproduced_queue, summary = prepare_review_queue(raw_df)
 
-    original_queue_sha256 = compute_review_queue_hash(review_queue_df)
-    reproduced_queue_sha256 = compute_review_queue_hash(reproduced_queue)
-    deterministic_match = (original_queue_sha256 == reproduced_queue_sha256)
+    try:
+        original_queue_sha256 = compute_review_queue_hash(review_queue_df)
+    except Exception as exc:
+        invalid_metadata_errors.append(f"Queue hash serialization failure: {exc}")
+        original_queue_sha256 = "INVALID_QUEUE_HASH"
+
+    try:
+        reproduced_queue_sha256 = compute_review_queue_hash(reproduced_queue)
+    except Exception as exc:
+        invalid_metadata_errors.append(f"Reproduced queue hash failure: {exc}")
+        reproduced_queue_sha256 = "REPRODUCED_QUEUE_ERROR"
+
+    deterministic_match = (
+        original_queue_sha256 == reproduced_queue_sha256
+        and original_queue_sha256 != "INVALID_QUEUE_HASH"
+    )
 
     passed = (
         len(missing_metadata_errors) == 0
@@ -771,10 +880,12 @@ def audit_provenance_and_reproducibility(
     }
 
 
-def get_git_info() -> dict[str, str]:
-    """Retrieve git branch and commit SHA safely."""
+def get_git_info() -> dict[str, Any]:
+    """Retrieve git branch, audited source commit SHA, and working tree state safely."""
     commit = "unknown"
     branch = "unknown"
+    is_clean = True
+    status_summary = "clean"
     try:
         commit = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL, text=True
@@ -782,9 +893,20 @@ def get_git_info() -> dict[str, str]:
         branch = subprocess.check_output(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"], stderr=subprocess.DEVNULL, text=True
         ).strip()
+        porcelain = subprocess.check_output(
+            ["git", "status", "--porcelain"], stderr=subprocess.DEVNULL, text=True
+        ).strip()
+        if porcelain:
+            is_clean = False
+            status_summary = f"dirty ({len(porcelain.splitlines())} modified/untracked files)"
     except Exception:
         pass
-    return {"git_commit": commit, "git_branch": branch}
+    return {
+        "audited_source_commit": commit,
+        "git_branch": branch,
+        "working_tree_clean": is_clean,
+        "working_tree_state": status_summary,
+    }
 
 
 def get_package_versions() -> dict[str, str]:
@@ -845,9 +967,23 @@ def generate_audit_manifest(
         "manifest_version": AUDIT_MANIFEST_VERSION,
         "execution_timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "audit_overall_status": overall_status,
-        "environment": {
-            "git_commit": git_info["git_commit"],
+        "git_metadata": {
             "git_branch": git_info["git_branch"],
+            "audited_source_commit": git_info["audited_source_commit"],
+            "working_tree_clean_at_audit": git_info["working_tree_clean"],
+            "working_tree_state": git_info["working_tree_state"],
+            "manifest_identity_policy": (
+                "audited_source_commit records the repository commit evaluated during audit execution. "
+                "When committed, this manifest's containing commit will be a child of (or identical to) "
+                "audited_source_commit. To independently verify: 'git log -1 --format=%H' identifies "
+                "the containing commit, and 'git log -1 --format=%P' contains audited_source_commit."
+            ),
+        },
+        "environment": {
+            "git_commit": git_info["audited_source_commit"],
+            "audited_source_commit": git_info["audited_source_commit"],
+            "git_branch": git_info["git_branch"],
+            "working_tree_clean": git_info["working_tree_clean"],
             "python_version": sys.version,
             "platform": sys.platform,
             "package_versions": get_package_versions(),
@@ -897,6 +1033,12 @@ def generate_audit_manifest(
                 "unvetted user uploads, open redirects, or compromised endpoints. Explicit "
                 "page-level rationale was recorded for every approved record, but live threats "
                 "require ongoing operational monitoring."
+            ),
+            "distribution_coverage_scope": (
+                "Structural differences between the pilot corpus and PhiUSIIL legitimate URLs "
+                "represent distribution-coverage observations across benign deep links. They "
+                "expand syntactic coverage but do not constitute causal proof of model "
+                "performance or guarantees of robust retraining."
             ),
         },
     }
@@ -1021,14 +1163,14 @@ To address the covariate shift and 100% syntactic vacuum discovered during Phase
 | **Has Query Parameter (`?`)** | 0.00% | **{pilot.get('has_query_rate', 0.0) * 100:.2f}%** | {contrast.get('query_parameter_gain', '')} |
 | **Has `=` in Query** | 0.00% | **{pilot.get('has_equals_rate', 0.0) * 100:.2f}%** | +{pilot.get('has_equals_rate', 0.0) * 100:.2f}% |
 | **Has `&` in Query** | 0.00% | **{pilot.get('has_amp_rate', 0.0) * 100:.2f}%** | +{pilot.get('has_amp_rate', 0.0) * 100:.2f}% |
-| **`NoOfOtherSpecialCharsInURL` Mean** | 0.00 | **{pilot.get('NoOfOtherSpecialCharsInURL_mean', 0.0):.2f}** (median {pilot.get('NoOfOtherSpecialCharsInURL_median', 0.0)}) | Massive coverage expansion |
-| **`NoOfOtherSpecialCharsInURL >= 2`** | 0.00% | **{pilot.get('NoOfOtherSpecialCharsInURL_pct_ge_2', 0.0) * 100:.2f}%** | {contrast.get('special_chars_boundary_penetration', '')} |
-| **`SpacialCharRatioInURL` Mean** | 0.0528 | **{pilot.get('SpacialCharRatioInURL_mean', 0.0):.4f}** (median {pilot.get('SpacialCharRatioInURL_median', 0.0)}) | Realistic special char ratio |
-| **`SpacialCharRatioInURL >= 0.0785`** | 0.00% | **{pilot.get('SpacialCharRatioInURL_pct_ge_0_0785', 0.0) * 100:.2f}%** | {contrast.get('special_char_ratio_boundary_penetration', '')} |
-| **URL Length Mean $\\pm$ Std** | 30.6 $\\pm$ 6.4 | **{pilot.get('URLLength_mean', 0.0):.1f} $\\pm$ {pilot.get('URLLength_std', 0.0):.1f}** (range {pilot.get('URLLength_min', 0)}–{pilot.get('URLLength_max', 0)}) | Natural length distribution |
+| **`NoOfOtherSpecialCharsInURL` Mean** | {phi.get('NoOfOtherSpecialCharsInURL_mean', 0.0):.2f} | **{pilot.get('NoOfOtherSpecialCharsInURL_mean', 0.0):.2f}** (median {pilot.get('NoOfOtherSpecialCharsInURL_median', 0.0)}) | Deep-link feature coverage |
+| **`NoOfOtherSpecialCharsInURL >= 2`** | {phi.get('NoOfOtherSpecialCharsInURL_pct_ge_2', 0.0) * 100:.1f}% | **{pilot.get('NoOfOtherSpecialCharsInURL_pct_ge_2', 0.0) * 100:.1f}%** | {contrast.get('special_chars_boundary_penetration', '')} |
+| **`SpacialCharRatioInURL` Mean** | {phi.get('SpacialCharRatioInURL_mean', 0.0):.4f} | **{pilot.get('SpacialCharRatioInURL_mean', 0.0):.4f}** (median {pilot.get('SpacialCharRatioInURL_median', 0.0)}) | Complex URL path ratio |
+| **`SpacialCharRatioInURL >= 0.0785`** | {phi.get('SpacialCharRatioInURL_pct_ge_0_0785', 0.0) * 100:.1f}% | **{pilot.get('SpacialCharRatioInURL_pct_ge_0_0785', 0.0) * 100:.1f}%** | {contrast.get('special_char_ratio_boundary_penetration', '')} |
+| **URL Length Mean $\\pm$ Std** | {phi.get('URLLength_mean', 0.0):.1f} $\\pm$ {phi.get('URLLength_std', 0.0):.1f} | **{pilot.get('URLLength_mean', 0.0):.1f} $\\pm$ {pilot.get('URLLength_std', 0.0):.1f}** (range {pilot.get('URLLength_min', 0)}–{pilot.get('URLLength_max', 0)}) | Deep-link length distribution |
 
-> [!IMPORTANT]
-> In PhiUSIIL, the decision trees placed splits at `NoOfOtherSpecialCharsInURL >= 1.5` and `SpacialCharRatioInURL >= 0.0785`. Because 0.00% of legitimate training URLs crossed these thresholds, legitimate deep links were classified as phishing 94.00% of the time. The pilot corpus places **{pilot.get('NoOfOtherSpecialCharsInURL_pct_ge_2', 0.0) * 100:.1f}%** of its samples above `NoOfOtherSpecialCharsInURL >= 2` and **{pilot.get('SpacialCharRatioInURL_pct_ge_0_0785', 0.0) * 100:.1f}%** above `SpacialCharRatioInURL >= 0.0785`, providing the exact feature exposure required for robust retraining.
+> [!NOTE]
+> **Distribution-Coverage Observations:** In the Phase 4 external benchmark, the frozen model exhibited a 94.00% false-positive rate on curated legitimate deep links. In the PhiUSIIL legitimate training partition, 0.0% of URLs possess paths or query parameters, and only {phi.get('NoOfOtherSpecialCharsInURL_pct_ge_2', 0.0) * 100:.1f}% have `NoOfOtherSpecialCharsInURL >= 2` (mean: {phi.get('NoOfOtherSpecialCharsInURL_mean', 0.0):.2f}). In contrast, the pilot corpus samples benign deep-link structures across {d1['metrics']['unique_registered_domains']} domains, where {pilot.get('path_depth_ge_2_rate', 0.0) * 100:.1f}% have path depth >= 2, {pilot.get('trailing_slash_rate', 0.0) * 100:.1f}% have trailing slashes, {pilot.get('has_query_rate', 0.0) * 100:.1f}% have queries, and {pilot.get('NoOfOtherSpecialCharsInURL_pct_ge_2', 0.0) * 100:.1f}% have >= 2 special characters. These structural differences represent distribution-coverage observations across benign deep links, but do not imply causal guarantees for model retraining or performance.
 
 ---
 

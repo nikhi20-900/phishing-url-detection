@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-10T16:03:21.564741+00:00",
+  "timestamp": "2026-11-10T16:34:16.857248+00:00",
   "overall_summary": {
     "total_candidates": 605,
     "approved_candidates": 602,
@@ -135,12 +135,12 @@
       "trailing_slash_rate": 0.0,
       "has_query_rate": 0.0,
       "has_fragment_rate": 0.0,
-      "NoOfOtherSpecialCharsInURL_mean": 0.0,
-      "NoOfOtherSpecialCharsInURL_pct_ge_2": 0.0,
-      "SpacialCharRatioInURL_mean": 0.0528,
-      "SpacialCharRatioInURL_pct_ge_0_0785": 0.0,
-      "URLLength_mean": 30.64,
-      "URLLength_std": 6.42
+      "NoOfOtherSpecialCharsInURL_mean": 1.2449,
+      "NoOfOtherSpecialCharsInURL_pct_ge_2": 0.2138,
+      "SpacialCharRatioInURL_mean": 0.0465,
+      "SpacialCharRatioInURL_pct_ge_0_0785": 0.0887,
+      "URLLength_mean": 27.2286,
+      "URLLength_std": 4.8156
     },
     "pilot_corpus_distribution": {
       "N": 602,
@@ -165,8 +165,8 @@
       "deep_link_gain": "+98.7% (PhiUSIIL: 0.0% vs Pilot: 98.7%)",
       "trailing_slash_gain": "+51.2% (PhiUSIIL: 0.0% vs Pilot: 51.2%)",
       "query_parameter_gain": "+24.1% (PhiUSIIL: 0.0% vs Pilot: 24.1%)",
-      "special_chars_boundary_penetration": "100.0% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 0.0%)",
-      "special_char_ratio_boundary_penetration": "99.5% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 0.0%)"
+      "special_chars_boundary_penetration": "100.0% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 21.4%)",
+      "special_char_ratio_boundary_penetration": "99.5% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 8.9%)"
     },
     "pass_criteria": {
       "baseline_artifact_valid": true,
@@ -209,9 +209,9 @@
     "invalid_metadata_errors_count": 0,
     "invalid_metadata_errors": [],
     "deterministic_reproducibility": {
-      "hash_version": "review-queue-hash-v1",
-      "original_sha256": "27207125e4b9c5f074c94c50b0727f5945e4a68ef4d2192965bc4cd9be46ce47",
-      "reproduced_sha256": "27207125e4b9c5f074c94c50b0727f5945e4a68ef4d2192965bc4cd9be46ce47",
+      "hash_version": "review-queue-hash-v2-canonical-json",
+      "original_sha256": "1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3",
+      "reproduced_sha256": "1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3",
       "deterministic_match": true,
       "hash_coverage": "Full dataset (canonical projection of all metadata, syntax dimensions, risk flags, and deduplication keys)",
       "hash_guarantee": "Guarantees exact pipeline reproducibility and absence of post-ingestion tampering. Does not prove human review veracity."

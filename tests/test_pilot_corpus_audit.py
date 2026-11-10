@@ -452,10 +452,18 @@ def test_audit_manifest_structure_and_completeness() -> None:
     assert "environment" in manifest
     env = manifest["environment"]
     assert "git_commit" in env
+    assert "audited_source_commit" in env
     assert "git_branch" in env
     assert "python_version" in env
     assert "package_versions" in env
     assert "pandas" in env["package_versions"]
+
+    # Git metadata
+    assert "git_metadata" in manifest
+    git_meta = manifest["git_metadata"]
+    assert "audited_source_commit" in git_meta
+    assert "working_tree_clean_at_audit" in git_meta
+    assert "manifest_identity_policy" in git_meta
 
     # Pipeline versions
     assert "pipeline_versions" in manifest
@@ -487,6 +495,7 @@ def test_audit_manifest_structure_and_completeness() -> None:
     assert "methodological_limitations" in manifest
     assert "dataset_integrity_vs_ground_truth" in manifest["methodological_limitations"]
     assert "reputation_bias_warning" in manifest["methodological_limitations"]
+    assert "distribution_coverage_scope" in manifest["methodological_limitations"]
 
 
 def test_deterministic_reproducibility_across_runs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -534,3 +543,125 @@ def test_deterministic_reproducibility_across_runs(tmp_path: Path, monkeypatch: 
     assert m1["inputs"] == m2["inputs"]
     assert m1["pipeline_versions"] == m2["pipeline_versions"]
     assert m1["audit_overall_status"] == m2["audit_overall_status"]
+
+
+def test_adversarial_delimiter_injection(pilot_datasets_paths: dict[str, Path]) -> None:
+    """Inserting delimiters (|, commas, quotes, newlines) must not collide or break canonical JSON."""
+    queue_df = pd.read_csv(pilot_datasets_paths["queue"])
+    h_clean = compute_review_queue_hash(queue_df)
+
+    # Injected queue with pipe, quotes, commas in legitimacy_reason
+    q_injected = queue_df.copy()
+    q_injected.loc[0, "legitimacy_reason"] = "Standard RFC | candidate, key='val'\nsecondary text"
+    h_injected = compute_review_queue_hash(q_injected)
+
+    assert h_clean != h_injected
+    assert len(h_injected) == 64
+
+
+def test_adversarial_null_sentinel_collision(pilot_datasets_paths: dict[str, Path]) -> None:
+    """A literal string '__NULL__' must produce a strictly different hash from an actual null/NaN."""
+    queue_df = pd.read_csv(pilot_datasets_paths["queue"])
+
+    q_nan = queue_df.copy()
+    q_nan.loc[0, "notes"] = None
+    h_null = compute_review_queue_hash(q_nan)
+
+    q_str = queue_df.copy()
+    q_str.loc[0, "notes"] = "__NULL__"
+    h_sentinel = compute_review_queue_hash(q_str)
+
+    assert h_null != h_sentinel
+
+
+def test_adversarial_whitespace_changes(pilot_datasets_paths: dict[str, Path]) -> None:
+    """Changing whitespace in strings must alter the canonical hash (exactness preservation)."""
+    queue_df = pd.read_csv(pilot_datasets_paths["queue"])
+    h_orig = compute_review_queue_hash(queue_df)
+
+    q_ws = queue_df.copy()
+    q_ws.loc[0, "notes"] = " " + str(q_ws.loc[0, "notes"])
+    h_ws = compute_review_queue_hash(q_ws)
+
+    assert h_orig != h_ws
+
+
+def test_adversarial_duplicate_rows_rejected(pilot_datasets_paths: dict[str, Path]) -> None:
+    """Injecting a duplicate candidate_id or row must raise ValueError and fail the audit."""
+    queue_df = pd.read_csv(pilot_datasets_paths["queue"])
+    approved_df = pd.read_csv(pilot_datasets_paths["approved"])
+
+    q_dup = pd.concat([queue_df, queue_df.iloc[[0]]], ignore_index=True)
+    with pytest.raises(ValueError, match="Duplicate candidate_id"):
+        compute_review_queue_hash(q_dup)
+
+    result = audit_provenance_and_reproducibility(pilot_datasets_paths["raw"], q_dup, approved_df)
+    assert result["status"] == "FAIL"
+    assert any("Duplicate candidate_id" in err for err in result["invalid_metadata_errors"])
+
+
+def test_adversarial_type_changes(pilot_datasets_paths: dict[str, Path]) -> None:
+    """Changing field type (e.g., boolean to string or int to string) must alter the hash."""
+    queue_df = pd.read_csv(pilot_datasets_paths["queue"])
+    h_orig = compute_review_queue_hash(queue_df)
+
+    # Convert a boolean column to string "true" / "false"
+    q_type = queue_df.copy()
+    q_type["syntax_valid"] = q_type["syntax_valid"].astype(str)
+    h_type = compute_review_queue_hash(q_type)
+
+    assert h_orig != h_type
+
+
+def test_adversarial_missing_and_unexpected_columns(pilot_datasets_paths: dict[str, Path]) -> None:
+    """Missing canonical columns or unexpected extra columns must raise ValueError."""
+    queue_df = pd.read_csv(pilot_datasets_paths["queue"])
+
+    # Missing column
+    q_missing = queue_df.drop(columns=["candidate_id"])
+    with pytest.raises(ValueError, match="Missing canonical columns"):
+        compute_review_queue_hash(q_missing)
+
+    # Unexpected extra column
+    q_unexpected = queue_df.copy()
+    q_unexpected["malicious_extra_col"] = 1
+    with pytest.raises(ValueError, match="Unexpected columns"):
+        compute_review_queue_hash(q_unexpected)
+
+
+def test_baseline_internal_consistency_reconciliation(tmp_path: Path) -> None:
+    """A baseline with contradictory URLLength_mean or NoOfOtherSpecialCharsInURL_mean must fail."""
+    valid_path = Path("experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json")
+    base_data = json.loads(valid_path.read_text(encoding="utf-8"))
+
+    # Contradictory URLLength_mean
+    bad_data = json.loads(json.dumps(base_data))
+    bad_data["baseline_statistics"]["structural_indicators"]["URLLength_mean"] = 30.64
+    p_bad = tmp_path / "bad_consistency.json"
+    p_bad.write_text(json.dumps(bad_data), encoding="utf-8")
+
+    valid, err, _ = validate_baseline_artifact(p_bad)
+    assert valid is False
+    assert "Contradictory URLLength_mean" in err
+
+
+def test_baseline_sha256_format_and_raw_provenance(tmp_path: Path) -> None:
+    """Malformed dataset SHA-256 or mismatched raw dataset must fail validation."""
+    valid_path = Path("experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json")
+    base_data = json.loads(valid_path.read_text(encoding="utf-8"))
+
+    # Malformed SHA-256 (not 64 hex chars)
+    bad_sha_data = json.loads(json.dumps(base_data))
+    bad_sha_data["dataset_sha256"] = "invalid_sha256"
+    p_sha = tmp_path / "bad_sha.json"
+    p_sha.write_text(json.dumps(bad_sha_data), encoding="utf-8")
+    valid, err, _ = validate_baseline_artifact(p_sha)
+    assert valid is False
+    assert "Invalid or malformed dataset_sha256 format" in err
+
+    # Raw dataset mismatch
+    fake_raw = tmp_path / "fake_phiusiil.csv"
+    fake_raw.write_text("corrupted content", encoding="utf-8")
+    valid, err, _ = validate_baseline_artifact(valid_path, raw_dataset_path=fake_raw)
+    assert valid is False
+    assert "Raw dataset SHA-256 mismatch" in err
