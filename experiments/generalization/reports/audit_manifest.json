@@ -1,17 +1,17 @@
 {
   "manifest_version": "audit-manifest-v1",
-  "execution_timestamp_utc": "2026-11-10T16:34:16.892674+00:00",
+  "execution_timestamp_utc": "2026-11-10T17:11:56.722942+00:00",
   "audit_overall_status": "PASS",
   "git_metadata": {
     "git_branch": "phase-5-audit-integrity-hardening",
-    "audited_source_commit": "7bb8d4a9f2531ae9b203d347a0ba3884adaab053",
+    "audited_source_commit": "ea271d102d59d75c8ea49711c2a0ebbe7d9a475f",
     "working_tree_clean_at_audit": false,
-    "working_tree_state": "dirty (8 modified/untracked files)",
+    "working_tree_state": "dirty (3 modified/untracked files)",
     "manifest_identity_policy": "audited_source_commit records the repository commit evaluated during audit execution. When committed, this manifest's containing commit will be a child of (or identical to) audited_source_commit. To independently verify: 'git log -1 --format=%H' identifies the containing commit, and 'git log -1 --format=%P' contains audited_source_commit."
   },
   "environment": {
-    "git_commit": "7bb8d4a9f2531ae9b203d347a0ba3884adaab053",
-    "audited_source_commit": "7bb8d4a9f2531ae9b203d347a0ba3884adaab053",
+    "git_commit": "ea271d102d59d75c8ea49711c2a0ebbe7d9a475f",
+    "audited_source_commit": "ea271d102d59d75c8ea49711c2a0ebbe7d9a475f",
     "git_branch": "phase-5-audit-integrity-hardening",
     "working_tree_clean": false,
     "python_version": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
@@ -72,13 +72,13 @@
       "exists": true,
       "path": "experiments/generalization/reports/pilot_corpus_audit.json",
       "size_bytes": 7756,
-      "sha256": "44de8f5f3f06349fb074698f7839c891c701206a43fb1783b8bb9255bde6ea89"
+      "sha256": "7f213e32ca5ae75b073553b0e3bf4fb5b43f050c0a5513104a9b6c7a0e245fe5"
     },
     "md_report": {
       "exists": true,
       "path": "experiments/generalization/reports/pilot_corpus_audit.md",
-      "size_bytes": 11734,
-      "sha256": "b9914e9ebe0de20d473a9ae997ba7ad584e531e5834981f6039d251a1c6175b6"
+      "size_bytes": 12459,
+      "sha256": "b7417bce614a85472960073ab7d5bae9255e9264deef426e2b5822abe19a0c54"
     }
   },
   "reproducibility": {
@@ -100,6 +100,7 @@
   "methodological_limitations": {
     "dataset_integrity_vs_ground_truth": "The audit verifies cryptographic record integrity, pipeline reproducibility, and compliance with the collection review protocol. It DOES NOT prove the real-world factual legitimacy or runtime safety of the 602 approved URLs.",
     "reputation_bias_warning": "Institutional domain standing (.edu, .gov, standards bodies) and HTTP 200 responses are collection criteria, not proof of innocence. Pages can harbor unvetted user uploads, open redirects, or compromised endpoints. Explicit page-level rationale was recorded for every approved record, but live threats require ongoing operational monitoring.",
-    "distribution_coverage_scope": "Structural differences between the pilot corpus and PhiUSIIL legitimate URLs represent distribution-coverage observations across benign deep links. They expand syntactic coverage but do not constitute causal proof of model performance or guarantees of robust retraining."
+    "distribution_coverage_scope": "Structural differences between the pilot corpus and PhiUSIIL legitimate URLs represent distribution-coverage observations across benign deep links. They expand syntactic coverage but do not constitute causal proof of model performance or guarantees of robust retraining.",
+    "hash_serialization_qualification": "Dataset hashing utilizes deterministic Python JSON serialization (sorted keys, compact separators). Missing and empty-string values from unflagged optional columns are canonically mapped to JSON null for CSV roundtrip consistency, while non-empty string fields preserve exact casing, characters, and whitespace. This provides deterministic reproducibility across environments and is not certified as an RFC 8785 (JCS) conformant implementation."
   }
 }

@@ -123,11 +123,14 @@ def compute_review_queue_hash(queue_df: pd.DataFrame) -> str:
     2. Deterministic row sorting:
        - Rows are sorted primarily by 'candidate_id' (unique key), secondarily by 'url_exact'.
     3. Unambiguous typed serialization:
-       - Null / None / NaN is serialized as JSON null.
+       - Empty/missing fields (None, NaN, and empty string "" from unflagged optional columns)
+         are canonically normalized to JSON null so that in-memory dataframes and disk CSV
+         roundtrips serialize identically.
        - Booleans are serialized as JSON true / false (preserving boolean vs string type distinctions).
        - Integers and floats preserve numeric types.
-       - Strings preserve exact contents and whitespace (no delimiter collisions, no sentinel collisions).
-       - Each record is serialized using RFC 8785 / canonical JSON formatting (sort_keys=True, separators=(',', ':')).
+       - Non-empty strings preserve exact character content, casing, and whitespace without stripping.
+       - Each record is serialized deterministically using Python json.dumps(..., sort_keys=True, separators=(',', ':'), ensure_ascii=False).
+         (Note: This provides deterministic serialization across environments; it is not formally certified as an RFC 8785 conformant implementation).
     4. Deterministic hashing:
        - Hashes policy version, canonical column list, and each newline-terminated canonical record.
 
@@ -1040,6 +1043,14 @@ def generate_audit_manifest(
                 "expand syntactic coverage but do not constitute causal proof of model "
                 "performance or guarantees of robust retraining."
             ),
+            "hash_serialization_qualification": (
+                "Dataset hashing utilizes deterministic Python JSON serialization (sorted keys, "
+                "compact separators). Missing and empty-string values from unflagged optional columns "
+                "are canonically mapped to JSON null for CSV roundtrip consistency, while non-empty "
+                "string fields preserve exact casing, characters, and whitespace. This provides "
+                "deterministic reproducibility across environments and is not certified as an "
+                "RFC 8785 (JCS) conformant implementation."
+            ),
         },
     }
     return manifest
@@ -1201,7 +1212,7 @@ The evaluation benchmark remains an unviolated, out-of-sample test set.
   - Original Review Queue: `{d5['deterministic_reproducibility']['original_sha256']}`
   - Reproduced Review Queue: `{d5['deterministic_reproducibility']['reproduced_sha256']}`
   - Deterministic Match: **{'VERIFIED (Exact Match)' if d5['deterministic_reproducibility']['deterministic_match'] else 'FAILED'}**
-  - **What the Hash Proves:** Verifies deterministic reproducibility of the entire ingestion pipeline and ensures that no row, column, metadata field (reviewer, verification method, rationale), or syntax flag was altered or dropped. It does not prove the real-world factual correctness of human review decisions.
+  - **What the Hash Proves:** Verifies deterministic reproducibility of the entire ingestion pipeline and ensures that no row, column, metadata field (reviewer, verification method, rationale), or syntax flag was altered or dropped. The dataset hash is computed via deterministic Python JSON serialization (`json.dumps` with sorted keys and compact delimiters). Empty/missing values from unflagged optional columns are canonically mapped to JSON null to ensure consistency across in-memory dataframes and disk CSV roundtrips, while all non-empty strings preserve exact casing and characters. This provides reproducible hashing within Python environments and is not certified as an RFC 8785 (JCS) implementation. It does not prove the real-world factual correctness of human review decisions.
 
 ---
 
@@ -1225,16 +1236,16 @@ The evaluation benchmark remains an unviolated, out-of-sample test set.
 
 ---
 
-## Conclusion & Next Step
+## Conclusion & Next Steps
 
-The pilot corpus of {m1['total_urls']} verified authentic URLs successfully establishes:
+The pilot corpus of {m1['total_urls']} reviewed pilot candidates approved under the documented collection protocol successfully establishes:
 1. Low concentration across {m1['unique_registered_domains']} registered domains (HHI = {m1['hhi_index']}) from {recon.get('candidate_queue_unique_domains', m1['unique_registered_domains'])} candidate domains.
-2. Complete provenance and rigorous risk-flag gating.
-3. Overwhelming breakdown of the PhiUSIIL syntactic vacuum (98.7% deep links, 100.0% multi-special character links) validated against versioned baseline artifact `{base_art.get('path', '')}`.
-4. Uncompromising quarantine of the external benchmark.
-5. Full audit manifest generated at `experiments/generalization/reports/audit_manifest.json`.
+2. Complete provenance and documented risk-flag review gating.
+3. Expanded structural coverage beyond the PhiUSIIL legitimate training set (98.7% deep links, 100.0% multi-special character links) validated against versioned baseline artifact `{base_art.get('path', '')}`.
+4. Zero overlap with the quarantined external benchmark.
+5. Machine-readable audit manifest generated at `experiments/generalization/reports/audit_manifest.json`.
 
-**Recommendation:** Proceed to scale the collection protocol from the verified pilot to the full 15,000–25,000 URL augmentation corpus using the proven multi-category schema and review gating.
+**Next Milestone:** The pilot establishes initial structural coverage observations. Any larger corpus collection or potential model retraining must not proceed automatically; larger collection should depend on a separate, dedicated page-level authenticity validation protocol and an explicit experimental design evaluated against frozen benchmarks.
 """
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

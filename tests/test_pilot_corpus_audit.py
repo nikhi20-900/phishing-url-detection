@@ -496,6 +496,7 @@ def test_audit_manifest_structure_and_completeness() -> None:
     assert "dataset_integrity_vs_ground_truth" in manifest["methodological_limitations"]
     assert "reputation_bias_warning" in manifest["methodological_limitations"]
     assert "distribution_coverage_scope" in manifest["methodological_limitations"]
+    assert "hash_serialization_qualification" in manifest["methodological_limitations"]
 
 
 def test_deterministic_reproducibility_across_runs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

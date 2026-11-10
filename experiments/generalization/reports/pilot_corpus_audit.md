@@ -1,6 +1,6 @@
 # Phase 5 Legitimate Pilot Corpus Audit Report
 
-**Generated:** 2026-11-10 16:34:16Z
+**Generated:** 2026-11-10 17:11:56Z
 **Target Milestone:** Produce a verified pilot corpus and audit report before scaling collection.
 **Pilot Size:** 605 candidate URLs (602 verified approved, 3 rejected).
 **Overall Audit Result:** **PASS** (All 5 mandatory scientific audits passed).
@@ -135,7 +135,7 @@ The evaluation benchmark remains an unviolated, out-of-sample test set.
   - Original Review Queue: `1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3`
   - Reproduced Review Queue: `1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3`
   - Deterministic Match: **VERIFIED (Exact Match)**
-  - **What the Hash Proves:** Verifies deterministic reproducibility of the entire ingestion pipeline and ensures that no row, column, metadata field (reviewer, verification method, rationale), or syntax flag was altered or dropped. It does not prove the real-world factual correctness of human review decisions.
+  - **What the Hash Proves:** Verifies deterministic reproducibility of the entire ingestion pipeline and ensures that no row, column, metadata field (reviewer, verification method, rationale), or syntax flag was altered or dropped. The dataset hash is computed via deterministic Python JSON serialization (`json.dumps` with sorted keys and compact delimiters). Empty/missing values from unflagged optional columns are canonically mapped to JSON null to ensure consistency across in-memory dataframes and disk CSV roundtrips, while all non-empty strings preserve exact casing and characters. This provides reproducible hashing within Python environments and is not certified as an RFC 8785 (JCS) implementation. It does not prove the real-world factual correctness of human review decisions.
 
 ---
 
@@ -159,13 +159,13 @@ The evaluation benchmark remains an unviolated, out-of-sample test set.
 
 ---
 
-## Conclusion & Next Step
+## Conclusion & Next Steps
 
-The pilot corpus of 602 verified authentic URLs successfully establishes:
+The pilot corpus of 602 reviewed pilot candidates approved under the documented collection protocol successfully establishes:
 1. Low concentration across 98 registered domains (HHI = 106.01) from 101 candidate domains.
-2. Complete provenance and rigorous risk-flag gating.
-3. Overwhelming breakdown of the PhiUSIIL syntactic vacuum (98.7% deep links, 100.0% multi-special character links) validated against versioned baseline artifact `experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json`.
-4. Uncompromising quarantine of the external benchmark.
-5. Full audit manifest generated at `experiments/generalization/reports/audit_manifest.json`.
+2. Complete provenance and documented risk-flag review gating.
+3. Expanded structural coverage beyond the PhiUSIIL legitimate training set (98.7% deep links, 100.0% multi-special character links) validated against versioned baseline artifact `experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json`.
+4. Zero overlap with the quarantined external benchmark.
+5. Machine-readable audit manifest generated at `experiments/generalization/reports/audit_manifest.json`.
 
-**Recommendation:** Proceed to scale the collection protocol from the verified pilot to the full 15,000–25,000 URL augmentation corpus using the proven multi-category schema and review gating.
+**Next Milestone:** The pilot establishes initial structural coverage observations. Any larger corpus collection or potential model retraining must not proceed automatically; larger collection should depend on a separate, dedicated page-level authenticity validation protocol and an explicit experimental design evaluated against frozen benchmarks.
