@@ -11,7 +11,7 @@
 
 An end-to-end phishing URL research and analysis system. It combines strict URL parsing, 18-feature extraction, a frozen Random Forest inference pipeline, local SHAP explanations, CLI and Streamlit interfaces, domain-separated evaluation, external stress testing, and provenance-first legitimate URL collection. The repository also documents known generalization limits and protects its frozen model and quarantined external benchmark.
 
-> **Project status (12 November 2026):** The working system and Phase 1–5 research/audit tooling are documented in [Project Capabilities & Research Status](docs/PROJECT_CAPABILITIES.md). Phase 6 is a planned research phase; its deep-learning candidates have not yet been implemented.
+> **Project status (12 November 2026):** The working system and Phase 1–6 research are documented in [Project Capabilities & Research Status](docs/PROJECT_CAPABILITIES.md). Phase 6 completed hybrid validation, domain-separated experiments, and candidate-model comparisons while retaining the frozen production model. Phase 7 protocol is being prepared on a separate research branch; no Phase 7 training or deployment is claimed.
 
 ---
 

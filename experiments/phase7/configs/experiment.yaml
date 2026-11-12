@@ -1,0 +1,124 @@
+phase:
+  id: "phase7_generalization_expansion"
+  protocol_version: "phase7-protocol-v1.0.0"
+  status: "m0_protocol_draft"
+  date: "2026-11-12"
+
+research_question: "Can independently validated legitimate path-bearing and query-bearing URLs reduce false positives on unseen registered domains without unacceptable loss in phishing recall?"
+
+invariants:
+  frozen_production_model:
+    path: "models/random_forest_model.joblib"
+    sha256: "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb"
+  phiusiil_source:
+    path: "data/PhiUSIIL_Phishing_URL_Dataset.csv"
+    sha256: "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6"
+  phase4_benchmark:
+    path: "data/external/external_validation_benchmark.csv"
+    sha256: "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3"
+    phase7_role: "historical_comparison_only_not_untouched_confirmatory"
+  production_model_mutable: false
+  phase4_benchmark_mutable: false
+  phase6_artifacts_mutable: false
+
+labels:
+  "0": "Phishing"
+  "1": "Legitimate"
+
+features:
+  primary_schema: "existing_18_production_features"
+  feature_schema_changes_allowed_in_primary_experiment: false
+
+splitting:
+  group_key: "registered_domain"
+  ratios:
+    train: 0.70
+    validation: 0.15
+    internal_test: 0.15
+  zero_registered_domain_overlap_required: true
+  deduplicate_exact_urls_before_split: true
+  seed: 42
+  phase6_internal_test_reusable: false
+
+collection:
+  authenticity_method: "hybrid_automated_evidence_plus_human_review"
+  training_eligibility_status: "verified_page"
+  require_second_review_for:
+    - "risk_flagged"
+    - "user_generated_content"
+    - "ambiguous_ownership"
+    - "cross_domain_redirect"
+    - "reviewer_disagreement"
+  execute_page_scripts: false
+  submit_forms: false
+  authenticate: false
+  follow_cross_domain_redirects_automatically: false
+
+models:
+  E0:
+    role: "frozen_control"
+    path: "models/random_forest_model.joblib"
+    retrain: false
+  E1:
+    role: "phase6_historical_comparator"
+    path: "models/phase6_candidates/rf_augmented.joblib"
+    retrain: false
+  E4:
+    role: "primary_phase7_candidate"
+    family: "RandomForestClassifier"
+    output_dir: "models/phase7_candidates"
+    feature_schema: "existing_18_production_features"
+  E5:
+    role: "optional_secondary_comparator"
+    family: "XGBClassifier"
+    enabled: false
+    output_dir: "models/phase7_candidates"
+
+evaluation:
+  primary_threshold: 0.50
+  alternate_threshold_tuning_data: "validation_only"
+  never_tune_on:
+    - "internal_test"
+    - "new_external_confirmatory"
+    - "data/external/external_validation_benchmark.csv"
+  primary_metrics:
+    - "legitimate_fpr"
+    - "legitimate_recall"
+    - "phishing_recall"
+    - "phishing_precision"
+    - "macro_f1"
+    - "pr_auc"
+    - "roc_auc"
+    - "brier_score"
+    - "ece"
+  subgroups:
+    - "homepage"
+    - "single_level_path"
+    - "multi_level_path"
+    - "query_bearing"
+    - "path_and_query"
+    - "trailing_slash"
+    - "percent_encoded_path"
+    - "subdomain_bearing"
+    - "short_url"
+    - "long_url"
+    - "high_special_characters"
+
+success_criteria:
+  status: "provisional_freeze_before_test_inspection"
+  deep_link_fpr_relative_reduction_minimum: 0.50
+  query_bearing_legitimate_fpr_maximum: 0.30
+  phishing_recall_difference_lower_95ci_minimum: -0.01
+  all_domain_leakage_checks_must_pass: true
+  all_artifact_integrity_checks_must_pass: true
+
+external_confirmation:
+  requires_new_independent_benchmark: true
+  phase4_benchmark_is_untouched: false
+  freeze_dataset_labels_manifest_and_sha256_before_evaluation: true
+  one_primary_confirmatory_evaluation: true
+
+random_seeds:
+  split: 42
+  training: 42
+  bootstrap: 42
