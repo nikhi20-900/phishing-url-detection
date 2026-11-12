@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-09T16:02:52.549034+00:00",
+  "timestamp": "2026-11-10T17:11:56.692955+00:00",
   "overall_summary": {
     "total_candidates": 605,
     "approved_candidates": 602,
@@ -19,10 +19,20 @@
       "gini_coefficient": 0.0229,
       "top1_domain": "apache.org",
       "top1_share": 0.0299,
-      "top5_share": 0.0498,
-      "top10_share": 0.0997,
+      "top5_share": 0.0731,
+      "top10_share": 0.1229,
       "max_urls_per_domain": 18,
       "median_urls_per_domain": 6.0
+    },
+    "reconciliation": {
+      "candidate_queue_unique_domains": 101,
+      "approved_corpus_unique_domains": 98,
+      "rejected_unique_domains_count": 3,
+      "rejected_unique_domains": [
+        "archlinux.org",
+        "example-uni.edu",
+        "open-standards.org"
+      ]
     },
     "top_10_domains": {
       "apache.org": 18,
@@ -111,19 +121,26 @@
   },
   "audit_3_structural_feature_coverage": {
     "status": "PASS",
+    "baseline_validation_status": "PASS",
+    "baseline_artifact": {
+      "path": "experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json",
+      "schema_version": "1.0.0",
+      "dataset_identity": "PhiUSIIL Phishing URL Dataset (Legitimate Subset)",
+      "dataset_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+      "sample_count": 134850
+    },
     "phiusiil_legitimate_baseline": {
-      "N": 134850,
       "has_path_rate": 0.0,
       "path_depth_ge_2_rate": 0.0,
       "trailing_slash_rate": 0.0,
       "has_query_rate": 0.0,
       "has_fragment_rate": 0.0,
-      "NoOfOtherSpecialCharsInURL_mean": 0.0,
-      "NoOfOtherSpecialCharsInURL_pct_ge_2": 0.0,
-      "SpacialCharRatioInURL_mean": 0.0528,
-      "SpacialCharRatioInURL_pct_ge_0_0785": 0.0,
-      "URLLength_mean": 30.64,
-      "URLLength_std": 6.42
+      "NoOfOtherSpecialCharsInURL_mean": 1.2449,
+      "NoOfOtherSpecialCharsInURL_pct_ge_2": 0.2138,
+      "SpacialCharRatioInURL_mean": 0.0465,
+      "SpacialCharRatioInURL_pct_ge_0_0785": 0.0887,
+      "URLLength_mean": 27.2286,
+      "URLLength_std": 4.8156
     },
     "pilot_corpus_distribution": {
       "N": 602,
@@ -148,10 +165,11 @@
       "deep_link_gain": "+98.7% (PhiUSIIL: 0.0% vs Pilot: 98.7%)",
       "trailing_slash_gain": "+51.2% (PhiUSIIL: 0.0% vs Pilot: 51.2%)",
       "query_parameter_gain": "+24.1% (PhiUSIIL: 0.0% vs Pilot: 24.1%)",
-      "special_chars_boundary_penetration": "100.0% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 0.0%)",
-      "special_char_ratio_boundary_penetration": "99.5% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 0.0%)"
+      "special_chars_boundary_penetration": "100.0% cross NoOfOtherSpecialCharsInURL >= 2 (PhiUSIIL: 21.4%)",
+      "special_char_ratio_boundary_penetration": "99.5% cross SpacialCharRatioInURL >= 0.0785 (PhiUSIIL: 8.9%)"
     },
     "pass_criteria": {
+      "baseline_artifact_valid": true,
       "deep_link_coverage_gt_80pct": true,
       "trailing_slash_coverage_gt_30pct": true,
       "query_coverage_gt_15pct": true,
@@ -184,19 +202,23 @@
     "status": "PASS",
     "total_rows": 605,
     "approved_rows": 602,
-    "missing_required_fields": {},
-    "missing_approved_reviewer_count": 0,
-    "missing_approved_verification_method_count": 0,
-    "missing_approved_source_count": 0,
+    "rejected_rows": 3,
+    "pending_rows": 0,
+    "missing_metadata_errors_count": 0,
+    "missing_metadata_errors": [],
+    "invalid_metadata_errors_count": 0,
+    "invalid_metadata_errors": [],
     "deterministic_reproducibility": {
-      "original_sha256": "791a7bdbe086b0f1196a21380dc3b344689d3564996a157f16ac3dcd534166e6",
-      "reproduced_sha256": "791a7bdbe086b0f1196a21380dc3b344689d3564996a157f16ac3dcd534166e6",
-      "deterministic_match": true
+      "hash_version": "review-queue-hash-v2-canonical-json",
+      "original_sha256": "1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3",
+      "reproduced_sha256": "1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3",
+      "deterministic_match": true,
+      "hash_coverage": "Full dataset (canonical projection of all metadata, syntax dimensions, risk flags, and deduplication keys)",
+      "hash_guarantee": "Guarantees exact pipeline reproducibility and absence of post-ingestion tampering. Does not prove human review veracity."
     },
     "pass_criteria": {
-      "all_base_columns_complete": true,
-      "approved_reviewers_100pct": true,
-      "approved_methods_100pct": true,
+      "zero_missing_metadata_errors": true,
+      "zero_invalid_metadata_errors": true,
       "deterministic_reingestion_match": true
     }
   }

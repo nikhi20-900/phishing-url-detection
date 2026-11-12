@@ -71,7 +71,7 @@ The collector ingests an operator-supplied CSV with the following columns:
 | `review_status` | string | Yes | Status (`pending`, `approved`, `rejected`) | `approved` |
 | `reviewer` | string | Yes | Reviewer identity / process ID | `auditor-01` |
 | `notes` | string | Yes | Context notes or observations | `Canonical XML 1.0 recommendation` |
-| `legitimacy_reason` | string | Optional | Detailed authenticity rationale | `W3C formal technical recommendation specification` |
+| `legitimacy_reason` | string | Optional | Detailed legitimacy rationale | `W3C formal technical recommendation specification` |
 
 ### Review Queue Output Schema (`review_queue.csv`)
 In addition to the input metadata, each record contains:

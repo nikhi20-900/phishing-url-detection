@@ -383,7 +383,7 @@ def promote_approved(review_queue: pd.DataFrame) -> pd.DataFrame:
     5. Non-empty reviewer
     6. Non-empty verification_method
     7. Non-empty source_name and source_url
-    8. Non-empty legitimacy_reason or notes documenting reason for authenticity
+    8. Non-empty legitimacy_reason or notes documenting legitimacy rationale
 
     This output remains a vetted candidate dataset, NOT a labeled training set.
     No model labels (0 or 1) are assigned.

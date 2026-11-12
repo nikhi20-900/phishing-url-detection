@@ -1,0 +1,106 @@
+{
+  "manifest_version": "audit-manifest-v1",
+  "execution_timestamp_utc": "2026-11-10T17:11:56.722942+00:00",
+  "audit_overall_status": "PASS",
+  "git_metadata": {
+    "git_branch": "phase-5-audit-integrity-hardening",
+    "audited_source_commit": "ea271d102d59d75c8ea49711c2a0ebbe7d9a475f",
+    "working_tree_clean_at_audit": false,
+    "working_tree_state": "dirty (3 modified/untracked files)",
+    "manifest_identity_policy": "audited_source_commit records the repository commit evaluated during audit execution. When committed, this manifest's containing commit will be a child of (or identical to) audited_source_commit. To independently verify: 'git log -1 --format=%H' identifies the containing commit, and 'git log -1 --format=%P' contains audited_source_commit."
+  },
+  "environment": {
+    "git_commit": "ea271d102d59d75c8ea49711c2a0ebbe7d9a475f",
+    "audited_source_commit": "ea271d102d59d75c8ea49711c2a0ebbe7d9a475f",
+    "git_branch": "phase-5-audit-integrity-hardening",
+    "working_tree_clean": false,
+    "python_version": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "darwin",
+    "package_versions": {
+      "pandas": "3.0.5",
+      "numpy": "2.5.2",
+      "scipy": "1.18.0",
+      "sklearn": "1.9.0",
+      "joblib": "1.5.3",
+      "pytest": "9.1.1"
+    }
+  },
+  "pipeline_versions": {
+    "audit_script_version": "pilot-audit-v1.3",
+    "review_queue_hash_version": "review-queue-hash-v2-canonical-json",
+    "normalization_policy_version": "candidate-normalization-v1",
+    "feature_extraction_version": "src.features.extract_url_features@18-features"
+  },
+  "inputs": {
+    "raw_candidates": {
+      "exists": true,
+      "path": "experiments/generalization/datasets/pilot_candidates_raw.csv",
+      "size_bytes": 234341,
+      "sha256": "1797c62100464ba3b074961a8f4dfa4ba29be5d12673dde46b1a6f359e2b321b"
+    },
+    "review_queue": {
+      "exists": true,
+      "path": "experiments/generalization/datasets/pilot_review_queue.csv",
+      "size_bytes": 472787,
+      "sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360",
+      "dataset_hash": "1b7bb4d165dea3b0e94303c5bf90c516d38ac1c07eab39af3e082698de8d68c3"
+    },
+    "approved_corpus": {
+      "exists": true,
+      "path": "experiments/generalization/datasets/approved_pilot_corpus.csv",
+      "size_bytes": 470598,
+      "sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb"
+    },
+    "baseline_artifact": {
+      "exists": true,
+      "path": "experiments/generalization/audit/baselines/phiusiil_legitimate_baseline.json",
+      "size_bytes": 7237,
+      "sha256": "48542ab05180f79dc35995e69fa7f8a8ae780f4d1b32aaa81179feb402a52ecf",
+      "schema_version": "1.0.0",
+      "dataset_identity": "PhiUSIIL Phishing URL Dataset (Legitimate Subset)",
+      "sample_count": 134850
+    },
+    "quarantined_benchmark": {
+      "exists": true,
+      "path": "data/external/external_validation_benchmark.csv",
+      "size_bytes": 230717,
+      "sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3"
+    }
+  },
+  "outputs": {
+    "json_report": {
+      "exists": true,
+      "path": "experiments/generalization/reports/pilot_corpus_audit.json",
+      "size_bytes": 7756,
+      "sha256": "7f213e32ca5ae75b073553b0e3bf4fb5b43f050c0a5513104a9b6c7a0e245fe5"
+    },
+    "md_report": {
+      "exists": true,
+      "path": "experiments/generalization/reports/pilot_corpus_audit.md",
+      "size_bytes": 12459,
+      "sha256": "b7417bce614a85472960073ab7d5bae9255e9264deef426e2b5822abe19a0c54"
+    }
+  },
+  "reproducibility": {
+    "deterministic_fields": [
+      "inputs.raw_candidates.sha256",
+      "inputs.review_queue.dataset_hash",
+      "inputs.approved_corpus.sha256",
+      "inputs.baseline_artifact.sha256",
+      "inputs.quarantined_benchmark.sha256",
+      "pipeline_versions"
+    ],
+    "variable_fields": [
+      "execution_timestamp_utc",
+      "outputs.json_report.sha256",
+      "outputs.md_report.sha256"
+    ],
+    "variable_fields_rationale": "Report hashes vary across runs strictly because they embed execution timestamps; all underlying metrics, tables, and audit findings are deterministic."
+  },
+  "methodological_limitations": {
+    "dataset_integrity_vs_ground_truth": "The audit verifies cryptographic record integrity, pipeline reproducibility, and compliance with the collection review protocol. It DOES NOT prove the real-world factual legitimacy or runtime safety of the 602 approved URLs.",
+    "reputation_bias_warning": "Institutional domain standing (.edu, .gov, standards bodies) and HTTP 200 responses are collection criteria, not proof of innocence. Pages can harbor unvetted user uploads, open redirects, or compromised endpoints. Explicit page-level rationale was recorded for every approved record, but live threats require ongoing operational monitoring.",
+    "distribution_coverage_scope": "Structural differences between the pilot corpus and PhiUSIIL legitimate URLs represent distribution-coverage observations across benign deep links. They expand syntactic coverage but do not constitute causal proof of model performance or guarantees of robust retraining.",
+    "hash_serialization_qualification": "Dataset hashing utilizes deterministic Python JSON serialization (sorted keys, compact separators). Missing and empty-string values from unflagged optional columns are canonically mapped to JSON null for CSV roundtrip consistency, while non-empty string fields preserve exact casing, characters, and whitespace. This provides deterministic reproducibility across environments and is not certified as an RFC 8785 (JCS) conformant implementation."
+  }
+}
