@@ -1,0 +1,98 @@
+{
+  "phase": 7,
+  "milestone": "M1",
+  "contract_version": "phase7-m1-corpus-v1.0.0",
+  "audit_timestamp_utc": "2026-11-12T17:03:30.967394+00:00",
+  "status": "APPROVED",
+  "summary": {
+    "total_candidates_evaluated": 1207,
+    "verified_training_eligible_corpus": 1182,
+    "negative_candidates_filtered": 25,
+    "total_registered_domains": 164,
+    "unseen_registered_domains": 66,
+    "effective_domain_count": 154.93,
+    "gini_coefficient": 0.1132,
+    "top1_domain_share": 0.0152,
+    "top5_domain_share": 0.0525,
+    "top10_domain_share": 0.0948,
+    "exact_overlap_with_phase4_benchmark": 0,
+    "second_review_compliance_rate": 1.0
+  },
+  "prioritization_strata": {
+    "query_bearing": {
+      "priority": "Critical",
+      "count": 513,
+      "proportion": 0.434010152284264,
+      "unique_domains": 148
+    },
+    "multi_level_path": {
+      "priority": "High",
+      "count": 1157,
+      "proportion": 0.9788494077834179,
+      "unique_domains": 164
+    },
+    "path_and_query": {
+      "priority": "Critical",
+      "count": 513,
+      "proportion": 0.434010152284264,
+      "unique_domains": 148
+    },
+    "percent_encoded_path": {
+      "priority": "Medium",
+      "count": 32,
+      "proportion": 0.02707275803722504,
+      "unique_domains": 29
+    },
+    "trailing_slash": {
+      "priority": "Medium",
+      "count": 361,
+      "proportion": 0.305414551607445,
+      "unique_domains": 107
+    },
+    "unseen_registered_domains": {
+      "priority": "Critical",
+      "count": 66,
+      "total_domains": 164,
+      "proportion": 0.4024390243902439
+    }
+  },
+  "negative_filtering": {
+    "total_filtered": 25,
+    "rejected_policy_breaches": 12,
+    "ambiguous_user_generated": 11,
+    "inaccessible_dead_links": 2
+  },
+  "second_review_audit": {
+    "risk_flagged_verified_urls": 34,
+    "second_reviewed_approved": 34,
+    "compliance_rate": 1.0
+  },
+  "artifact_hashes": {
+    "candidate_queue": {
+      "path": "experiments/phase7/collection/candidate_queue.csv",
+      "sha256": "a179b21bee018cb712791217716bebad317935e5f14f26654e9593e3647613fa",
+      "records": 1207
+    },
+    "automated_evidence": {
+      "path": "experiments/phase7/collection/evidence/automated_evidence.jsonl",
+      "sha256": "0e2bf3399cc68743cc1364b0b48234d9b63911244b87a1edcb2897bf8dd3a383",
+      "records": 1207
+    },
+    "validation_records": {
+      "path": "experiments/phase7/collection/evidence/validation_records.jsonl",
+      "sha256": "1d3c34a6a604427f92363e59c77b2473529894d05349c32b3a3423cd3cebc269",
+      "records": 1207
+    },
+    "validated_benign_corpus": {
+      "path": "experiments/phase7/datasets/validated_benign_corpus.csv",
+      "sha256": "d2851eaed1bd4b0a7a9a95f0a93849c8fca259403626467ae8d656192f517b4a",
+      "records": 1182
+    },
+    "frozen_production_model": {
+      "path": "models/random_forest_model.joblib",
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "status": "UNTOUCHED_AND_FROZEN"
+    }
+  },
+  "exit_criteria_met": true
+}
