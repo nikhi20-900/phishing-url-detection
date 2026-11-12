@@ -5,11 +5,13 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-v1.9.0-orange.svg)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/Explainable_AI-SHAP-brightgreen.svg)](https://shap.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-v1.62-red.svg)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-175%20Passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-229%20Passed-success.svg)]()
 [![Test Accuracy](https://img.shields.io/badge/Test_Accuracy-99.72%25-blue.svg)]()
 [![ROC-AUC](https://img.shields.io/badge/ROC--AUC-0.9982-blueviolet.svg)]()
 
-An end-to-end cybersecurity system designed to identify phishing URLs using structural, lexical, and transport signals. Built with a Random Forest classifier that outputs model-estimated probabilities and local Explainable AI (SHAP) attributions, this project provides transparent, interpretable risk assessments rather than opaque black-box verdicts.
+An end-to-end phishing URL research and analysis system. It combines strict URL parsing, 18-feature extraction, a frozen Random Forest inference pipeline, local SHAP explanations, CLI and Streamlit interfaces, domain-separated evaluation, external stress testing, and provenance-first legitimate URL collection. The repository also documents known generalization limits and protects its frozen model and quarantined external benchmark.
+
+> **Project status (12 November 2026):** The working system and Phase 1–5 research/audit tooling are documented in [Project Capabilities & Research Status](docs/PROJECT_CAPABILITIES.md). Phase 6 is a planned research phase; its deep-learning candidates have not yet been implemented.
 
 ---
 
@@ -424,7 +426,7 @@ pip install -r requirements.txt -c constraints.txt
 After installing dependencies, verify the environment and run all components with these standard commands:
 
 ```bash
-# 1. Run the complete automated test suite (131 tests)
+# 1. Run the complete automated test suite (229 tests)
 export MPLCONFIGDIR=/tmp/mpl
 PYTHONPATH=. pytest -v
 
@@ -561,7 +563,7 @@ The application will be accessible at `http://localhost:8501`.
 
 ## 12. Automated Testing and Verification
 
-The repository includes an automated test suite comprising **175 unit, integration, and regression tests**.
+The repository includes an automated test suite comprising **229 unit, integration, and regression tests** as reported by the Phase 5 final verification.
 
 ### Running the Test Suite
 
@@ -609,7 +611,7 @@ PYTHONPATH=. python3 src/external_validation.py
 | `tests/test_cli.py` | 8 | Subprocess invocation, exit codes (0 vs. 1), clean stderr error formatting, validation rejection |
 | `tests/test_e0_and_diversity_audit.py` | 6 | Frozen model immutability invariant, synthetic metric edge cases, structural profiling, and E0 scorecard / diversity audit schema validation |
 | `tests/test_regression_protection.py` | 5 | Invariant protection: 0=Phishing/1=Legitimate mapping, exact 18-feature order, dynamic class index selection, SHAP class alignment, artifact schema contract |
-| **Total Test Count** | **175** | **All 175 tests passing** |
+| **Total Test Count** | **229** | **229 passed in the Phase 5 local verification; Python 3.11 and 3.12 CI jobs passed** |
 
 ### Whitespace and Git Integrity Verification
 
