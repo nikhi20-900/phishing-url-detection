@@ -1,0 +1,33 @@
+{
+  "manifest_version": "phase6-validation-manifest-v1",
+  "phase": 6,
+  "milestone": "M1",
+  "execution_timestamp_utc": "2026-11-12T15:32:58.369293+00:00",
+  "input_pilot_corpus_path": "experiments/generalization/datasets/approved_pilot_corpus.csv",
+  "input_pilot_candidates": 602,
+  "validated_benign_corpus": {
+    "path": "experiments/phase6/datasets/validated_benign_corpus.csv",
+    "sample_count": 602,
+    "unique_registered_domains": 98,
+    "sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb"
+  },
+  "validation_records": {
+    "path": "experiments/phase6/datasets/validation_records/validation_records.jsonl",
+    "total_records": 602,
+    "sha256": "5a0e163d449e40c17bca6b861e6de3fdaf94cff3eba7bde15d5769229a50216e"
+  },
+  "breakdown": {
+    "verified_page_approved": 602,
+    "risk_flagged_with_second_review": 3,
+    "rejected_or_inaccessible": 0
+  },
+  "exit_criteria": {
+    "all_proposed_training_records_have_page_evidence": true,
+    "all_proposed_training_records_have_human_approval": true,
+    "risk_flagged_cases_have_second_review": true,
+    "ambiguous_records_excluded": true,
+    "validation_corpus_has_immutable_sha256": true,
+    "no_labels_assigned_merely_by_reputation": true,
+    "status": "APPROVED"
+  }
+}

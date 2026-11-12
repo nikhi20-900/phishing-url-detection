@@ -14,6 +14,7 @@ __pycache__/
 *.pkl
 *.joblib
 !models/random_forest_model.joblib
+!models/phase6_candidates/*.joblib
 models/*.h5
 
 # Private academic presentation files

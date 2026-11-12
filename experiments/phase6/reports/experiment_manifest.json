@@ -1,0 +1,308 @@
+{
+  "contract_version": "phase6-m0-contract-v1",
+  "phase": 6,
+  "milestone": "M0",
+  "status": "APPROVED",
+  "execution_timestamp_utc": "2026-11-12T16:11:28.175621+00:00",
+  "git_metadata": {
+    "commit": "baa96637664bb3985120a5a69aca2d2552a27b3f",
+    "branch": "phase-6-generalization-research",
+    "clean": false,
+    "status_summary": "8 modified/untracked files"
+  },
+  "environment": {
+    "python_version": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "scikit_learn_version": "1.9.0",
+    "xgboost_version": "3.4.1",
+    "joblib_version": "1.5.3",
+    "pyyaml_version": "6.0.3"
+  },
+  "artifact_hashes": {
+    "frozen_model": {
+      "path": "models/random_forest_model.joblib",
+      "expected_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "actual_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "matches": true
+    },
+    "phase4_benchmark": {
+      "path": "data/external/external_validation_benchmark.csv",
+      "expected_sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+      "actual_sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+      "matches": true
+    },
+    "phiusiil_source": {
+      "path": "data/PhiUSIIL_Phishing_URL_Dataset.csv",
+      "expected_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+      "actual_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+      "matches": true
+    },
+    "phase5_approved_pilot": {
+      "path": "experiments/generalization/datasets/approved_pilot_corpus.csv",
+      "expected_sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb",
+      "actual_sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb",
+      "matches": true
+    },
+    "phase5_review_queue": {
+      "path": "experiments/generalization/datasets/pilot_review_queue.csv",
+      "expected_sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360",
+      "actual_sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360",
+      "matches": true
+    }
+  },
+  "historical_artifacts": {
+    "reports/phase_3_evaluation_and_leakage_audit.md": {
+      "exists": true,
+      "size_bytes": 22726
+    },
+    "reports/domain_separated_evaluation_results.json": {
+      "exists": true,
+      "size_bytes": 1204
+    },
+    "reports/phase_4_external_validation_and_fn_analysis.md": {
+      "exists": true,
+      "size_bytes": 18963
+    },
+    "reports/external_validation_results.json": {
+      "exists": true,
+      "size_bytes": 16584
+    },
+    "reports/phase_4_audit_addendum.md": {
+      "exists": true,
+      "size_bytes": 10752
+    },
+    "experiments/reports/issue_4_validation_report.md": {
+      "exists": true,
+      "size_bytes": 14884
+    },
+    "experiments/generalization/reports/pilot_corpus_audit.md": {
+      "exists": true,
+      "size_bytes": 12459
+    },
+    "experiments/generalization/reports/audit_manifest.json": {
+      "exists": true,
+      "size_bytes": 5695
+    }
+  },
+  "frozen_model_verification": {
+    "status": "PASSED",
+    "verifications": [
+      {
+        "url": "https://www.google.com",
+        "prediction": "Legitimate",
+        "phishing_probability": 0.0018135123956576008,
+        "matches_expected": true
+      },
+      {
+        "url": "http://paypal-verification-account-security-alert.com/login",
+        "prediction": "Phishing",
+        "phishing_probability": 1.0,
+        "matches_expected": true
+      }
+    ]
+  },
+  "experiment_configuration": {
+    "experiment": {
+      "id": "exp_phase6_generalization_v1",
+      "phase": 6,
+      "protocol_version": "phase6-protocol-v1.0.0",
+      "description": "Phase 6 Generalization Research: Investigating structural legitimate deep-link augmentation on domain generalization without degrading phishing detection."
+    },
+    "invariants": {
+      "frozen_random_forest_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "phase4_external_benchmark_sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+      "phiusiil_source_dataset_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+      "phase5_approved_pilot_corpus_sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb",
+      "phase5_pilot_review_queue_sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360"
+    },
+    "artifacts": {
+      "frozen_model_path": "models/random_forest_model.joblib",
+      "phase4_benchmark_path": "data/external/external_validation_benchmark.csv",
+      "phiusiil_dataset_path": "data/PhiUSIIL_Phishing_URL_Dataset.csv",
+      "phase5_pilot_approved_path": "experiments/generalization/datasets/approved_pilot_corpus.csv",
+      "phase5_pilot_queue_path": "experiments/generalization/datasets/pilot_review_queue.csv",
+      "candidate_models_dir": "models/phase6_candidates"
+    },
+    "feature_extraction": {
+      "version": "1.0.0",
+      "module": "src.features",
+      "num_features": 18,
+      "feature_names": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "TLDLength",
+        "NoOfSubDomain",
+        "HasObfuscation",
+        "NoOfObfuscatedChar",
+        "ObfuscationRatio",
+        "NoOfLettersInURL",
+        "LetterRatioInURL",
+        "NoOfDegitsInURL",
+        "DegitRatioInURL",
+        "NoOfEqualsInURL",
+        "NoOfQMarkInURL",
+        "NoOfAmpersandInURL",
+        "NoOfOtherSpecialCharsInURL",
+        "SpacialCharRatioInURL",
+        "IsHTTPS"
+      ]
+    },
+    "label_mapping": {
+      "0": "Phishing",
+      "1": "Legitimate"
+    },
+    "random_seeds": {
+      "global": 42,
+      "data_split": 42,
+      "model_training": 42,
+      "bootstrap": 42
+    },
+    "group_splitting": {
+      "group_key": "registered_domain",
+      "ratios": {
+        "train": 0.7,
+        "val": 0.15,
+        "internal_test": 0.15
+      },
+      "zero_domain_leakage": true,
+      "deduplicate_exact_urls": true
+    },
+    "models": {
+      "E0": {
+        "name": "Frozen Random Forest (Control)",
+        "family": "RandomForestClassifier",
+        "training_data": "Original PhiUSIIL (Frozen, non-retrained)",
+        "retrained": false,
+        "artifact_path": "models/random_forest_model.joblib"
+      },
+      "E1": {
+        "name": "Random Forest with Validated Benign Augmentation",
+        "family": "RandomForestClassifier",
+        "training_data": "PhiUSIIL train partition + Validated Phase 6 benign corpus",
+        "retrained": true,
+        "hyperparameters": {
+          "n_estimators": 100,
+          "random_state": 42,
+          "n_jobs": -1
+        },
+        "artifact_path": "models/phase6_candidates/rf_augmented.joblib"
+      },
+      "E2": {
+        "name": "XGBoost with Validated Benign Augmentation",
+        "family": "XGBClassifier",
+        "training_data": "PhiUSIIL train partition + Validated Phase 6 benign corpus",
+        "retrained": true,
+        "hyperparameters": {
+          "n_estimators": 100,
+          "max_depth": 6,
+          "learning_rate": 0.1,
+          "eval_metric": "logloss",
+          "random_state": 42,
+          "n_jobs": -1
+        },
+        "artifact_path": "models/phase6_candidates/xgboost_augmented.joblib"
+      },
+      "E3": {
+        "name": "Logistic Regression with Validated Benign Augmentation",
+        "family": "LogisticRegression",
+        "training_data": "PhiUSIIL train partition + Validated Phase 6 benign corpus",
+        "retrained": true,
+        "hyperparameters": {
+          "C": 1.0,
+          "max_iter": 1000,
+          "random_state": 42
+        },
+        "scaler": "StandardScaler",
+        "artifact_path": "models/phase6_candidates/logistic_regression_augmented.joblib"
+      }
+    },
+    "threshold_policy": {
+      "primary_threshold": 0.5,
+      "tune_on": "validation",
+      "tuning_metric": "macro_f1",
+      "never_tune_on": [
+        "data/external/external_validation_benchmark.csv",
+        "internal_test"
+      ]
+    },
+    "metrics": {
+      "classification": [
+        "accuracy",
+        "legitimate_recall",
+        "legitimate_fpr",
+        "phishing_recall",
+        "phishing_precision",
+        "macro_f1",
+        "roc_auc",
+        "pr_auc"
+      ],
+      "probability_quality": [
+        "brier_score",
+        "ece"
+      ]
+    },
+    "subgroup_strata": [
+      "homepage",
+      "single_level_path",
+      "multi_level_path",
+      "trailing_slash",
+      "query_bearing",
+      "fragment_bearing",
+      "subdomain_bearing",
+      "high_special_char",
+      "short_url",
+      "long_url"
+    ]
+  },
+  "split_configuration": {
+    "split_configuration": {
+      "methodology": "group_kfold_or_grouped_split",
+      "group_column": "registered_domain",
+      "seed": 42,
+      "target_ratios": {
+        "train": 0.7,
+        "val": 0.15,
+        "internal_test": 0.15
+      },
+      "constraints": {
+        "disjoint_domain_groups": true,
+        "zero_leakage_enforced": true,
+        "deduplicate_urls": true
+      },
+      "strata_tracking": {
+        "homepage": {
+          "definition": "Path is empty or single slash and query is empty"
+        },
+        "single_level_path": {
+          "definition": "Path contains exactly one non-empty slash segment"
+        },
+        "multi_level_path": {
+          "definition": "Path contains two or more slash segments"
+        },
+        "trailing_slash": {
+          "definition": "URL ends with '/'"
+        },
+        "query_bearing": {
+          "definition": "URL contains '?'"
+        },
+        "fragment_bearing": {
+          "definition": "URL contains '#'"
+        },
+        "subdomain_bearing": {
+          "definition": "Hostname has subdomain other than www"
+        },
+        "high_special_char": {
+          "definition": "NoOfOtherSpecialCharsInURL >= 2"
+        },
+        "short_url": {
+          "definition": "URLLength <= 35"
+        },
+        "long_url": {
+          "definition": "URLLength > 75"
+        }
+      }
+    }
+  },
+  "exit_criteria_met": true
+}
