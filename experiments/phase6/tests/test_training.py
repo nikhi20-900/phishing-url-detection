@@ -52,6 +52,8 @@ def test_candidate_model_loading_and_prediction():
     ]
 
     for mid, filename in candidates:
+        if filename == "xgboost_augmented.joblib":
+            pytest.importorskip("xgboost")
         artifact = joblib.load(REPO_ROOT / "models" / "phase6_candidates" / filename)
         assert isinstance(artifact, dict)
         assert "model" in artifact

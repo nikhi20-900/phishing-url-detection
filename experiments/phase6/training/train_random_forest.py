@@ -30,7 +30,7 @@ def train_candidate_rf(
 ) -> Dict[str, Any]:
     """Train Random Forest candidate model E1."""
     print("Training Phase 6 Candidate E1: Random Forest with Validated Augmentation...")
-    
+
     # Invariant guard: Never write to production model
     prod_path = REPO_ROOT / "models" / "random_forest_model.joblib"
     if output_model_path.resolve() == prod_path.resolve():
@@ -50,7 +50,7 @@ def train_candidate_rf(
     clf.fit(X_train, y_train)
 
     output_model_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     artifact = {
         "model": clf,
         "feature_names": FEATURE_NAMES,
@@ -78,7 +78,7 @@ def train_candidate_rf(
     joblib.dump(artifact, output_model_path)
     model_sha = hashlib.sha256(output_model_path.read_bytes()).hexdigest().lower()
     print(f"[E1 TRAINED] Saved candidate to {output_model_path.relative_to(REPO_ROOT)} (SHA-256: {model_sha[:16]}...)")
-    
+
     return artifact
 
 

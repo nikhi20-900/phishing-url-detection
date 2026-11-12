@@ -91,7 +91,7 @@ def evaluate_model_on_dataset(
     y_true = dataset_df["label"].values.astype(int)
 
     probs = model.predict_proba(X)
-    
+
     classes = getattr(model, "classes_", np.array([0, 1]))
     if 0 in classes and list(classes).index(0) == 0:
         prob_phish = probs[:, 0]
@@ -189,7 +189,7 @@ def find_optimal_validation_threshold(
     X_val = val_df[FEATURE_NAMES]
     y_val = val_df["label"].values.astype(int)
     probs = model.predict_proba(X_val)
-    
+
     classes = getattr(model, "classes_", np.array([0, 1]))
     prob_phish = probs[:, 0] if (0 in classes and list(classes).index(0) == 0) else probs[:, 1]
 
@@ -274,7 +274,7 @@ def run_internal_candidate_comparison(
 ) -> Dict[str, Any]:
     """Execute Milestone 5: Internal Evaluation of all candidate models on locked test set."""
     print("Executing Phase 6 M5: Internal Evaluation and Candidate Comparison...")
-    
+
     val_df = pd.read_csv(val_csv_path)
     test_df = pd.read_csv(test_csv_path)
 
@@ -289,7 +289,7 @@ def run_internal_candidate_comparison(
 
         # 2. Threshold tuning strictly on validation partition
         opt_thresh, opt_val_f1 = find_optimal_validation_threshold(estimator, val_df)
-        
+
         # 3. Evaluate tuned threshold on test partition
         m_tuned, _ = evaluate_model_on_dataset(estimator, test_df, threshold=opt_thresh)
 

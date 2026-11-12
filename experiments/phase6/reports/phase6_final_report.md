@@ -1,12 +1,12 @@
 # Phase 6 Final Research Report: Generalization Research on Legitimate Deep-Link Augmentation
 
-**Project:** Phishing URL Detection  
-**Repository:** `nikhi20-900/phishing-url-detection`  
-**Phase:** 6  
-**Approach:** Research-First Experimental Specification  
-**Status:** Research Complete — Invariants Upheld, All Milestones M0–M7 Executed  
-**Date:** November 12, 2026  
-**Artifact Directory:** `experiments/phase6/reports/`  
+**Project:** Phishing URL Detection
+**Repository:** `nikhi20-900/phishing-url-detection`
+**Phase:** 6
+**Approach:** Research-First Experimental Specification
+**Status:** Research Complete — Invariants Upheld, All Milestones M0–M7 Executed
+**Date:** November 12, 2026
+**Artifact Directory:** `experiments/phase6/reports/`
 
 ---
 
@@ -21,13 +21,13 @@ Phase 6 was commissioned to investigate the primary research question:
 > **Can adding independently validated legitimate deep-link examples improve legitimate URL recognition on previously unseen registered domains without materially degrading phishing detection?**
 
 ### Key Findings
-1. **Statistically Significant Improvement in Generalization (H1 & H2 Confirmed):**  
+1. **Statistically Significant Improvement in Generalization (H1 & H2 Confirmed):**
    Augmenting training with 602 independently validated, page-level reviewed legitimate deep-link URLs across 98 domains (Model **E1: Random Forest with Validated Benign Augmentation**) dramatically reduced the false-positive rate on previously unseen benign deep links from **100.00% down to 31.58%** at the fixed comparison threshold ($\tau = 0.50$), and down to **21.05%** at the validation-tuned threshold ($\tau = 0.65$).
-2. **Zero Degradation in Phishing Detection (H3 Confirmed):**  
+2. **Zero Degradation in Phishing Detection (H3 Confirmed):**
    On the locked domain-separated internal test set of 34,143 URLs (25,980 unseen domains), phishing recall for E1 was **99.40%** (versus 99.34% for the frozen baseline E0). On the sealed Phase 4 external benchmark (1,047 URLs), E1 caught **546 / 547 phishing URLs (99.82% recall)**, exactly matching the frozen baseline's detection efficacy while elevating ROC-AUC from **0.6827 to 0.8088**.
-3. **Rigorous Paired Statistical Significance:**  
+3. **Rigorous Paired Statistical Significance:**
    McNemar's test for paired classification outcomes between E0 and E1 on the locked internal test set yielded $\chi^2 = 63.56$ ($p = 1.56 \times 10^{-15}$, $p < 0.001$). A 1,000-iteration paired bootstrap confirmed a statistically significant increase in Macro F1 ($\Delta = +0.0029$, 95% CI $[+0.0022, +0.0036]$) and a statistically significant reduction in legitimate FPR ($\Delta = -0.0043$, 95% CI $[-0.0053, -0.0034]$) with no degradation in phishing recall ($\Delta = +0.0006$, 95% CI $[-0.0003, +0.0014]$).
-4. **All Non-Negotiable Invariants Strictly Preserved:**  
+4. **All Non-Negotiable Invariants Strictly Preserved:**
    The production model (`models/random_forest_model.joblib`), the Phase 4 external benchmark (`data/external/external_validation_benchmark.csv`), and the PhiUSIIL source dataset (`data/PhiUSIIL_Phishing_URL_Dataset.csv`) remained 100% frozen with verified SHA-256 hashes. Candidate models (E1, E2, E3) are strictly quarantined in `models/phase6_candidates/`.
 
 ---

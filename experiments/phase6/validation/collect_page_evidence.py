@@ -26,7 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 def parse_page_metadata(html_text: str) -> Dict[str, Any]:
     """Extract lightweight metadata from page content without script execution."""
     metadata: Dict[str, Any] = {}
-    
+
     # Title extraction
     title_match = re.search(r"<title[^>]*>(.*?)</title>", html_text, re.IGNORECASE | re.DOTALL)
     if title_match:

@@ -188,7 +188,12 @@ def run_m0_verification() -> Dict[str, Any]:
     # 5. Environment metadata
     git_info = get_git_info()
     import sklearn
-    import xgboost
+
+    try:
+        import xgboost
+        xgb_ver = xgboost.__version__
+    except ImportError:
+        xgb_ver = "not_installed"
 
     manifest = {
         "contract_version": "phase6-m0-contract-v1",
@@ -201,7 +206,7 @@ def run_m0_verification() -> Dict[str, Any]:
             "python_version": sys.version,
             "platform": platform.platform(),
             "scikit_learn_version": sklearn.__version__,
-            "xgboost_version": xgboost.__version__,
+            "xgboost_version": xgb_ver,
             "joblib_version": joblib.__version__,
             "pyyaml_version": yaml.__version__,
         },

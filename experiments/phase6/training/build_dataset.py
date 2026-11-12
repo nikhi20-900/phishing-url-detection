@@ -155,7 +155,7 @@ def build_phase6_datasets(
     # 2. Load Validated Benign Pilot Corpus
     print(f"Loading validated benign corpus from {validated_pilot_csv_path}...")
     pilot_raw = pd.read_csv(validated_pilot_csv_path)
-    
+
     # Extract 18 features for pilot records
     pilot_features = []
     for u in pilot_raw["url"]:
@@ -192,7 +192,7 @@ def build_phase6_datasets(
     # 4. Group splitting by registered domain
     print("Performing stratified registered-domain group partition (70% Train, 15% Val, 15% Test)...")
     domain_stats = combined_df.groupby("registered_domain")["label"].agg(["count", "mean"])
-    
+
     # Stratified binning of domains by mean label (0.0 pure phish, 1.0 pure legit, mixed)
     domain_bins: Dict[str, List[str]] = {"pure_phish": [], "pure_legit": [], "mixed": []}
     for dom, row in domain_stats.iterrows():
@@ -216,7 +216,7 @@ def build_phase6_datasets(
         nb = len(arr)
         nb_train = int(nb * train_ratio)
         nb_val = int(nb * val_ratio)
-        
+
         train_doms.update(arr[:nb_train])
         val_doms.update(arr[nb_train:nb_train + nb_val])
         test_doms.update(arr[nb_train + nb_val:])
