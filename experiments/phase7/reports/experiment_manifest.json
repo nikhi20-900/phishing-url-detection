@@ -1,0 +1,365 @@
+{
+  "contract_version": "phase7-m0-contract-v1",
+  "phase": 7,
+  "milestone": "M0",
+  "status": "APPROVED",
+  "execution_timestamp_utc": "2026-11-12T16:43:54.600647+00:00",
+  "git_metadata": {
+    "commit": "9c946e54c9363d8ef40c7176419c30a0bfacd59c",
+    "branch": "phase-7-m0-integrity-verification",
+    "clean": false,
+    "status_summary": "4 modified/untracked files"
+  },
+  "environment": {
+    "python_version": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "scikit_learn_version": "1.9.0",
+    "xgboost_version": "3.4.1",
+    "scipy_version": "1.18.0",
+    "joblib_version": "1.5.3",
+    "pyyaml_version": "6.0.3"
+  },
+  "artifact_hashes": {
+    "frozen_production_model": {
+      "path": "models/random_forest_model.joblib",
+      "role": "frozen_control_e0",
+      "expected_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "actual_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "matches": true
+    },
+    "phiusiil_source": {
+      "path": "data/PhiUSIIL_Phishing_URL_Dataset.csv",
+      "role": "immutable_source_dataset",
+      "expected_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+      "actual_sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+      "matches": true
+    },
+    "phase4_benchmark": {
+      "path": "data/external/external_validation_benchmark.csv",
+      "role": "historical_comparison_only_not_untouched_confirmatory",
+      "expected_sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+      "actual_sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+      "matches": true
+    },
+    "phase5_approved_pilot": {
+      "path": "experiments/generalization/datasets/approved_pilot_corpus.csv",
+      "role": "phase5_historical_pilot",
+      "expected_sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb",
+      "actual_sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb",
+      "matches": true
+    },
+    "phase5_review_queue": {
+      "path": "experiments/generalization/datasets/pilot_review_queue.csv",
+      "role": "phase5_audit_queue",
+      "expected_sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360",
+      "actual_sha256": "e4ea2a206f477eb9902378ef599d80024395a09bd9cc2dd6dc527d14b05da360",
+      "matches": true
+    },
+    "phase6_validated_benign": {
+      "path": "experiments/phase6/datasets/validated_benign_corpus.csv",
+      "role": "phase6_validated_benign_corpus",
+      "expected_sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb",
+      "actual_sha256": "cca9ef3f8b265c4c3b0395c94fc1c4c40442f90a5381713e33511ccc30fe89cb",
+      "matches": true
+    },
+    "phase6_rf_augmented": {
+      "path": "models/phase6_candidates/rf_augmented.joblib",
+      "role": "phase6_candidate_e1_historical_comparator",
+      "expected_sha256": "072e1b74fe69b406a52fc03ae45c4b8431af51744505ea4ac52cbcfea778ca26",
+      "actual_sha256": "072e1b74fe69b406a52fc03ae45c4b8431af51744505ea4ac52cbcfea778ca26",
+      "matches": true
+    },
+    "phase6_lr_augmented": {
+      "path": "models/phase6_candidates/logistic_regression_augmented.joblib",
+      "role": "phase6_candidate_e2_linear_baseline",
+      "expected_sha256": "63113186f673039287f0ead0ddc0ef00924c2cc9042d250824dae274b5474d3d",
+      "actual_sha256": "63113186f673039287f0ead0ddc0ef00924c2cc9042d250824dae274b5474d3d",
+      "matches": true
+    },
+    "phase6_xgb_augmented": {
+      "path": "models/phase6_candidates/xgboost_augmented.joblib",
+      "role": "phase6_candidate_e3_gradient_boosted",
+      "expected_sha256": "2dbabdc62e2cd7a51d40f2d8ddb47e95527b55780d3d25d536c97f4a025f1922",
+      "actual_sha256": "2dbabdc62e2cd7a51d40f2d8ddb47e95527b55780d3d25d536c97f4a025f1922",
+      "matches": true
+    }
+  },
+  "governance_checks": {
+    "production_model_immutable": true,
+    "phase4_benchmark_immutable": true,
+    "phase4_benchmark_not_untouched": true,
+    "phase4_benchmark_historical_role": true,
+    "requires_new_independent_benchmark": true,
+    "phase6_internal_test_quarantined": true,
+    "feature_schema_locked": true,
+    "zero_registered_domain_overlap_required": true,
+    "candidate_models_isolated": true
+  },
+  "historical_artifacts": {
+    "reports/phase_3_evaluation_and_leakage_audit.md": {
+      "exists": true,
+      "size_bytes": 22726
+    },
+    "reports/domain_separated_evaluation_results.json": {
+      "exists": true,
+      "size_bytes": 1204
+    },
+    "reports/phase_4_external_validation_and_fn_analysis.md": {
+      "exists": true,
+      "size_bytes": 18963
+    },
+    "reports/external_validation_results.json": {
+      "exists": true,
+      "size_bytes": 16584
+    },
+    "reports/phase_4_audit_addendum.md": {
+      "exists": true,
+      "size_bytes": 10752
+    },
+    "experiments/reports/issue_4_validation_report.md": {
+      "exists": true,
+      "size_bytes": 14884
+    },
+    "experiments/generalization/reports/pilot_corpus_audit.md": {
+      "exists": true,
+      "size_bytes": 12459
+    },
+    "experiments/generalization/reports/audit_manifest.json": {
+      "exists": true,
+      "size_bytes": 5695
+    },
+    "experiments/phase6/reports/phase6_final_report.md": {
+      "exists": true,
+      "size_bytes": 21838
+    },
+    "experiments/phase6/reports/experiment_manifest.json": {
+      "exists": true,
+      "size_bytes": 10185
+    },
+    "experiments/phase6/reports/baseline_results.json": {
+      "exists": true,
+      "size_bytes": 5119
+    },
+    "experiments/phase6/reports/candidate_comparison.json": {
+      "exists": true,
+      "size_bytes": 41727
+    },
+    "experiments/phase6/reports/confirmatory_external_evaluation.json": {
+      "exists": true,
+      "size_bytes": 19780
+    },
+    "experiments/phase6/reports/statistical_analysis.json": {
+      "exists": true,
+      "size_bytes": 5526
+    }
+  },
+  "frozen_model_verification": {
+    "status": "PASSED",
+    "verifications": [
+      {
+        "url": "https://www.google.com",
+        "prediction": "Legitimate",
+        "phishing_probability": 0.0018135123956576004,
+        "matches_expected": true
+      },
+      {
+        "url": "http://paypal-verification-account-security-alert.com/login",
+        "prediction": "Phishing",
+        "phishing_probability": 1.0,
+        "matches_expected": true
+      }
+    ]
+  },
+  "experiment_configuration": {
+    "phase": {
+      "id": "phase7_generalization_expansion",
+      "protocol_version": "phase7-protocol-v1.0.0",
+      "status": "m0_protocol_draft",
+      "date": "2026-11-12"
+    },
+    "research_question": "Can independently validated legitimate path-bearing and query-bearing URLs reduce false positives on unseen registered domains without unacceptable loss in phishing recall?",
+    "invariants": {
+      "frozen_production_model": {
+        "path": "models/random_forest_model.joblib",
+        "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb"
+      },
+      "phiusiil_source": {
+        "path": "data/PhiUSIIL_Phishing_URL_Dataset.csv",
+        "sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6"
+      },
+      "phase4_benchmark": {
+        "path": "data/external/external_validation_benchmark.csv",
+        "sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+        "phase7_role": "historical_comparison_only_not_untouched_confirmatory"
+      },
+      "production_model_mutable": false,
+      "phase4_benchmark_mutable": false,
+      "phase6_artifacts_mutable": false
+    },
+    "labels": {
+      "0": "Phishing",
+      "1": "Legitimate"
+    },
+    "features": {
+      "primary_schema": "existing_18_production_features",
+      "feature_schema_changes_allowed_in_primary_experiment": false
+    },
+    "splitting": {
+      "group_key": "registered_domain",
+      "ratios": {
+        "train": 0.7,
+        "validation": 0.15,
+        "internal_test": 0.15
+      },
+      "zero_registered_domain_overlap_required": true,
+      "deduplicate_exact_urls_before_split": true,
+      "seed": 42,
+      "phase6_internal_test_reusable": false
+    },
+    "collection": {
+      "authenticity_method": "hybrid_automated_evidence_plus_human_review",
+      "training_eligibility_status": "verified_page",
+      "require_second_review_for": [
+        "risk_flagged",
+        "user_generated_content",
+        "ambiguous_ownership",
+        "cross_domain_redirect",
+        "reviewer_disagreement"
+      ],
+      "execute_page_scripts": false,
+      "submit_forms": false,
+      "authenticate": false,
+      "follow_cross_domain_redirects_automatically": false
+    },
+    "models": {
+      "E0": {
+        "role": "frozen_control",
+        "path": "models/random_forest_model.joblib",
+        "retrain": false
+      },
+      "E1": {
+        "role": "phase6_historical_comparator",
+        "path": "models/phase6_candidates/rf_augmented.joblib",
+        "retrain": false
+      },
+      "E4": {
+        "role": "primary_phase7_candidate",
+        "family": "RandomForestClassifier",
+        "output_dir": "models/phase7_candidates",
+        "feature_schema": "existing_18_production_features"
+      },
+      "E5": {
+        "role": "optional_secondary_comparator",
+        "family": "XGBClassifier",
+        "enabled": false,
+        "output_dir": "models/phase7_candidates"
+      }
+    },
+    "evaluation": {
+      "primary_threshold": 0.5,
+      "alternate_threshold_tuning_data": "validation_only",
+      "never_tune_on": [
+        "internal_test",
+        "new_external_confirmatory",
+        "data/external/external_validation_benchmark.csv"
+      ],
+      "primary_metrics": [
+        "legitimate_fpr",
+        "legitimate_recall",
+        "phishing_recall",
+        "phishing_precision",
+        "macro_f1",
+        "pr_auc",
+        "roc_auc",
+        "brier_score",
+        "ece"
+      ],
+      "subgroups": [
+        "homepage",
+        "single_level_path",
+        "multi_level_path",
+        "query_bearing",
+        "path_and_query",
+        "trailing_slash",
+        "percent_encoded_path",
+        "subdomain_bearing",
+        "short_url",
+        "long_url",
+        "high_special_characters"
+      ]
+    },
+    "success_criteria": {
+      "status": "provisional_freeze_before_test_inspection",
+      "deep_link_fpr_relative_reduction_minimum": 0.5,
+      "query_bearing_legitimate_fpr_maximum": 0.3,
+      "phishing_recall_difference_lower_95ci_minimum": -0.01,
+      "all_domain_leakage_checks_must_pass": true,
+      "all_artifact_integrity_checks_must_pass": true
+    },
+    "external_confirmation": {
+      "requires_new_independent_benchmark": true,
+      "phase4_benchmark_is_untouched": false,
+      "freeze_dataset_labels_manifest_and_sha256_before_evaluation": true,
+      "one_primary_confirmatory_evaluation": true
+    },
+    "random_seeds": {
+      "split": 42,
+      "training": 42,
+      "bootstrap": 42
+    }
+  },
+  "split_configuration": {
+    "split_configuration": {
+      "methodology": "stratified_group_kfold_or_grouped_split",
+      "group_column": "registered_domain",
+      "seed": 42,
+      "target_ratios": {
+        "train": 0.7,
+        "validation": 0.15,
+        "internal_test": 0.15
+      },
+      "constraints": {
+        "disjoint_domain_groups": true,
+        "zero_registered_domain_leakage": true,
+        "deduplicate_exact_urls": true,
+        "phase6_internal_test_reusable": false
+      },
+      "strata_tracking": {
+        "homepage": {
+          "definition": "Path is empty or single slash and query is empty"
+        },
+        "single_level_path": {
+          "definition": "Path contains exactly one non-empty slash segment"
+        },
+        "multi_level_path": {
+          "definition": "Path contains two or more slash segments"
+        },
+        "query_bearing": {
+          "definition": "URL contains '?'"
+        },
+        "path_and_query": {
+          "definition": "Path has at least one segment and query is non-empty"
+        },
+        "trailing_slash": {
+          "definition": "URL ends with '/'"
+        },
+        "percent_encoded_path": {
+          "definition": "Path contains '%'"
+        },
+        "subdomain_bearing": {
+          "definition": "Hostname has subdomain other than www"
+        },
+        "short_url": {
+          "definition": "URLLength <= 35"
+        },
+        "long_url": {
+          "definition": "URLLength > 75"
+        },
+        "high_special_characters": {
+          "definition": "NoOfOtherSpecialCharsInURL >= 2"
+        }
+      }
+    }
+  },
+  "exit_criteria_met": true
+}

@@ -1,0 +1,36 @@
+split_configuration:
+  methodology: "stratified_group_kfold_or_grouped_split"
+  group_column: "registered_domain"
+  seed: 42
+  target_ratios:
+    train: 0.70
+    validation: 0.15
+    internal_test: 0.15
+  constraints:
+    disjoint_domain_groups: true
+    zero_registered_domain_leakage: true
+    deduplicate_exact_urls: true
+    phase6_internal_test_reusable: false
+  strata_tracking:
+    homepage:
+      definition: "Path is empty or single slash and query is empty"
+    single_level_path:
+      definition: "Path contains exactly one non-empty slash segment"
+    multi_level_path:
+      definition: "Path contains two or more slash segments"
+    query_bearing:
+      definition: "URL contains '?'"
+    path_and_query:
+      definition: "Path has at least one segment and query is non-empty"
+    trailing_slash:
+      definition: "URL ends with '/'"
+    percent_encoded_path:
+      definition: "Path contains '%'"
+    subdomain_bearing:
+      definition: "Hostname has subdomain other than www"
+    short_url:
+      definition: "URLLength <= 35"
+    long_url:
+      definition: "URLLength > 75"
+    high_special_characters:
+      definition: "NoOfOtherSpecialCharsInURL >= 2"
