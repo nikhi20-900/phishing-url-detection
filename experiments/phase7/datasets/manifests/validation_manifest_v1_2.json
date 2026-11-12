@@ -1,0 +1,116 @@
+{
+  "phase": 7,
+  "milestone": "M1.2",
+  "contract_version": "phase7-m1-2-provenance-v1.2.0",
+  "audit_timestamp_utc": "2026-11-12T18:34:11.152296+00:00",
+  "status": "APPROVED",
+  "evidence_provenance": {
+    "authentic_network_retrieval": true,
+    "zero_synthetic_evidence": true,
+    "dns_rebinding_ssrf_protection": true,
+    "tls_certificate_verification": true,
+    "response_sha256_verified": true,
+    "response_size_cap_bytes": 524288,
+    "timeout_seconds": 5.0,
+    "max_redirect_hops": 3
+  },
+  "summary": {
+    "total_candidates_evaluated": 1207,
+    "substantiated_training_eligible_corpus_v1_2": 334,
+    "excluded_candidates_total": 873,
+    "total_registered_domains": 86,
+    "unseen_registered_domains": 46,
+    "effective_domain_count": 60.56,
+    "gini_coefficient": 0.3626,
+    "top1_domain_share": 0.0299,
+    "top5_domain_share": 0.1407,
+    "top10_domain_share": 0.2545,
+    "exact_overlap_with_phase4_benchmark": 0
+  },
+  "exclusion_breakdown": {
+    "http_404_not_found": 537,
+    "http_403_access_restricted": 173,
+    "dns_or_connection_error": 104,
+    "private_ip_ssrf_blocked": 1,
+    "cross_domain_redirects": 1,
+    "redirect_loops_or_limits": 6,
+    "non_200_responses_other": 45,
+    "senior_auditor_rejected_dynamic_endpoints": 6
+  },
+  "prioritization_strata": {
+    "query_bearing": {
+      "priority": "Critical",
+      "count": 195,
+      "proportion": 0.5838323353293413,
+      "unique_domains": 72
+    },
+    "multi_level_path": {
+      "priority": "High",
+      "count": 316,
+      "proportion": 0.9461077844311377,
+      "unique_domains": 85
+    },
+    "path_and_query": {
+      "priority": "Critical",
+      "count": 195,
+      "proportion": 0.5838323353293413,
+      "unique_domains": 72
+    },
+    "percent_encoded_path": {
+      "priority": "Medium",
+      "count": 10,
+      "proportion": 0.029940119760479042,
+      "unique_domains": 10
+    },
+    "trailing_slash": {
+      "priority": "Medium",
+      "count": 135,
+      "proportion": 0.4041916167664671,
+      "unique_domains": 46
+    },
+    "unseen_registered_domains": {
+      "priority": "Critical",
+      "count": 46,
+      "total_domains": 86,
+      "proportion": 0.5348837209302325
+    }
+  },
+  "artifact_hashes": {
+    "candidate_queue": {
+      "path": "experiments/phase7/collection/candidate_queue.csv",
+      "sha256": "a179b21bee018cb712791217716bebad317935e5f14f26654e9593e3647613fa",
+      "records": 1207
+    },
+    "m1_2_raw_http_observations": {
+      "path": "experiments/phase7/collection/evidence/m1_2_raw_http_observations.jsonl",
+      "sha256": "e3d27928314ff3221a142122d85b0d2c821d7566e24a2dfd65d9a66e3d6d7bec",
+      "records": 1207
+    },
+    "m1_2_human_reviews": {
+      "path": "experiments/phase7/collection/evidence/m1_2_human_reviews.jsonl",
+      "sha256": "a42ce3ff35b4d8d7ad8085c331d66bf6720f52abc5822c1d20d8d4f4f997510c",
+      "records": 1207
+    },
+    "m1_2_senior_reviews": {
+      "path": "experiments/phase7/collection/evidence/m1_2_senior_reviews.jsonl",
+      "sha256": "e61d662fae9a9959b12ff6641180c146b8371f6189cf1956cc45e3a13183f263",
+      "records": 23
+    },
+    "m1_2_validation_records": {
+      "path": "experiments/phase7/collection/evidence/m1_2_validation_records.jsonl",
+      "sha256": "c1530ee99020743a116efa691c4f36e5458e6ecbb74968fc56248e5e6aeb2ab7",
+      "records": 1207
+    },
+    "validated_benign_corpus_v1_2": {
+      "path": "experiments/phase7/datasets/validated_benign_corpus_v1_2.csv",
+      "sha256": "08daaea7709dc76b06b63f3b383a46c2ef1ec0f881d5d55e2781bf10b902416c",
+      "records": 334
+    },
+    "frozen_production_model": {
+      "path": "models/random_forest_model.joblib",
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "status": "UNTOUCHED_AND_FROZEN"
+    }
+  },
+  "exit_criteria_met": true
+}
