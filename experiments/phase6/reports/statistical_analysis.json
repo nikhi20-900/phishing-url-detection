@@ -1,0 +1,197 @@
+{
+  "report_version": "phase6-m7-statistical-tests-v1",
+  "phase": 6,
+  "milestone": "M7",
+  "execution_timestamp_utc": "2026-11-12T16:01:44.249824+00:00",
+  "evaluation_partition": "experiments/phase6/datasets/splits/internal_test.csv",
+  "n_samples": 34143,
+  "control_E0_confidence_intervals": {
+    "phishing_recall": {
+      "ci_95_low": 0.9922,
+      "ci_95_high": 0.9947
+    },
+    "legitimate_recall": {
+      "ci_95_low": 0.992,
+      "ci_95_high": 0.9943
+    },
+    "legitimate_fpr": {
+      "ci_95_low": 0.0057,
+      "ci_95_high": 0.008
+    },
+    "macro_f1": {
+      "ci_95_low": 0.9921,
+      "ci_95_high": 0.9939
+    }
+  },
+  "candidate_statistical_comparisons": {
+    "E1": {
+      "model_name": "Random Forest with Validated Benign Augmentation",
+      "bootstrap_confidence_intervals": {
+        "phishing_recall": {
+          "ci_95_low": 0.9928,
+          "ci_95_high": 0.9953
+        },
+        "legitimate_recall": {
+          "ci_95_low": 0.9967,
+          "ci_95_high": 0.9981
+        },
+        "legitimate_fpr": {
+          "ci_95_low": 0.0019,
+          "ci_95_high": 0.0033
+        },
+        "macro_f1": {
+          "ci_95_low": 0.9952,
+          "ci_95_high": 0.9966
+        }
+      },
+      "mcnemar_test_vs_E0": {
+        "contingency_table": {
+          "both_correct": 33889,
+          "control_correct_candidate_wrong": 23,
+          "control_wrong_candidate_correct": 119,
+          "both_wrong": 112
+        },
+        "discordant_pairs": 142,
+        "statistic": 63.5563,
+        "p_value": 1.558454e-15,
+        "statistically_significant_p05": true
+      },
+      "paired_bootstrap_delta_vs_E0": {
+        "delta_macro_f1": {
+          "mean_delta": 0.0029,
+          "ci_95_low": 0.0022,
+          "ci_95_high": 0.0036,
+          "p_value": 0.0,
+          "statistically_significant": true
+        },
+        "delta_legitimate_fpr": {
+          "mean_delta": -0.0043,
+          "ci_95_low": -0.0053,
+          "ci_95_high": -0.0034,
+          "p_value": 0.0,
+          "statistically_significant": true
+        },
+        "delta_phishing_recall": {
+          "mean_delta": 0.0006,
+          "ci_95_low": -0.0003,
+          "ci_95_high": 0.0014,
+          "p_value": 0.119,
+          "statistically_significant": false
+        }
+      }
+    },
+    "E2": {
+      "model_name": "XGBoost with Validated Benign Augmentation",
+      "bootstrap_confidence_intervals": {
+        "phishing_recall": {
+          "ci_95_low": 0.9897,
+          "ci_95_high": 0.9927
+        },
+        "legitimate_recall": {
+          "ci_95_low": 0.9973,
+          "ci_95_high": 0.9985
+        },
+        "legitimate_fpr": {
+          "ci_95_low": 0.0015,
+          "ci_95_high": 0.0027
+        },
+        "macro_f1": {
+          "ci_95_low": 0.9942,
+          "ci_95_high": 0.9958
+        }
+      },
+      "mcnemar_test_vs_E0": {
+        "contingency_table": {
+          "both_correct": 33867,
+          "control_correct_candidate_wrong": 45,
+          "control_wrong_candidate_correct": 112,
+          "both_wrong": 119
+        },
+        "discordant_pairs": 157,
+        "statistic": 27.7452,
+        "p_value": 1.383895e-07,
+        "statistically_significant_p05": true
+      },
+      "paired_bootstrap_delta_vs_E0": {
+        "delta_macro_f1": {
+          "mean_delta": 0.002,
+          "ci_95_low": 0.0013,
+          "ci_95_high": 0.0027,
+          "p_value": 0.0,
+          "statistically_significant": true
+        },
+        "delta_legitimate_fpr": {
+          "mean_delta": -0.0048,
+          "ci_95_low": -0.0058,
+          "ci_95_high": -0.0039,
+          "p_value": 0.0,
+          "statistically_significant": true
+        },
+        "delta_phishing_recall": {
+          "mean_delta": -0.0022,
+          "ci_95_low": -0.0032,
+          "ci_95_high": -0.0012,
+          "p_value": 1.0,
+          "statistically_significant": false
+        }
+      }
+    },
+    "E3": {
+      "model_name": "Logistic Regression with Validated Benign Augmentation",
+      "bootstrap_confidence_intervals": {
+        "phishing_recall": {
+          "ci_95_low": 0.9811,
+          "ci_95_high": 0.9854
+        },
+        "legitimate_recall": {
+          "ci_95_low": 0.9915,
+          "ci_95_high": 0.9938
+        },
+        "legitimate_fpr": {
+          "ci_95_low": 0.0062,
+          "ci_95_high": 0.0085
+        },
+        "macro_f1": {
+          "ci_95_low": 0.9872,
+          "ci_95_high": 0.9896
+        }
+      },
+      "mcnemar_test_vs_E0": {
+        "contingency_table": {
+          "both_correct": 33749,
+          "control_correct_candidate_wrong": 163,
+          "control_wrong_candidate_correct": 12,
+          "both_wrong": 219
+        },
+        "discordant_pairs": 175,
+        "statistic": 128.5714,
+        "p_value": 8.416321e-30,
+        "statistically_significant_p05": true
+      },
+      "paired_bootstrap_delta_vs_E0": {
+        "delta_macro_f1": {
+          "mean_delta": -0.0046,
+          "ci_95_low": -0.0054,
+          "ci_95_high": -0.0038,
+          "p_value": 1.0,
+          "statistically_significant": false
+        },
+        "delta_legitimate_fpr": {
+          "mean_delta": 0.0004,
+          "ci_95_low": -0.0001,
+          "ci_95_high": 0.001,
+          "p_value": 0.963,
+          "statistically_significant": false
+        },
+        "delta_phishing_recall": {
+          "mean_delta": -0.0103,
+          "ci_95_low": -0.012,
+          "ci_95_high": -0.0085,
+          "p_value": 1.0,
+          "statistically_significant": false
+        }
+      }
+    }
+  },
+  "status": "APPROVED"
+}

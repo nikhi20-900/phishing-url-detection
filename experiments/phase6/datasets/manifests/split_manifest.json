@@ -1,0 +1,443 @@
+{
+  "manifest_version": "phase6-split-manifest-v1",
+  "phase": 6,
+  "milestone": "M2",
+  "creation_timestamp_utc": "2026-11-12T15:52:29.182365+00:00",
+  "random_seed": 42,
+  "target_ratios": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  },
+  "total_urls": 235972,
+  "total_unique_domains": 173181,
+  "partitions": {
+    "train": {
+      "path": "experiments/phase6/datasets/splits/train.csv",
+      "sha256": "e7afb5d270e408efe826cb573f10ed9574fe5fd3b4e187fe99cc8e484345a733",
+      "url_count": 170852,
+      "domain_count": 121225,
+      "phishing_count": 76097,
+      "legitimate_count": 94755,
+      "validated_pilot_count": 391,
+      "strata_breakdown": {
+        "total_urls": 170852,
+        "homepage": {
+          "count": 150303,
+          "percent": 87.97
+        },
+        "single_level_path": {
+          "count": 7683,
+          "percent": 4.5
+        },
+        "multi_level_path": {
+          "count": 11962,
+          "percent": 7.0
+        },
+        "trailing_slash": {
+          "count": 30679,
+          "percent": 17.96
+        },
+        "query_bearing": {
+          "count": 4534,
+          "percent": 2.65
+        },
+        "fragment_bearing": {
+          "count": 602,
+          "percent": 0.35
+        },
+        "subdomain_bearing": {
+          "count": 59986,
+          "percent": 35.11
+        },
+        "high_special_char": {
+          "count": 79107,
+          "percent": 46.3
+        },
+        "short_url": {
+          "count": 131341,
+          "percent": 76.87
+        },
+        "long_url": {
+          "count": 7496,
+          "percent": 4.39
+        },
+        "by_class": {
+          "phishing": {
+            "count": 76097,
+            "homepage": {
+              "count": 55939,
+              "percent": 73.51
+            },
+            "single_level_path": {
+              "count": 7682,
+              "percent": 10.1
+            },
+            "multi_level_path": {
+              "count": 11572,
+              "percent": 15.21
+            },
+            "trailing_slash": {
+              "count": 30517,
+              "percent": 40.1
+            },
+            "query_bearing": {
+              "count": 4446,
+              "percent": 5.84
+            },
+            "fragment_bearing": {
+              "count": 598,
+              "percent": 0.79
+            },
+            "subdomain_bearing": {
+              "count": 45917,
+              "percent": 60.34
+            },
+            "high_special_char": {
+              "count": 58592,
+              "percent": 77.0
+            },
+            "short_url": {
+              "count": 40640,
+              "percent": 53.41
+            },
+            "long_url": {
+              "count": 7272,
+              "percent": 9.56
+            }
+          },
+          "legitimate": {
+            "count": 94755,
+            "homepage": {
+              "count": 94364,
+              "percent": 99.59
+            },
+            "single_level_path": {
+              "count": 1,
+              "percent": 0.0
+            },
+            "multi_level_path": {
+              "count": 390,
+              "percent": 0.41
+            },
+            "trailing_slash": {
+              "count": 162,
+              "percent": 0.17
+            },
+            "query_bearing": {
+              "count": 88,
+              "percent": 0.09
+            },
+            "fragment_bearing": {
+              "count": 4,
+              "percent": 0.0
+            },
+            "subdomain_bearing": {
+              "count": 14069,
+              "percent": 14.85
+            },
+            "high_special_char": {
+              "count": 20515,
+              "percent": 21.65
+            },
+            "short_url": {
+              "count": 90701,
+              "percent": 95.72
+            },
+            "long_url": {
+              "count": 224,
+              "percent": 0.24
+            }
+          }
+        }
+      }
+    },
+    "val": {
+      "path": "experiments/phase6/datasets/splits/val.csv",
+      "sha256": "c480458508941b621ac56e1c9806eabed642cf12242ef758744152708a2bedea",
+      "url_count": 30977,
+      "domain_count": 25976,
+      "phishing_count": 10559,
+      "legitimate_count": 20418,
+      "validated_pilot_count": 78,
+      "strata_breakdown": {
+        "total_urls": 30977,
+        "homepage": {
+          "count": 27068,
+          "percent": 87.38
+        },
+        "single_level_path": {
+          "count": 1511,
+          "percent": 4.88
+        },
+        "multi_level_path": {
+          "count": 2280,
+          "percent": 7.36
+        },
+        "trailing_slash": {
+          "count": 1882,
+          "percent": 6.08
+        },
+        "query_bearing": {
+          "count": 769,
+          "percent": 2.48
+        },
+        "fragment_bearing": {
+          "count": 161,
+          "percent": 0.52
+        },
+        "subdomain_bearing": {
+          "count": 7373,
+          "percent": 23.8
+        },
+        "high_special_char": {
+          "count": 11287,
+          "percent": 36.44
+        },
+        "short_url": {
+          "count": 26074,
+          "percent": 84.17
+        },
+        "long_url": {
+          "count": 1743,
+          "percent": 5.63
+        },
+        "by_class": {
+          "phishing": {
+            "count": 10559,
+            "homepage": {
+              "count": 6728,
+              "percent": 63.72
+            },
+            "single_level_path": {
+              "count": 1510,
+              "percent": 14.3
+            },
+            "multi_level_path": {
+              "count": 2203,
+              "percent": 20.86
+            },
+            "trailing_slash": {
+              "count": 1847,
+              "percent": 17.49
+            },
+            "query_bearing": {
+              "count": 749,
+              "percent": 7.09
+            },
+            "fragment_bearing": {
+              "count": 161,
+              "percent": 1.52
+            },
+            "subdomain_bearing": {
+              "count": 4276,
+              "percent": 40.5
+            },
+            "high_special_char": {
+              "count": 6818,
+              "percent": 64.57
+            },
+            "short_url": {
+              "count": 6546,
+              "percent": 61.99
+            },
+            "long_url": {
+              "count": 1710,
+              "percent": 16.19
+            }
+          },
+          "legitimate": {
+            "count": 20418,
+            "homepage": {
+              "count": 20340,
+              "percent": 99.62
+            },
+            "single_level_path": {
+              "count": 1,
+              "percent": 0.0
+            },
+            "multi_level_path": {
+              "count": 77,
+              "percent": 0.38
+            },
+            "trailing_slash": {
+              "count": 35,
+              "percent": 0.17
+            },
+            "query_bearing": {
+              "count": 20,
+              "percent": 0.1
+            },
+            "fragment_bearing": {
+              "count": 0,
+              "percent": 0.0
+            },
+            "subdomain_bearing": {
+              "count": 3097,
+              "percent": 15.17
+            },
+            "high_special_char": {
+              "count": 4469,
+              "percent": 21.89
+            },
+            "short_url": {
+              "count": 19528,
+              "percent": 95.64
+            },
+            "long_url": {
+              "count": 33,
+              "percent": 0.16
+            }
+          }
+        }
+      }
+    },
+    "internal_test": {
+      "path": "experiments/phase6/datasets/splits/internal_test.csv",
+      "sha256": "f11cee449b91ebc7fc37d3ec4d8b87cfb83fd1b76ae408a21a00e6a15a4e9405",
+      "url_count": 34143,
+      "domain_count": 25980,
+      "phishing_count": 13864,
+      "legitimate_count": 20279,
+      "validated_pilot_count": 133,
+      "strata_breakdown": {
+        "total_urls": 34143,
+        "homepage": {
+          "count": 29503,
+          "percent": 86.41
+        },
+        "single_level_path": {
+          "count": 2091,
+          "percent": 6.12
+        },
+        "multi_level_path": {
+          "count": 2354,
+          "percent": 6.89
+        },
+        "trailing_slash": {
+          "count": 4193,
+          "percent": 12.28
+        },
+        "query_bearing": {
+          "count": 976,
+          "percent": 2.86
+        },
+        "fragment_bearing": {
+          "count": 110,
+          "percent": 0.32
+        },
+        "subdomain_bearing": {
+          "count": 10290,
+          "percent": 30.14
+        },
+        "high_special_char": {
+          "count": 14575,
+          "percent": 42.69
+        },
+        "short_url": {
+          "count": 26836,
+          "percent": 78.6
+        },
+        "long_url": {
+          "count": 2163,
+          "percent": 6.34
+        },
+        "by_class": {
+          "phishing": {
+            "count": 13864,
+            "homepage": {
+              "count": 9357,
+              "percent": 67.49
+            },
+            "single_level_path": {
+              "count": 2085,
+              "percent": 15.04
+            },
+            "multi_level_path": {
+              "count": 2227,
+              "percent": 16.06
+            },
+            "trailing_slash": {
+              "count": 4160,
+              "percent": 30.01
+            },
+            "query_bearing": {
+              "count": 939,
+              "percent": 6.77
+            },
+            "fragment_bearing": {
+              "count": 110,
+              "percent": 0.79
+            },
+            "subdomain_bearing": {
+              "count": 7363,
+              "percent": 53.11
+            },
+            "high_special_char": {
+              "count": 10128,
+              "percent": 73.05
+            },
+            "short_url": {
+              "count": 7437,
+              "percent": 53.64
+            },
+            "long_url": {
+              "count": 2102,
+              "percent": 15.16
+            }
+          },
+          "legitimate": {
+            "count": 20279,
+            "homepage": {
+              "count": 20146,
+              "percent": 99.34
+            },
+            "single_level_path": {
+              "count": 6,
+              "percent": 0.03
+            },
+            "multi_level_path": {
+              "count": 127,
+              "percent": 0.63
+            },
+            "trailing_slash": {
+              "count": 33,
+              "percent": 0.16
+            },
+            "query_bearing": {
+              "count": 37,
+              "percent": 0.18
+            },
+            "fragment_bearing": {
+              "count": 0,
+              "percent": 0.0
+            },
+            "subdomain_bearing": {
+              "count": 2927,
+              "percent": 14.43
+            },
+            "high_special_char": {
+              "count": 4447,
+              "percent": 21.93
+            },
+            "short_url": {
+              "count": 19399,
+              "percent": 95.66
+            },
+            "long_url": {
+              "count": 61,
+              "percent": 0.3
+            }
+          }
+        }
+      }
+    }
+  },
+  "leakage_verification": {
+    "domain_overlap_train_val": 0,
+    "domain_overlap_train_test": 0,
+    "domain_overlap_val_test": 0,
+    "leakage_detected": false
+  },
+  "exit_criteria_met": true
+}
