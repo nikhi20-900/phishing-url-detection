@@ -122,21 +122,26 @@ Do not retrain over, replace, or silently modify these frozen artifacts as part 
 4. Phase 5 built and audited a diverse candidate corpus, but page-level authenticity remains a required next validation step before training use.
 5. The correct research question is whether independently validated benign deep-link data improves generalization on unseen domains without unacceptable loss of phishing detection.
 
-## Phase 6 — planned, not implemented
+## Phase 6 — completed: Generalization Research
 
-Phase 6 is intended to investigate that research question while preserving the frozen model and quarantined Phase 4 benchmark.
+Phase 6 completed milestones M0–M7 and compared the frozen production Random Forest (E0) with augmented candidate models E1 (Random Forest), E2 (XGBoost), and E3 (Logistic Regression).
 
-Planned work:
+- Hybrid page-level evidence collection and human review produced a validated benign corpus of 602 records across 98 registered domains.
+- A new research corpus of 235,972 unique URLs was split by registered domain into train (170,852), validation (30,977), and internal test (34,143), with zero registered-domain overlap.
+- On the internal domain-separated test set, E1 reduced the pilot deep-link subgroup FPR from 100.00% to 31.58% at threshold 0.50; phishing recall was 99.40% versus 99.34% for E0.
+- On the Phase 4 external benchmark, E1 matched E0 phishing recall at 99.82%; curated-benign FPR changed from 94.00% to 92.20%. This remains a severe limitation and applies only to that targeted curated slice.
+- Query-bearing URLs remained a major weakness: E1's legitimate FPR was 100.00% on the reported internal query-bearing subgroup.
+- Paired statistical analysis reported a significant improvement in Macro F1 and legitimate FPR; the phishing-recall difference was not statistically significant.
 
-- Hybrid page-level authenticity validation: automated evidence collection plus human review.
-- Domain-separated train/validation/test dataset construction.
-- Reproduction of the frozen baseline on the defined internal protocol.
-- Controlled comparisons of retrained Random Forest, XGBoost, Logistic Regression, and deep-learning candidates.
-- Initial deep-learning candidates: an MLP over the 18 engineered features and a character-level CNN over raw URL strings. A BiLSTM or Transformer is optional follow-up research.
-- Internal subgroup evaluation, uncertainty estimates, and statistical comparisons.
-- One final confirmatory evaluation against Phase 4 only after candidate model, configuration, and threshold are frozen.
+**Governance decision:** The original production model remains frozen. E1/E2/E3 are research candidates stored separately and are not deployed replacements. See [Phase 6 final research report](../experiments/phase6/reports/phase6_final_report.md) for methodology, artifact hashes, subgroup metrics, and limitations.
 
-**No Phase 6 deep-learning model, retrained candidate, or Phase 6 result is claimed to exist yet.** The Phase 4 benchmark must not be used for training, feature selection, threshold tuning, or model selection.
+The Phase 4 benchmark was evaluated during Phase 6. It must therefore not be described as an untouched confirmatory benchmark for later phases.
+
+## Phase 7 — protocol initiated, experiments not yet run
+
+Phase 7 targets legitimate deep-link and query-string generalization on unseen registered domains. The protocol requires a new domain-separated internal split and a newly sourced external confirmatory benchmark. The Phase 4 benchmark and Phase 6 internal test partition are historical comparators, not fresh Phase 7 holdouts.
+
+The Phase 7 protocol and configuration are being developed on the `phase-7-generalization-expansion` branch. No Phase 7 dataset collection, model training, or evaluation is claimed yet.
 
 ## Repository guide
 
