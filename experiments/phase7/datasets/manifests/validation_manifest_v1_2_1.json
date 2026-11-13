@@ -1,0 +1,117 @@
+{
+  "phase": 7,
+  "milestone": "M1.2.1",
+  "contract_version": "phase7-m1-2-1-security-v1.2.1",
+  "audit_timestamp_utc": "2026-11-13T07:58:40.494530+00:00",
+  "status": "APPROVED",
+  "security_controls": {
+    "anti_dns_rebinding_direct_ip_connection": true,
+    "mixed_dns_records_rejection": true,
+    "unified_socket_tls_verification": true,
+    "early_cross_domain_redirect_blocking": true,
+    "tamper_evident_review_ledger_hashes": true,
+    "strict_https_verified_tls_requirement": true,
+    "zero_synthetic_evidence_enforced": true
+  },
+  "summary": {
+    "total_candidates_evaluated": 1207,
+    "substantiated_training_eligible_corpus_v1_2_1": 347,
+    "excluded_candidates_total": 860,
+    "total_registered_domains": 90,
+    "unseen_registered_domains": 50,
+    "effective_domain_count": 62.68,
+    "gini_coefficient": 0.3686,
+    "top1_domain_share": 0.0288,
+    "top5_domain_share": 0.1354,
+    "top10_domain_share": 0.245,
+    "exact_overlap_with_phase4_benchmark": 0
+  },
+  "exclusion_breakdown": {
+    "http_404_not_found": 574,
+    "dns_or_connection_failure": 87,
+    "http_403_access_restricted": 91,
+    "cross_domain_redirects_blocked": 31,
+    "timeout": 24,
+    "tls_verification_failed": 18,
+    "redirect_limits_exceeded": 7,
+    "private_ip_ssrf_blocked": 1,
+    "other_non_200_responses": 21,
+    "senior_auditor_rejected_dynamic_endpoints": 6
+  },
+  "prioritization_strata": {
+    "query_bearing": {
+      "priority": "Critical",
+      "count": 203,
+      "proportion": 0.5850144092219021,
+      "unique_domains": 71
+    },
+    "multi_level_path": {
+      "priority": "High",
+      "count": 320,
+      "proportion": 0.9221902017291066,
+      "unique_domains": 87
+    },
+    "path_and_query": {
+      "priority": "Critical",
+      "count": 204,
+      "proportion": 0.5878962536023055,
+      "unique_domains": 72
+    },
+    "percent_encoded_path": {
+      "priority": "Medium",
+      "count": 11,
+      "proportion": 0.03170028818443804,
+      "unique_domains": 11
+    },
+    "trailing_slash": {
+      "priority": "Medium",
+      "count": 139,
+      "proportion": 0.40057636887608067,
+      "unique_domains": 48
+    },
+    "unseen_registered_domains": {
+      "priority": "Critical",
+      "count": 50,
+      "total_domains": 90,
+      "proportion": 0.5555555555555556
+    }
+  },
+  "artifact_hashes": {
+    "candidate_queue": {
+      "path": "experiments/phase7/collection/candidate_queue.csv",
+      "sha256": "a179b21bee018cb712791217716bebad317935e5f14f26654e9593e3647613fa",
+      "records": 1207
+    },
+    "m1_2_1_raw_http_observations": {
+      "path": "experiments/phase7/collection/evidence/m1_2_1_raw_http_observations.jsonl",
+      "sha256": "d082d3544d970494924967a864ab7ea23656823aa3d47a027ad812bdbd3ffa46",
+      "records": 1207
+    },
+    "m1_2_1_human_reviews": {
+      "path": "experiments/phase7/collection/evidence/m1_2_1_human_reviews.jsonl",
+      "sha256": "cd9e2fe7b9f19ccd6b012b4eb37d143a8299b5d21a7b8a1574e34b99a9dc4c6c",
+      "records": 1207
+    },
+    "m1_2_1_senior_reviews": {
+      "path": "experiments/phase7/collection/evidence/m1_2_1_senior_reviews.jsonl",
+      "sha256": "ee2eae522f52ae636f84156776cec5e417e9e23562298ff3e09009874f0cfa6c",
+      "records": 55
+    },
+    "m1_2_1_validation_records": {
+      "path": "experiments/phase7/collection/evidence/m1_2_1_validation_records.jsonl",
+      "sha256": "6947167ac721e39063944b77ddcde09123b2f40a119829563a9c8a3b36c2e1e1",
+      "records": 1207
+    },
+    "validated_benign_corpus_v1_2_1": {
+      "path": "experiments/phase7/datasets/validated_benign_corpus_v1_2_1.csv",
+      "sha256": "0fa2bdaef7b15e5ba78fcc6f3330a6d62c4dbcbe5000eebb47d1641018adb337",
+      "records": 347
+    },
+    "frozen_production_model": {
+      "path": "models/random_forest_model.joblib",
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "status": "UNTOUCHED_AND_FROZEN"
+    }
+  },
+  "exit_criteria_met": true
+}
