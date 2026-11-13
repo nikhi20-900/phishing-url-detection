@@ -1,0 +1,86 @@
+{
+  "manifest_version": "phase7-m1-2-2-v1",
+  "milestone": "M1.2.2",
+  "phase": 7,
+  "timestamp_utc": "2026-11-13T13:59:38.392858+00:00",
+  "production_model_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+  "production_model_status": "FROZEN",
+  "candidate_models_trained": 0,
+  "provenance_governance": {
+    "classification": "Hardened Retrieval Security & Documented Review Governance",
+    "independently_human_verified_claim": false,
+    "review_submissions_count": 119,
+    "senior_supervisory_approvals_count": 17,
+    "senior_supervisory_coverage": 1.0,
+    "caveat": "Corpus admitted under automated socket security checks and authenticated review submissions. Not claimed as decentralized double-blind external human review."
+  },
+  "phase6_partition_independence": {
+    "phase6_train_domain_overlap": 0,
+    "phase6_val_domain_overlap": 0,
+    "phase6_test_domain_overlap": 0,
+    "status": "PASS_ZERO_OVERLAP"
+  },
+  "phase4_external_benchmark_independence": {
+    "collisions_count": 0,
+    "status": "PASS_ZERO_COLLISIONS"
+  },
+  "corpus_metrics": {
+    "total_urls": 119,
+    "unique_registered_domains": 24,
+    "verified_socket_tls_rate": 1.0,
+    "gini_coefficient": 0.30497198879551823,
+    "effective_domain_count": 18.608409986859396,
+    "top1_domain_share": 0.08403361344537816,
+    "top5_domain_share": 0.3697478991596639,
+    "top10_domain_share": 0.6302521008403361,
+    "strata_breakdown": {
+      "query_bearing": {
+        "priority": "Critical",
+        "count": 91,
+        "proportion": 0.7647058823529411,
+        "unique_domains": 24
+      },
+      "multilevel_paths": {
+        "priority": "High",
+        "count": 108,
+        "proportion": 0.907563025210084,
+        "unique_domains": 23
+      },
+      "path_and_query": {
+        "priority": "Critical",
+        "count": 91,
+        "proportion": 0.7647058823529411,
+        "unique_domains": 24
+      },
+      "trailing_slash": {
+        "priority": "Medium",
+        "count": 47,
+        "proportion": 0.3949579831932773,
+        "unique_domains": 15
+      },
+      "percent_encoded": {
+        "priority": "Medium",
+        "count": 5,
+        "proportion": 0.04201680672268908,
+        "unique_domains": 5
+      }
+    }
+  },
+  "artifact_hashes": {
+    "frozen_production_model": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+    "historical_m1_corpus": "d2851eaed1bd4b0a7a9a95f0a93849c8fca259403626467ae8d656192f517b4a",
+    "historical_m1_1_corpus": "53a57490bf7e5800958c45318c6705eb45862d1b54acaf59d74ce72865239fa5",
+    "historical_m1_2_corpus": "08daaea7709dc76b06b63f3b383a46c2ef1ec0f881d5d55e2781bf10b902416c",
+    "historical_m1_2_1_corpus": "0fa2bdaef7b15e5ba78fcc6f3330a6d62c4dbcbe5000eebb47d1641018adb337",
+    "phase6_train_partition": "e7afb5d270e408efe826cb573f10ed9574fe5fd3b4e187fe99cc8e484345a733",
+    "phase6_val_partition": "c480458508941b621ac56e1c9806eabed642cf12242ef758744152708a2bedea",
+    "phase6_test_partition": "f11cee449b91ebc7fc37d3ec4d8b87cfb83fd1b76ae408a21a00e6a15a4e9405",
+    "phase4_benchmark": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+    "candidate_queue": "a179b21bee018cb712791217716bebad317935e5f14f26654e9593e3647613fa",
+    "m1_2_2_raw_http_observations": "d082d3544d970494924967a864ab7ea23656823aa3d47a027ad812bdbd3ffa46",
+    "m1_2_2_reviewer_submissions": "80110babc9392b32be473862a7696ca0996d28da812336fdce16446e5779f669",
+    "m1_2_2_senior_approvals": "83d6d8468e17600dd020a33f1860b77218c7b6f0200ac1e140f361d7bbc67ff2",
+    "m1_2_2_validation_records": "e11a5540d2c6dc9f806fa2d6f894620e69368ae29873014b126df15cca3e07cb",
+    "validated_benign_corpus_v1_2_2": "b072306cbbf2a9aae19d79cc8af9ef6ddbb3417ab05aeb105b7d4f91cfbcf2d1"
+  }
+}
