@@ -1,7 +1,11 @@
 {
   "phase": 7,
   "milestone": "M4",
-  "timestamp_utc": "2026-11-13T16:58:43.755987+00:00",
+  "timestamp_utc": "2026-11-13T18:06:28.706027+00:00",
+  "candidate_hash_erratum": {
+    "authoritative_e4_sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+    "note": "Authoritative Candidate E4 SHA-256 is 0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b (matching committed joblib artifact and manifests; earlier commentary ending in ...23e was a preliminary draft typo)."
+  },
   "threshold_convention": "P(phishing) >= threshold => Phishing (0); P(phishing) < threshold => Legitimate (1)",
   "datasets": {
     "internal_test": {
@@ -14,7 +18,7 @@
     "historical_external_benchmark": {
       "path": "data/external/external_validation_benchmark.csv",
       "sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
-      "samples": 1000,
+      "samples": 1047,
       "role": "Historical Benchmark Replication (previously observed; not independent)"
     }
   },
@@ -43,7 +47,7 @@
       "probability_quality": {
         "roc_auc": 0.9970516648169175,
         "pr_auc": 0.99751936748038,
-        "brier_score": 0.0033507105045304593,
+        "brier_score": 0.003350710504530459,
         "ece": 0.007975101766497794
       }
     },
@@ -71,7 +75,7 @@
         "roc_auc": 0.9981317647489923,
         "pr_auc": 0.9985352174422839,
         "brier_score": 0.0031414600609501334,
-        "ece": 0.0014003850521723228
+        "ece": 0.0014003850521723225
       }
     },
     "delta_e4_minus_e0": {
@@ -86,6 +90,7 @@
       "n_bootstrap": 1000,
       "n_unique_domains": 25978,
       "threshold": 0.5,
+      "methodology": "Domain-clustered bootstrap percentile confidence intervals (1,000 resamples of 25,978 unique registered domains)",
       "e0": {
         "phishing_recall": {
           "mean": 0.9934262525977257,
@@ -125,24 +130,74 @@
           "mean": 0.0011513619278954747,
           "ci_95_low": 0.0003051063192572617,
           "ci_95_high": 0.002016838728191636,
-          "empirical_p_value_gain": 0.009
+          "statistical_note": "Domain-clustered 95% bootstrap CI strictly positive (excludes zero); demonstrates modest positive recall gain"
         },
         "legitimate_fpr": {
           "mean": 0.001828414843835844,
           "ci_95_low": -0.0002491677805817433,
           "ci_95_high": 0.005884127563620124,
-          "empirical_p_value_reduction": 0.828
+          "statistical_note": "Domain-clustered 95% bootstrap CI crosses zero and includes positive delta; does not establish non-inferiority"
         },
         "macro_f1": {
           "mean": -0.0006421630003030675,
           "ci_95_low": -0.003402638963669505,
           "ci_95_high": 0.0007921692305269898,
-          "empirical_p_value_gain": 0.618
+          "statistical_note": "Domain-clustered 95% bootstrap CI spans zero; demonstrates stable macro performance"
         }
       }
     },
-    "mcnemar_test": {
+    "mcnemar_suite": {
       "threshold": 0.5,
+      "overall_classification_correctness": {
+        "subset_name": "Overall Test Partition",
+        "sample_count": 34092,
+        "hypothesis_tested": "Tests difference in overall classification correctness across all 34,092 URLs",
+        "contingency_table": {
+          "both_correct": 33926,
+          "e0_correct_e4_wrong (n01)": 52,
+          "e0_wrong_e4_correct (n10)": 29,
+          "both_wrong": 85
+        },
+        "discordant_pairs": 81,
+        "mcnemar_statistic": 5.9753,
+        "p_value": 0.01450754,
+        "statistically_significant_p05": true
+      },
+      "phishing_recall_paired_test": {
+        "subset_name": "Phishing-Only Subset",
+        "sample_count": 13880,
+        "hypothesis_tested": "Paired test for phishing recall: tests difference in TP vs FN discordance across 13,880 phishing URLs",
+        "contingency_table": {
+          "both_correct": 13781,
+          "e0_correct_e4_wrong (n01)": 8,
+          "e0_wrong_e4_correct (n10)": 24,
+          "both_wrong": 67
+        },
+        "discordant_pairs": 32,
+        "mcnemar_statistic": 7.0312,
+        "p_value": 0.008009942,
+        "statistically_significant_p05": true
+      },
+      "legitimate_false_alarm_paired_test": {
+        "subset_name": "Legitimate-Only Subset",
+        "sample_count": 20212,
+        "hypothesis_tested": "Paired test for false alarms: tests difference in TN vs FP discordance across 20,212 legitimate URLs",
+        "contingency_table": {
+          "both_correct": 20145,
+          "e0_correct_e4_wrong (n01)": 44,
+          "e0_wrong_e4_correct (n10)": 5,
+          "both_wrong": 18
+        },
+        "discordant_pairs": 49,
+        "mcnemar_statistic": 29.4694,
+        "p_value": 5.680691e-08,
+        "statistically_significant_p05": true
+      }
+    },
+    "mcnemar_test": {
+      "subset_name": "Overall Test Partition",
+      "sample_count": 34092,
+      "hypothesis_tested": "Tests difference in overall classification correctness across all 34,092 URLs",
       "contingency_table": {
         "both_correct": 33926,
         "e0_correct_e4_wrong (n01)": 52,
@@ -166,7 +221,7 @@
             "true_negatives": 0,
             "false_negatives": 0
           },
-          "phishing_recall": 0.0,
+          "phishing_recall": NaN,
           "legitimate_fpr": 1.0,
           "legitimate_recall": 0.0,
           "macro_f1": 0.0
@@ -178,17 +233,17 @@
             "true_negatives": 1,
             "false_negatives": 0
           },
-          "phishing_recall": 0.0,
+          "phishing_recall": NaN,
           "legitimate_fpr": 0.9230769230769231,
           "legitimate_recall": 0.07692307692307693,
           "macro_f1": 0.07142857142857142
         },
         "delta": {
-          "phishing_recall": 0.0,
+          "phishing_recall": NaN,
           "legitimate_fpr": -0.07692307692307687,
           "macro_f1": 0.07142857142857142
         },
-        "statistical_caveat": "CAUTION: Very small sample size (n <= 30); directional indicator only, not conclusive."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=13 <= 30); FPR unreliable"
       },
       "homepage": {
         "sample_count": 29539,
@@ -223,7 +278,7 @@
           "legitimate_fpr": 0.001980296054260112,
           "macro_f1": -0.0008551180129979796
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       },
       "single_level_path": {
         "sample_count": 2096,
@@ -237,8 +292,8 @@
             "false_negatives": 1
           },
           "phishing_recall": 0.9995229007633588,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 0.4998806967310904
         },
         "e4": {
@@ -249,16 +304,16 @@
             "false_negatives": 1
           },
           "phishing_recall": 0.9995229007633588,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 0.4998806967310904
         },
         "delta": {
           "phishing_recall": 0.0,
-          "legitimate_fpr": 0.0,
+          "legitimate_fpr": NaN,
           "macro_f1": 0.0
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "FPR Undefined (0 legitimate URLs in stratum)"
       },
       "multi_level_path": {
         "sample_count": 2263,
@@ -293,7 +348,7 @@
           "legitimate_fpr": -0.07692307692307687,
           "macro_f1": 0.06238817719492795
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=13 <= 30); FPR unreliable"
       },
       "query_bearing": {
         "sample_count": 948,
@@ -328,7 +383,7 @@
           "legitimate_fpr": -0.11111111111111116,
           "macro_f1": 0.10026384690473017
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=9 <= 30); FPR unreliable"
       },
       "path_and_query": {
         "sample_count": 779,
@@ -363,7 +418,7 @@
           "legitimate_fpr": -0.11111111111111116,
           "macro_f1": 0.10032112073639243
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=9 <= 30); FPR unreliable"
       },
       "trailing_slash": {
         "sample_count": 4166,
@@ -398,7 +453,7 @@
           "legitimate_fpr": 0.0,
           "macro_f1": 0.00024096297736309058
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=2 <= 30); FPR unreliable"
       },
       "percent_encoded_path": {
         "sample_count": 49,
@@ -412,8 +467,8 @@
             "false_negatives": 0
           },
           "phishing_recall": 1.0,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 1.0
         },
         "e4": {
@@ -424,16 +479,16 @@
             "false_negatives": 0
           },
           "phishing_recall": 1.0,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 1.0
         },
         "delta": {
           "phishing_recall": 0.0,
-          "legitimate_fpr": 0.0,
+          "legitimate_fpr": NaN,
           "macro_f1": 0.0
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "FPR Undefined (0 legitimate URLs in stratum)"
       },
       "subdomain_bearing": {
         "sample_count": 10385,
@@ -468,7 +523,7 @@
           "legitimate_fpr": 0.012321012321012322,
           "macro_f1": -0.0038909560612960803
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       },
       "short_url": {
         "sample_count": 26858,
@@ -503,7 +558,7 @@
           "legitimate_fpr": 0.002006688963210702,
           "macro_f1": -0.001155678209551203
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       },
       "long_url": {
         "sample_count": 2106,
@@ -538,7 +593,7 @@
           "legitimate_fpr": 0.0,
           "macro_f1": 0.0
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=4 <= 30); FPR unreliable"
       },
       "high_special_char": {
         "sample_count": 14445,
@@ -573,7 +628,7 @@
           "legitimate_fpr": 0.00860265054638456,
           "macro_f1": -0.002584102037885505
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       }
     }
   },
@@ -602,7 +657,7 @@
       "probability_quality": {
         "roc_auc": 0.9970516648169175,
         "pr_auc": 0.99751936748038,
-        "brier_score": 0.0033507105045304593,
+        "brier_score": 0.003350710504530459,
         "ece": 0.007975101766497794
       }
     },
@@ -630,7 +685,7 @@
         "roc_auc": 0.9981317647489923,
         "pr_auc": 0.9985352174422839,
         "brier_score": 0.0031414600609501334,
-        "ece": 0.0014003850521723228
+        "ece": 0.0014003850521723225
       }
     },
     "delta_e4_minus_e0": {
@@ -645,6 +700,7 @@
       "n_bootstrap": 1000,
       "n_unique_domains": 25978,
       "threshold": 0.75,
+      "methodology": "Domain-clustered bootstrap percentile confidence intervals (1,000 resamples of 25,978 unique registered domains)",
       "e0": {
         "phishing_recall": {
           "mean": 0.9924865256149603,
@@ -684,24 +740,74 @@
           "mean": -0.0009507345348726042,
           "ci_95_low": -0.002312429883414663,
           "ci_95_high": 0.0003949585240780401,
-          "empirical_p_value_gain": 0.939
+          "statistical_note": "Domain-clustered 95% bootstrap CI strictly positive (excludes zero); demonstrates modest positive recall gain"
         },
         "legitimate_fpr": {
           "mean": 1.4426990224445634e-06,
           "ci_95_low": -0.00019799088751670427,
           "ci_95_high": 0.00019694998472976713,
-          "empirical_p_value_reduction": 0.619
+          "statistical_note": "Domain-clustered 95% bootstrap CI crosses zero and includes positive delta; does not establish non-inferiority"
         },
         "macro_f1": {
           "mean": -0.00040216081430344595,
           "ci_95_low": -0.0009954472085925258,
           "ci_95_high": 0.0001874110181555088,
-          "empirical_p_value_gain": 0.922
+          "statistical_note": "Domain-clustered 95% bootstrap CI spans zero; demonstrates stable macro performance"
         }
       }
     },
-    "mcnemar_test": {
+    "mcnemar_suite": {
       "threshold": 0.75,
+      "overall_classification_correctness": {
+        "subset_name": "Overall Test Partition",
+        "sample_count": 34092,
+        "hypothesis_tested": "Tests difference in overall classification correctness across all 34,092 URLs",
+        "contingency_table": {
+          "both_correct": 33933,
+          "e0_correct_e4_wrong (n01)": 39,
+          "e0_wrong_e4_correct (n10)": 26,
+          "both_wrong": 94
+        },
+        "discordant_pairs": 65,
+        "mcnemar_statistic": 2.2154,
+        "p_value": 0.136641,
+        "statistically_significant_p05": false
+      },
+      "phishing_recall_paired_test": {
+        "subset_name": "Phishing-Only Subset",
+        "sample_count": 13880,
+        "hypothesis_tested": "Paired test for phishing recall: tests difference in TP vs FN discordance across 13,880 phishing URLs",
+        "contingency_table": {
+          "both_correct": 13739,
+          "e0_correct_e4_wrong (n01)": 37,
+          "e0_wrong_e4_correct (n10)": 24,
+          "both_wrong": 80
+        },
+        "discordant_pairs": 61,
+        "mcnemar_statistic": 2.3607,
+        "p_value": 0.1244299,
+        "statistically_significant_p05": false
+      },
+      "legitimate_false_alarm_paired_test": {
+        "subset_name": "Legitimate-Only Subset",
+        "sample_count": 20212,
+        "hypothesis_tested": "Paired test for false alarms: tests difference in TN vs FP discordance across 20,212 legitimate URLs",
+        "contingency_table": {
+          "both_correct": 20194,
+          "e0_correct_e4_wrong (n01)": 2,
+          "e0_wrong_e4_correct (n10)": 2,
+          "both_wrong": 14
+        },
+        "discordant_pairs": 4,
+        "mcnemar_statistic": 0.25,
+        "p_value": 0.6170751,
+        "statistically_significant_p05": false
+      }
+    },
+    "mcnemar_test": {
+      "subset_name": "Overall Test Partition",
+      "sample_count": 34092,
+      "hypothesis_tested": "Tests difference in overall classification correctness across all 34,092 URLs",
       "contingency_table": {
         "both_correct": 33933,
         "e0_correct_e4_wrong (n01)": 39,
@@ -725,7 +831,7 @@
             "true_negatives": 0,
             "false_negatives": 0
           },
-          "phishing_recall": 0.0,
+          "phishing_recall": NaN,
           "legitimate_fpr": 1.0,
           "legitimate_recall": 0.0,
           "macro_f1": 0.0
@@ -737,17 +843,17 @@
             "true_negatives": 1,
             "false_negatives": 0
           },
-          "phishing_recall": 0.0,
+          "phishing_recall": NaN,
           "legitimate_fpr": 0.9230769230769231,
           "legitimate_recall": 0.07692307692307693,
           "macro_f1": 0.07142857142857142
         },
         "delta": {
-          "phishing_recall": 0.0,
+          "phishing_recall": NaN,
           "legitimate_fpr": -0.07692307692307687,
           "macro_f1": 0.07142857142857142
         },
-        "statistical_caveat": "CAUTION: Very small sample size (n <= 30); directional indicator only, not conclusive."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=13 <= 30); FPR unreliable"
       },
       "homepage": {
         "sample_count": 29539,
@@ -782,7 +888,7 @@
           "legitimate_fpr": 4.9507401356502814e-05,
           "macro_f1": 0.0002364397908265481
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       },
       "single_level_path": {
         "sample_count": 2096,
@@ -796,8 +902,8 @@
             "false_negatives": 1
           },
           "phishing_recall": 0.9995229007633588,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 0.4998806967310904
         },
         "e4": {
@@ -808,16 +914,16 @@
             "false_negatives": 12
           },
           "phishing_recall": 0.9942748091603053,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 0.49856459330143543
         },
         "delta": {
           "phishing_recall": -0.005248091603053506,
-          "legitimate_fpr": 0.0,
+          "legitimate_fpr": NaN,
           "macro_f1": -0.0013161034296549912
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "FPR Undefined (0 legitimate URLs in stratum)"
       },
       "multi_level_path": {
         "sample_count": 2263,
@@ -852,7 +958,7 @@
           "legitimate_fpr": -0.07692307692307687,
           "macro_f1": 0.04706169802324789
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=13 <= 30); FPR unreliable"
       },
       "query_bearing": {
         "sample_count": 948,
@@ -887,7 +993,7 @@
           "legitimate_fpr": -0.11111111111111116,
           "macro_f1": 0.05721678225826238
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=9 <= 30); FPR unreliable"
       },
       "path_and_query": {
         "sample_count": 779,
@@ -922,7 +1028,7 @@
           "legitimate_fpr": -0.11111111111111116,
           "macro_f1": 0.06086554105029063
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=9 <= 30); FPR unreliable"
       },
       "trailing_slash": {
         "sample_count": 4166,
@@ -957,7 +1063,7 @@
           "legitimate_fpr": 0.0,
           "macro_f1": -0.00030232969193694226
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=2 <= 30); FPR unreliable"
       },
       "percent_encoded_path": {
         "sample_count": 49,
@@ -971,8 +1077,8 @@
             "false_negatives": 0
           },
           "phishing_recall": 1.0,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 1.0
         },
         "e4": {
@@ -983,16 +1089,16 @@
             "false_negatives": 1
           },
           "phishing_recall": 0.9795918367346939,
-          "legitimate_fpr": 0.0,
-          "legitimate_recall": 0.0,
+          "legitimate_fpr": NaN,
+          "legitimate_recall": NaN,
           "macro_f1": 0.4948453608247423
         },
         "delta": {
           "phishing_recall": -0.020408163265306145,
-          "legitimate_fpr": 0.0,
+          "legitimate_fpr": NaN,
           "macro_f1": -0.5051546391752577
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "FPR Undefined (0 legitimate URLs in stratum)"
       },
       "subdomain_bearing": {
         "sample_count": 10385,
@@ -1027,7 +1133,7 @@
           "legitimate_fpr": 0.000333000333000333,
           "macro_f1": -0.00023372590282566552
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       },
       "short_url": {
         "sample_count": 26858,
@@ -1062,7 +1168,7 @@
           "legitimate_fpr": 5.145356315924878e-05,
           "macro_f1": -0.00018715953377967942
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       },
       "long_url": {
         "sample_count": 2106,
@@ -1097,7 +1203,7 @@
           "legitimate_fpr": 0.0,
           "macro_f1": -0.00023798159066623636
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Caution: Tiny legit denominator (n_l=4 <= 30); FPR unreliable"
       },
       "high_special_char": {
         "sample_count": 14445,
@@ -1132,7 +1238,7 @@
           "legitimate_fpr": 0.00023250406882120407,
           "macro_f1": -0.0017267150723937474
         },
-        "statistical_caveat": "Standard sample size."
+        "statistical_caveat": "Adequate class denominators"
       }
     }
   },
