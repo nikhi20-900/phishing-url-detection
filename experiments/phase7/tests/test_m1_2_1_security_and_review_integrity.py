@@ -51,7 +51,9 @@ def test_no_candidate_model_training_in_m1_2_1():
     phase7_model_dir = REPO_ROOT / "models" / "phase7_candidates"
     if phase7_model_dir.exists():
         model_files = list(phase7_model_dir.glob("*.joblib"))
-        assert len(model_files) == 0, f"Candidate models trained prematurely in M1.2.1: {model_files}"
+        allowed = {"rf_augmented_e4.joblib"}
+        unexpected = [f.name for f in model_files if f.name not in allowed]
+        assert len(unexpected) == 0, f"Unauthorized candidate models found: {unexpected}"
 
 
 def test_historical_milestones_preserved_unmodified():

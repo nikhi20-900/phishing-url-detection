@@ -1,0 +1,35 @@
+{
+  "manifest_version": "phase7-m3-training-manifest-v1",
+  "phase": 7,
+  "milestone": "M3",
+  "timestamp_utc": "2026-11-13T16:34:11.163889+00:00",
+  "production_model": {
+    "path": "models/random_forest_model.joblib",
+    "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+    "status": "FROZEN_UNCHANGED"
+  },
+  "candidate_model_e4": {
+    "path": "models/phase7_candidates/rf_augmented_e4.joblib",
+    "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+    "model_family": "RandomForestClassifier",
+    "n_estimators": 100,
+    "random_state": 42,
+    "train_samples": 30782
+  },
+  "sealed_internal_test": {
+    "path": "experiments/phase7/datasets/splits/internal_test.csv",
+    "sha256": "ce004e9d8e65ea8c09175d904d4a5fee0442acc4b127af6a98f58ae0aed0e2cf",
+    "status": "SEALED_PRESERVED_FOR_M4"
+  },
+  "validation_summary_at_050": {
+    "E0_phishing_recall": 0.9899507015547971,
+    "E0_legitimate_fpr": 0.0016309182564001187,
+    "E0_macro_f1": 0.9949797830370026,
+    "E4_phishing_recall": 0.9928896473265074,
+    "E4_legitimate_fpr": 0.001729761787091035,
+    "E4_macro_f1": 0.996030161440586,
+    "E4_benign_expansion_fpr": 0.8275862068965517,
+    "E0_benign_expansion_fpr": 1.0
+  },
+  "selected_validation_threshold": 0.75
+}
