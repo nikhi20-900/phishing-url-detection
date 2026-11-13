@@ -1,9 +1,10 @@
 {
-  "manifest_version": "phase7-m4-confirmatory-manifest-v1",
+  "manifest_version": "phase7-m4-confirmatory-manifest-v2",
   "phase": 7,
-  "milestone": "M4",
-  "timestamp_utc": "2026-11-13T16:58:43.757029+00:00",
+  "milestone": "M4.1",
+  "timestamp_utc": "2026-11-13T18:06:28.707853+00:00",
   "status": "CONFIRMATORY_EVALUATION_COMPLETED",
+  "candidate_hash_erratum_note": "The authoritative Candidate E4 SHA-256 is 0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b (matching the committed joblib artifact and manifests; earlier commentary ending in ...23e was a preliminary draft typo).",
   "governance_safeguards": {
     "freeze_e4_before_unsealing": true,
     "single_pass_internal_evaluation": true,
@@ -11,7 +12,9 @@
     "domain_aware_uncertainty_estimated": true,
     "subgroup_counts_reported": true,
     "production_model_preserved_frozen": true,
-    "threshold_convention_explicit": true
+    "threshold_convention_explicit": true,
+    "paired_mcnemar_tests_reported_separately": true,
+    "bootstrap_confidence_intervals_only": true
   },
   "artifacts": {
     "frozen_production_model_e0": {
@@ -48,6 +51,11 @@
       -0.0002491677805817433,
       0.005884127563620124
     ],
+    "mcnemar_suite": {
+      "overall_p_value": 0.01450754,
+      "phishing_recall_p_value": 0.008009942,
+      "legitimate_false_alarm_p_value": 5.680691e-08
+    },
     "mcnemar_p_value": 0.01450754
   },
   "operating_point_summary_at_075": {

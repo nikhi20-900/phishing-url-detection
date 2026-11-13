@@ -114,7 +114,7 @@ def test_m4_scorecard_primary_confirmatory_results_at_050():
 
 
 def test_m4_domain_clustered_bootstrap_uncertainty():
-    """Verify domain-clustered bootstrap uncertainty estimation."""
+    """Verify domain-clustered bootstrap uncertainty estimation (confidence intervals only, no empirical p-values)."""
     with open(SCORECARD_PATH, "r", encoding="utf-8") as f:
         scorecard = json.load(f)
 
@@ -125,12 +125,50 @@ def test_m4_domain_clustered_bootstrap_uncertainty():
     delta_rec = boot["paired_delta_e4_minus_e0"]["phishing_recall"]
     # 95% Confidence Interval must strictly exclude 0 (demonstrating significant positive gain)
     assert delta_rec["ci_95_low"] > 0.0, f"Lower bound of 95% CI should be > 0: {delta_rec['ci_95_low']}"
-    assert delta_rec["empirical_p_value_gain"] < 0.05
+    assert delta_rec["ci_95_high"] > delta_rec["ci_95_low"]
+    # Empirical p-values must not be reported for bootstrap samples
+    assert "empirical_p_value_gain" not in delta_rec
 
-    # McNemar Test
-    mcnemar = scorecard["primary_confirmatory_evaluation_at_050"]["mcnemar_test"]
-    assert mcnemar["statistically_significant_p05"] is True
-    assert mcnemar["p_value"] < 0.05
+    delta_fpr = boot["paired_delta_e4_minus_e0"]["legitimate_fpr"]
+    # FPR confidence interval crosses zero into positive territory (does not establish non-inferiority)
+    assert delta_fpr["ci_95_low"] < 0.0
+    assert delta_fpr["ci_95_high"] > 0.0
+    assert "empirical_p_value_reduction" not in delta_fpr
+
+
+def test_m4_paired_mcnemar_suite():
+    """Verify three distinct paired McNemar tests for overall correctness, phishing recall, and false alarms."""
+    with open(SCORECARD_PATH, "r", encoding="utf-8") as f:
+        scorecard = json.load(f)
+
+    mcn_suite = scorecard["primary_confirmatory_evaluation_at_050"]["mcnemar_suite"]
+    assert "overall_classification_correctness" in mcn_suite
+    assert "phishing_recall_paired_test" in mcn_suite
+    assert "legitimate_false_alarm_paired_test" in mcn_suite
+
+    # 1. Phishing Recall Paired Test (n=13,880)
+    p_phish = mcn_suite["phishing_recall_paired_test"]
+    assert p_phish["sample_count"] == 13880
+    assert p_phish["contingency_table"]["e0_correct_e4_wrong (n01)"] == 8
+    assert p_phish["contingency_table"]["e0_wrong_e4_correct (n10)"] == 24
+    assert p_phish["discordant_pairs"] == 32
+    assert p_phish["p_value"] < 0.01  # p = 0.00801
+    assert p_phish["statistically_significant_p05"] is True
+
+    # 2. Legitimate False Alarm Paired Test (n=20,212)
+    p_legit = mcn_suite["legitimate_false_alarm_paired_test"]
+    assert p_legit["sample_count"] == 20212
+    assert p_legit["contingency_table"]["e0_correct_e4_wrong (n01)"] == 44
+    assert p_legit["contingency_table"]["e0_wrong_e4_correct (n10)"] == 5
+    assert p_legit["discordant_pairs"] == 49
+    assert p_legit["p_value"] < 1e-6  # p = 5.68e-08
+    assert p_legit["statistically_significant_p05"] is True
+
+    # 3. Overall Correctness (N=34,092)
+    p_overall = mcn_suite["overall_classification_correctness"]
+    assert p_overall["sample_count"] == 34092
+    assert p_overall["discordant_pairs"] == 81
+    assert p_overall["p_value"] < 0.05  # p = 0.0145
 
 
 def test_m4_secondary_operating_point_results_at_075():
@@ -150,7 +188,7 @@ def test_m4_secondary_operating_point_results_at_075():
 
 
 def test_m4_subgroup_stratification_and_caveats():
-    """Verify all 12 structural strata evaluated with sample counts and statistical caveats."""
+    """Verify all 12 structural strata evaluated with sample counts, denominator handling, and caveats."""
     with open(SCORECARD_PATH, "r", encoding="utf-8") as f:
         scorecard = json.load(f)
 
@@ -163,7 +201,36 @@ def test_m4_subgroup_stratification_and_caveats():
     assert b_exp["legitimate_count"] == 13
     assert b_exp["e0"]["confusion_matrix"]["false_positives"] == 13
     assert b_exp["e4"]["confusion_matrix"]["false_positives"] == 12
-    assert "CAUTION" in b_exp["statistical_caveat"]
+    assert "Caution: Tiny legit denominator" in b_exp["statistical_caveat"]
+
+    # Strata with zero legitimate samples must have undefined (NaN) FPR
+    single_lvl = subgroups["single_level_path"]
+    assert single_lvl["sample_count"] == 2096
+    assert single_lvl["legitimate_count"] == 0
+    assert np.isnan(single_lvl["e0"]["legitimate_fpr"])
+    assert np.isnan(single_lvl["e4"]["legitimate_fpr"])
+    assert "FPR Undefined" in single_lvl["statistical_caveat"]
+
+    pct_enc = subgroups["percent_encoded_path"]
+    assert pct_enc["sample_count"] == 49
+    assert pct_enc["legitimate_count"] == 0
+    assert np.isnan(pct_enc["e0"]["legitimate_fpr"])
+    assert np.isnan(pct_enc["e4"]["legitimate_fpr"])
+    assert "FPR Undefined" in pct_enc["statistical_caveat"]
+
+    # Query bearing stratum
+    q_stratum = subgroups["query_bearing"]
+    assert q_stratum["sample_count"] == 948
+    assert q_stratum["phishing_count"] == 939
+    assert q_stratum["legitimate_count"] == 9
+    assert "Caution: Tiny legit denominator" in q_stratum["statistical_caveat"]
+
+    # Homepage stratum has adequate class denominators
+    hp = subgroups["homepage"]
+    assert hp["sample_count"] == 29539
+    assert hp["phishing_count"] == 9340
+    assert hp["legitimate_count"] == 20199
+    assert "Adequate class denominators" in hp["statistical_caveat"]
 
 
 def test_m4_historical_external_benchmark_replication():
@@ -201,8 +268,20 @@ def test_m4_manifest_and_report_files_exist():
     assert MANIFEST_PATH.exists()
     assert REPORT_PATH.exists()
 
+    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    assert manifest["manifest_version"] == "phase7-m4-confirmatory-manifest-v2"
+    assert "candidate_hash_erratum_note" in manifest
+    assert "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b" in manifest["candidate_hash_erratum_note"]
+    assert "mcnemar_suite" in manifest["confirmatory_summary_at_050"]
+
     report_text = REPORT_PATH.read_text(encoding="utf-8")
     assert "Confirmatory Internal Testing & Benchmark Evaluation" in report_text
     assert "previously observed external benchmark" in report_text
     assert "CONFIRMED GAIN" in report_text
     assert "Domain-Clustered" in report_text
+    assert "Candidate Hash Erratum" in report_text
+    assert "NON-INFERIORITY NOT ESTABLISHED" in report_text
+    assert "Paired McNemar (phish" in report_text
+    assert "Paired McNemar (legit" in report_text
+    assert "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b" in report_text
