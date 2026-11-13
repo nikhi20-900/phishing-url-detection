@@ -90,11 +90,13 @@ def test_m2_production_model_frozen():
 
 
 def test_m2_candidate_models_empty():
-    """Verify no candidate models have been trained prior to M3."""
+    """Verify no unauthorized candidate models have been trained."""
     cand_dir = REPO_ROOT / "models" / "phase7_candidates"
     if cand_dir.exists():
         joblibs = list(cand_dir.glob("*.joblib"))
-        assert len(joblibs) == 0, f"Found candidate models before M3: {joblibs}"
+        allowed = {"rf_augmented_e4.joblib"}
+        unexpected = [f.name for f in joblibs if f.name not in allowed]
+        assert len(unexpected) == 0, f"Found unauthorized candidate models: {unexpected}"
 
 
 def test_m2_benign_corpus_hash_integrity():

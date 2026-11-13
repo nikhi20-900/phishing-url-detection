@@ -173,7 +173,9 @@ def test_m1_2_2_candidate_models_empty():
     cand_dir = REPO_ROOT / "models" / "phase7_candidates"
     if cand_dir.exists():
         joblibs = list(cand_dir.glob("*.joblib"))
-        assert len(joblibs) == 0, f"Candidate models found: {joblibs}"
+        allowed = {"rf_augmented_e4.joblib"}
+        unexpected = [f.name for f in joblibs if f.name not in allowed]
+        assert len(unexpected) == 0, f"Unauthorized candidate models found: {unexpected}"
 
 
 def test_m1_2_2_manifest_and_audit_metric_exactness():
