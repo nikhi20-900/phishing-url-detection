@@ -1,0 +1,66 @@
+{
+  "manifest_version": "phase7-m4-pre-evaluation-manifest-v1",
+  "phase": 7,
+  "milestone": "M4",
+  "timestamp_utc": "2026-11-13T16:50:00Z",
+  "status": "LOCKED_PRE_EVALUATION",
+  "experimental_contract": {
+    "confirmatory_only": true,
+    "description": "Strictly confirmatory evaluation; no model, feature, or threshold tuning permitted after test unsealing",
+    "single_pass_internal_evaluation": "internal_test.csv is loaded once and predictions generated once for both models",
+    "production_model_immutability": "models/random_forest_model.joblib remains strictly frozen and is never replaced by candidate E4"
+  },
+  "threshold_convention": {
+    "definition": "P(phishing) >= threshold => Phishing (label 0); P(phishing) < threshold => Legitimate (label 1)",
+    "probability_source": "P(phishing) = P(Y=0) output by model.predict_proba"
+  },
+  "registered_thresholds": {
+    "primary_confirmatory": 0.50,
+    "secondary_operating_point": 0.75
+  },
+  "candidate_model_e4": {
+    "model_id": "E4",
+    "model_name": "Phase 7 Targeted Augmented Random Forest",
+    "path": "models/phase7_candidates/rf_augmented_e4.joblib",
+    "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+    "feature_count": 18,
+    "hyperparameters": {
+      "n_estimators": 100,
+      "random_state": 42,
+      "n_jobs": -1
+    }
+  },
+  "frozen_production_model_e0": {
+    "model_id": "E0",
+    "model_name": "Frozen Production Random Forest",
+    "path": "models/random_forest_model.joblib",
+    "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+    "status": "FROZEN_UNCHANGED"
+  },
+  "training_dataset": {
+    "path": "experiments/phase7/datasets/splits/train.csv",
+    "sha256": "9297458d03841fbe9c32bae7c4ad323e1b3f0b221c0c755f912350808d0c6892",
+    "samples": 170615
+  },
+  "validation_scorecard": {
+    "path": "experiments/phase7/reports/m3_validation_scorecard.json",
+    "sha256": "e7e622c91e1ca66ea14d5a9a1d92a85a170f99d78e1e976474b2fd19b663b1db"
+  },
+  "internal_test_dataset": {
+    "path": "experiments/phase7/datasets/splits/internal_test.csv",
+    "sha256": "ce004e9d8e65ea8c09175d904d4a5fee0442acc4b127af6a98f58ae0aed0e2cf",
+    "samples": 34092,
+    "unique_registered_domains": 25978,
+    "evaluation_role": "Primary confirmatory holdout (domain-disjoint, sealed)"
+  },
+  "historical_external_benchmark": {
+    "path": "data/external/external_validation_benchmark.csv",
+    "sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+    "samples": 1000,
+    "evaluation_role": "Historical benchmark replication (previously observed in Phase 4; NOT an independent holdout)"
+  },
+  "independent_confirmation_requirement": {
+    "status": "NOT_INDEPENDENT",
+    "guidance": "Genuinely independent external confirmation requires collecting and freezing a new, previously unobserved external benchmark separately."
+  }
+}

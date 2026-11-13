@@ -1,0 +1,71 @@
+{
+  "manifest_version": "phase7-m4-confirmatory-manifest-v1",
+  "phase": 7,
+  "milestone": "M4",
+  "timestamp_utc": "2026-11-13T16:58:43.757029+00:00",
+  "status": "CONFIRMATORY_EVALUATION_COMPLETED",
+  "governance_safeguards": {
+    "freeze_e4_before_unsealing": true,
+    "single_pass_internal_evaluation": true,
+    "confusion_matrices_reported": true,
+    "domain_aware_uncertainty_estimated": true,
+    "subgroup_counts_reported": true,
+    "production_model_preserved_frozen": true,
+    "threshold_convention_explicit": true
+  },
+  "artifacts": {
+    "frozen_production_model_e0": {
+      "path": "models/random_forest_model.joblib",
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "status": "FROZEN_UNCHANGED"
+    },
+    "candidate_model_e4": {
+      "path": "models/phase7_candidates/rf_augmented_e4.joblib",
+      "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+      "status": "CANDIDATE_ONLY"
+    },
+    "internal_test_dataset": {
+      "path": "experiments/phase7/datasets/splits/internal_test.csv",
+      "sha256": "ce004e9d8e65ea8c09175d904d4a5fee0442acc4b127af6a98f58ae0aed0e2cf"
+    },
+    "historical_benchmark_dataset": {
+      "path": "data/external/external_validation_benchmark.csv",
+      "sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3"
+    }
+  },
+  "confirmatory_summary_at_050": {
+    "e0_phishing_recall": 0.9934438040345821,
+    "e4_phishing_recall": 0.9945965417867435,
+    "e0_legitimate_fpr": 0.0011379378586978033,
+    "e4_legitimate_fpr": 0.003067484662576687,
+    "e0_macro_f1": 0.9965339583273076,
+    "e4_macro_f1": 0.9958372715161143,
+    "delta_phishing_recall_95ci": [
+      0.0003051063192572617,
+      0.002016838728191636
+    ],
+    "delta_legitimate_fpr_95ci": [
+      -0.0002491677805817433,
+      0.005884127563620124
+    ],
+    "mcnemar_p_value": 0.01450754
+  },
+  "operating_point_summary_at_075": {
+    "e0_phishing_recall": 0.992507204610951,
+    "e4_phishing_recall": 0.9915706051873199,
+    "e0_legitimate_fpr": 0.0007916089451810805,
+    "e4_legitimate_fpr": 0.0007916089451810805,
+    "e0_macro_f1": 0.9963507006243757,
+    "e4_macro_f1": 0.9959547569268004
+  },
+  "historical_benchmark_summary": {
+    "curated_corpus_fpr_at_050": {
+      "e0": 0.94,
+      "e4": 0.818
+    },
+    "curated_corpus_fpr_at_075": {
+      "e0": 0.908,
+      "e4": 0.706
+    }
+  }
+}
