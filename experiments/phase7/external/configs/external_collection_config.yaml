@@ -1,0 +1,69 @@
+benchmark_specification:
+  name: "Phase 7 Milestone 5 Independent External Benchmark"
+  version: "1.0.0"
+  phase: 7
+  milestone: "M5"
+  role: "Independent Out-of-Distribution Confirmatory Evaluation Benchmark"
+  independence_requirement: "Zero registered-domain overlap with PhiUSIIL, Phase 4, Phase 6, Phase 7 splits, and M1.2.2 benign corpus"
+
+sample_size_targets:
+  total_min: 1200
+  total_max: 1500
+  phishing_target: 650
+  legitimate_target: 650
+
+domain_clustering_caps:
+  max_urls_per_phishing_domain: 3
+  max_urls_per_legitimate_domain: 5
+
+legitimate_sector_targets:
+  ecommerce_retail: 150
+  government_public_stats: 150
+  academic_research: 150
+  banking_finance: 100
+  technical_documentation: 100
+
+mutually_exclusive_strata_quotas_legit:
+  homepage_root:
+    target_pct: 0.20
+    min_count: 120
+    description: "Path is / or empty; no query parameters"
+  single_level_path_no_query:
+    target_pct: 0.15
+    min_count: 90
+    description: "Exactly one path segment; no query parameters"
+  multi_level_path_no_query:
+    target_pct: 0.25
+    min_count: 150
+    description: "Path depth >= 2; no query parameters"
+  root_with_query:
+    target_pct: 0.10
+    min_count: 60
+    description: "Path is / or empty; query parameters present"
+  path_and_query:
+    target_pct: 0.20
+    min_count: 120
+    description: "Path depth >= 1; query parameters present"
+  special_syntax_variants:
+    target_pct: 0.10
+    min_count: 60
+    description: "Percent-encoded characters, fragment, or port variants"
+
+network_retrieval_rules:
+  timeout_seconds: 5.0
+  max_response_bytes: 524288
+  max_redirects: 3
+  disallow_cross_domain_redirects: true
+  enforce_dns_pinning: true
+  enforce_strict_tls: true
+
+models_under_evaluation:
+  frozen_production_control_e0:
+    path: "models/random_forest_model.joblib"
+    sha256: "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb"
+    status: "FROZEN_UNCHANGED"
+  candidate_model_e4:
+    path: "models/phase7_candidates/rf_augmented_e4.joblib"
+    sha256: "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b"
+    status: "EXPERIMENTAL_CANDIDATE_ONLY"
+
