@@ -1,0 +1,669 @@
+{
+  "scorecard_version": "1.0.0-m5-external",
+  "phase": 7,
+  "milestone": "M5",
+  "evaluation_timestamp_utc": "2026-11-17T18:57:24.672314+00:00",
+  "benchmark_metadata": {
+    "dataset_path": "experiments/phase7/external/datasets/m5_independent_benchmark.csv",
+    "dataset_sha256": "388e4eb58b05256030df494aa546384b69740d6b2bfe40734ebbb6ab5a1dfb7b",
+    "total_samples": 1300,
+    "phishing_samples": 650,
+    "legitimate_samples": 650,
+    "unique_registered_domains": 857
+  },
+  "models": {
+    "e0_frozen_baseline": {
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "role": "Frozen Production Baseline"
+    },
+    "e4_augmented_candidate": {
+      "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+      "role": "Experimental Candidate Only"
+    }
+  },
+  "primary_evaluation_threshold_050": {
+    "e0": {
+      "threshold": 0.5,
+      "sample_count": 1300,
+      "phishing_count": 650,
+      "legitimate_count": 650,
+      "confusion_matrix": {
+        "true_positives": 649,
+        "false_positives": 650,
+        "true_negatives": 0,
+        "false_negatives": 1
+      },
+      "rates": {
+        "phishing_recall": 0.9984615384615385,
+        "phishing_precision": 0.4996150885296382,
+        "legitimate_fpr": 1.0,
+        "legitimate_recall": 0.0,
+        "legitimate_precision": 0.0,
+        "macro_f1": 0.33299127757824526,
+        "accuracy": 0.49923076923076926
+      },
+      "probability_quality": {
+        "roc_auc": 0.46183668639053255,
+        "pr_auc": 0.6976109045946244,
+        "brier_score": 0.49629612870788253,
+        "ece": 0.49559075903664246
+      }
+    },
+    "e4": {
+      "threshold": 0.5,
+      "sample_count": 1300,
+      "phishing_count": 650,
+      "legitimate_count": 650,
+      "confusion_matrix": {
+        "true_positives": 648,
+        "false_positives": 555,
+        "true_negatives": 95,
+        "false_negatives": 2
+      },
+      "rates": {
+        "phishing_recall": 0.9969230769230769,
+        "phishing_precision": 0.5386533665835411,
+        "legitimate_fpr": 0.8538461538461538,
+        "legitimate_recall": 0.14615384615384616,
+        "legitimate_precision": 0.979381443298969,
+        "macro_f1": 0.47687855216512753,
+        "accuracy": 0.5715384615384616
+      },
+      "probability_quality": {
+        "roc_auc": 0.7332591715976331,
+        "pr_auc": 0.8024176120100089,
+        "brier_score": 0.39429033029406163,
+        "ece": 0.4230362949857572
+      }
+    },
+    "paired_differences_e4_minus_e0": {
+      "delta_phishing_recall": -0.0015384615384615996,
+      "delta_legitimate_fpr": -0.1461538461538462,
+      "delta_macro_f1": 0.14388727458688227,
+      "delta_brier": -0.1020057984138209
+    },
+    "cluster_permutation_test": {
+      "m_iterations": 10000,
+      "n_domain_clusters": 857,
+      "phishing_recall": {
+        "obs_delta": -0.0015384615384615385,
+        "k_extreme": 10000,
+        "monte_carlo_p_value": 1.0,
+        "formula": "(1 + k) / (M + 1)"
+      },
+      "legitimate_fpr": {
+        "obs_delta": -0.14615384615384616,
+        "k_extreme": 0,
+        "monte_carlo_p_value": 9.999000099990002e-05,
+        "formula": "(1 + k) / (M + 1)"
+      }
+    },
+    "domain_clustered_bootstrap": {
+      "n_bootstrap": 1000,
+      "n_domain_clusters": 857,
+      "e0": {
+        "phishing_recall": {
+          "mean": 0.9984615449580935,
+          "std": 0.0015487305355465601,
+          "ci_lower": 0.995267951918908,
+          "ci_upper": 1.0
+        },
+        "legitimate_fpr": {
+          "mean": 1.0,
+          "std": 0.0,
+          "ci_lower": 1.0,
+          "ci_upper": 1.0
+        },
+        "macro_f1": {
+          "mean": 0.3330214096243266,
+          "std": 0.0089336125059605,
+          "ci_lower": 0.31560216220300746,
+          "ci_upper": 0.3519000520562207
+        }
+      },
+      "e4": {
+        "phishing_recall": {
+          "mean": 0.9968538577142019,
+          "std": 0.0021445726612132126,
+          "ci_lower": 0.9922597619219047,
+          "ci_upper": 1.0
+        },
+        "legitimate_fpr": {
+          "mean": 0.8539088587590411,
+          "std": 0.011473869030238342,
+          "ci_lower": 0.8313461538461538,
+          "ci_upper": 0.8762965074015332
+        },
+        "macro_f1": {
+          "mean": 0.47671840814104804,
+          "std": 0.013606875970490321,
+          "ci_lower": 0.4507632185300204,
+          "ci_upper": 0.5024810077267275
+        }
+      },
+      "paired_delta_e4_minus_e0": {
+        "phishing_recall": {
+          "mean": -0.0016076872438916588,
+          "std": 0.0026107957055545457,
+          "ci_lower": -0.007324195275452924,
+          "ci_upper": 0.0031058319304967607
+        },
+        "legitimate_fpr": {
+          "mean": -0.14609114124095887,
+          "std": 0.01147386903023834,
+          "ci_lower": -0.16865384615384613,
+          "ci_upper": -0.12370349259846684
+        },
+        "macro_f1": {
+          "mean": 0.14369699851672146,
+          "std": 0.010105118413167948,
+          "ci_lower": 0.12385737853023142,
+          "ci_upper": 0.1637793192780245
+        }
+      }
+    },
+    "domain_wilcoxon_analysis": {
+      "target_class": "legitimate_fpr",
+      "K_total_domains": 207,
+      "K_zero_difference_domains": 112,
+      "K_effective_domains": 95,
+      "median_domain_delta": 0.0,
+      "mean_domain_delta": -0.15217391304347833,
+      "primary_wilcoxon": {
+        "statistic": 0.0,
+        "p_value": 1.780687175394747e-21,
+        "w_plus": 0.0,
+        "w_minus": 4560.0,
+        "rank_biserial_correlation": -1.0
+      },
+      "robustness_checks": {
+        "pratt_p_value": 2.348913175784563e-22,
+        "size_weighted_p_value": 1.780687175394747e-21
+      }
+    }
+  },
+  "secondary_evaluation_threshold_075": {
+    "e0": {
+      "threshold": 0.75,
+      "sample_count": 1300,
+      "phishing_count": 650,
+      "legitimate_count": 650,
+      "confusion_matrix": {
+        "true_positives": 631,
+        "false_positives": 647,
+        "true_negatives": 3,
+        "false_negatives": 19
+      },
+      "rates": {
+        "phishing_recall": 0.9707692307692307,
+        "phishing_precision": 0.4937402190923318,
+        "legitimate_fpr": 0.9953846153846154,
+        "legitimate_recall": 0.004615384615384616,
+        "legitimate_precision": 0.13636363636363635,
+        "macro_f1": 0.33174644339063425,
+        "accuracy": 0.4876923076923077
+      },
+      "probability_quality": {
+        "roc_auc": 0.46183668639053255,
+        "pr_auc": 0.6976109045946244,
+        "brier_score": 0.49629612870788253,
+        "ece": 0.49559075903664246
+      }
+    },
+    "e4": {
+      "threshold": 0.75,
+      "sample_count": 1300,
+      "phishing_count": 650,
+      "legitimate_count": 650,
+      "confusion_matrix": {
+        "true_positives": 645,
+        "false_positives": 510,
+        "true_negatives": 140,
+        "false_negatives": 5
+      },
+      "rates": {
+        "phishing_recall": 0.9923076923076923,
+        "phishing_precision": 0.5584415584415584,
+        "legitimate_fpr": 0.7846153846153846,
+        "legitimate_recall": 0.2153846153846154,
+        "legitimate_precision": 0.9655172413793104,
+        "macro_f1": 0.5334413491524242,
+        "accuracy": 0.6038461538461538
+      },
+      "probability_quality": {
+        "roc_auc": 0.7332591715976331,
+        "pr_auc": 0.8024176120100089,
+        "brier_score": 0.39429033029406163,
+        "ece": 0.4230362949857572
+      }
+    },
+    "paired_differences_e4_minus_e0": {
+      "delta_phishing_recall": 0.021538461538461617,
+      "delta_legitimate_fpr": -0.21076923076923082,
+      "delta_macro_f1": 0.20169490576179
+    },
+    "cluster_permutation_test": {
+      "m_iterations": 10000,
+      "n_domain_clusters": 857,
+      "phishing_recall": {
+        "obs_delta": 0.021538461538461538,
+        "k_extreme": 11,
+        "monte_carlo_p_value": 0.0011998800119988001,
+        "formula": "(1 + k) / (M + 1)"
+      },
+      "legitimate_fpr": {
+        "obs_delta": -0.21076923076923076,
+        "k_extreme": 0,
+        "monte_carlo_p_value": 9.999000099990002e-05,
+        "formula": "(1 + k) / (M + 1)"
+      }
+    },
+    "domain_clustered_bootstrap": {
+      "n_bootstrap": 1000,
+      "n_domain_clusters": 857,
+      "e0": {
+        "phishing_recall": {
+          "mean": 0.9712257574825417,
+          "std": 0.0063417470965413565,
+          "ci_lower": 0.9585325116309836,
+          "ci_upper": 0.9832073849442876
+        },
+        "legitimate_fpr": {
+          "mean": 0.9954395498289152,
+          "std": 0.0025337940520002438,
+          "ci_lower": 0.9902094474153297,
+          "ci_upper": 1.0
+        },
+        "macro_f1": {
+          "mean": 0.3318144665727674,
+          "std": 0.009383776492714773,
+          "ci_lower": 0.3142277525439185,
+          "ci_upper": 0.3516818630887022
+        }
+      },
+      "e4": {
+        "phishing_recall": {
+          "mean": 0.9922051539158836,
+          "std": 0.003514774201429562,
+          "ci_lower": 0.9844466873542749,
+          "ci_upper": 0.9984496724026208
+        },
+        "legitimate_fpr": {
+          "mean": 0.7851253651672637,
+          "std": 0.011413792970973719,
+          "ci_lower": 0.7627873859287607,
+          "ci_upper": 0.8073842221033232
+        },
+        "macro_f1": {
+          "mean": 0.5329132495370054,
+          "std": 0.012750311103038177,
+          "ci_lower": 0.5092692182053512,
+          "ci_upper": 0.5586246606960314
+        }
+      },
+      "paired_delta_e4_minus_e0": {
+        "phishing_recall": {
+          "mean": 0.020979396433341735,
+          "std": 0.006183946953586913,
+          "ci_lower": 0.008918011360660442,
+          "ci_upper": 0.03343949044585981
+        },
+        "legitimate_fpr": {
+          "mean": -0.21031418466165164,
+          "std": 0.010819934490101045,
+          "ci_lower": -0.2310938145750104,
+          "ci_upper": -0.1890606398809524
+        },
+        "macro_f1": {
+          "mean": 0.2010987829642379,
+          "std": 0.008730039531008928,
+          "ci_lower": 0.18428618870568741,
+          "ci_upper": 0.21787211256256836
+        }
+      }
+    },
+    "decision_matrix_evaluation": {
+      "state": "State 2 (Empirical Boundary)",
+      "determination": "EMPIRICAL DETERMINATION",
+      "description": "Measured Recall=99.23%, FPR=78.4615%. Evaluated under domain-clustered confidence bounds.",
+      "recall_e4": 0.9923076923076923,
+      "fpr_e4": 0.7846153846153846,
+      "fpr_e0": 0.9953846153846154,
+      "ci_delta_recall_lower": 0.008918011360660442,
+      "ci_delta_fpr_upper": -0.1890606398809524,
+      "permutation_p_value_recall": 0.0011998800119988001
+    }
+  },
+  "stratified_subgroups": {
+    "mutually_exclusive_strata": {
+      "homepage_root": {
+        "total_count": 497,
+        "phishing_count": 367,
+        "legitimate_count": 130,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 1.0,
+        "phishing_recall_e0": 0.997275204359673,
+        "phishing_recall_e4": 1.0,
+        "delta_fpr": 0.0,
+        "delta_recall": 0.0027247956403270157,
+        "fpr_caveat": "Adequate (n_l >= 30)"
+      },
+      "single_level_path_no_query": {
+        "total_count": 210,
+        "phishing_count": 110,
+        "legitimate_count": 100,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 1.0,
+        "phishing_recall_e0": 1.0,
+        "phishing_recall_e4": 0.990909090909091,
+        "delta_fpr": 0.0,
+        "delta_recall": -0.009090909090909038,
+        "fpr_caveat": "Adequate (n_l >= 30)"
+      },
+      "multi_level_path_no_query": {
+        "total_count": 273,
+        "phishing_count": 108,
+        "legitimate_count": 165,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 1.0,
+        "phishing_recall_e0": 1.0,
+        "phishing_recall_e4": 1.0,
+        "delta_fpr": 0.0,
+        "delta_recall": 0.0,
+        "fpr_caveat": "Adequate (n_l >= 30)"
+      },
+      "root_with_query": {
+        "total_count": 74,
+        "phishing_count": 9,
+        "legitimate_count": 65,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 1.0,
+        "phishing_recall_e0": 1.0,
+        "phishing_recall_e4": 1.0,
+        "delta_fpr": 0.0,
+        "delta_recall": 0.0,
+        "fpr_caveat": "Adequate (n_l >= 30)"
+      },
+      "path_and_query": {
+        "total_count": 154,
+        "phishing_count": 24,
+        "legitimate_count": 130,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 0.3076923076923077,
+        "phishing_recall_e0": 1.0,
+        "phishing_recall_e4": 0.9583333333333334,
+        "delta_fpr": -0.6923076923076923,
+        "delta_recall": -0.04166666666666663,
+        "fpr_caveat": "Adequate (n_l >= 30)"
+      },
+      "special_syntax_variants": {
+        "total_count": 92,
+        "phishing_count": 32,
+        "legitimate_count": 60,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 0.9166666666666666,
+        "phishing_recall_e0": 1.0,
+        "phishing_recall_e4": 1.0,
+        "delta_fpr": -0.08333333333333337,
+        "delta_recall": 0.0,
+        "fpr_caveat": "Adequate (n_l >= 30)"
+      }
+    },
+    "marginal_feature_flags": {
+      "query_bearing==True": {
+        "total_count": 257,
+        "phishing_count": 39,
+        "legitimate_count": 218,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 0.5642201834862385,
+        "delta_fpr": -0.4357798165137615
+      },
+      "query_bearing==False": {
+        "total_count": 1043,
+        "phishing_count": 611,
+        "legitimate_count": 432,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 1.0,
+        "delta_fpr": 0.0
+      },
+      "multi_level_path==True": {
+        "total_count": 476,
+        "phishing_count": 142,
+        "legitimate_count": 334,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 0.7455089820359282,
+        "delta_fpr": -0.2544910179640718
+      },
+      "multi_level_path==False": {
+        "total_count": 824,
+        "phishing_count": 508,
+        "legitimate_count": 316,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 0.9683544303797469,
+        "delta_fpr": -0.03164556962025311
+      },
+      "special_syntax==True": {
+        "total_count": 92,
+        "phishing_count": 32,
+        "legitimate_count": 60,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 0.9166666666666666,
+        "delta_fpr": -0.08333333333333337
+      },
+      "special_syntax==False": {
+        "total_count": 1208,
+        "phishing_count": 618,
+        "legitimate_count": 590,
+        "legitimate_fpr_e0": 1.0,
+        "legitimate_fpr_e4": 0.847457627118644,
+        "delta_fpr": -0.15254237288135597
+      }
+    },
+    "sectors": {
+      "phishing_threat_feed": {
+        "total_count": 650,
+        "phishing_count": 650,
+        "legitimate_count": 0,
+        "fpr_e0": "Undefined",
+        "fpr_e4": "Undefined",
+        "recall_e0": 0.9984615384615385,
+        "recall_e4": 0.9969230769230769
+      },
+      "ecommerce_retail": {
+        "total_count": 150,
+        "phishing_count": 0,
+        "legitimate_count": 150,
+        "fpr_e0": 1.0,
+        "fpr_e4": 0.8466666666666667,
+        "recall_e0": "Undefined",
+        "recall_e4": "Undefined"
+      },
+      "government_public_stats": {
+        "total_count": 150,
+        "phishing_count": 0,
+        "legitimate_count": 150,
+        "fpr_e0": 1.0,
+        "fpr_e4": 0.8733333333333333,
+        "recall_e0": "Undefined",
+        "recall_e4": "Undefined"
+      },
+      "banking_finance": {
+        "total_count": 100,
+        "phishing_count": 0,
+        "legitimate_count": 100,
+        "fpr_e0": 1.0,
+        "fpr_e4": 0.86,
+        "recall_e0": "Undefined",
+        "recall_e4": "Undefined"
+      },
+      "technical_documentation": {
+        "total_count": 100,
+        "phishing_count": 0,
+        "legitimate_count": 100,
+        "fpr_e0": 1.0,
+        "fpr_e4": 0.84,
+        "recall_e0": "Undefined",
+        "recall_e4": "Undefined"
+      },
+      "academic_research": {
+        "total_count": 150,
+        "phishing_count": 0,
+        "legitimate_count": 150,
+        "fpr_e0": 1.0,
+        "fpr_e4": 0.8466666666666667,
+        "recall_e0": "Undefined",
+        "recall_e4": "Undefined"
+      }
+    }
+  },
+  "sensitivity_analyses": {
+    "domain_thinning_100_iterations": {
+      "n_iterations": 100,
+      "sample_size_per_iteration": 857,
+      "e0": {
+        "phishing_recall": {
+          "mean": 0.9984615384615387,
+          "std": 2.220446049250313e-16,
+          "p025": 0.9984615384615385,
+          "p975": 0.9984615384615385
+        },
+        "legitimate_fpr": {
+          "mean": 1.0,
+          "std": 0.0,
+          "p025": 1.0,
+          "p975": 1.0
+        }
+      },
+      "e4": {
+        "phishing_recall": {
+          "mean": 0.9969230769230769,
+          "std": 0.0,
+          "p025": 0.9969230769230769,
+          "p975": 0.9969230769230769
+        },
+        "legitimate_fpr": {
+          "mean": 0.8483574879227054,
+          "std": 0.02115583540099329,
+          "p025": 0.8065217391304348,
+          "p975": 0.8865942028985507
+        }
+      },
+      "paired_delta": {
+        "phishing_recall": {
+          "mean": -0.0015384615384615996,
+          "std": 0.0,
+          "p025": -0.0015384615384615996,
+          "p975": -0.0015384615384615996
+        },
+        "legitimate_fpr": {
+          "mean": -0.1516425120772947,
+          "std": 0.021155835400993285,
+          "p025": -0.19347826086956518,
+          "p975": -0.11340579710144932
+        }
+      }
+    },
+    "bayesian_population_weighted_precision": {
+      "e0": [
+        {
+          "prevalence_pi": 0.0001,
+          "prevalence_percent": "0.01%",
+          "ppv_precision": 9.984616920710297e-05,
+          "npv_specificity": 0.0
+        },
+        {
+          "prevalence_pi": 0.0005,
+          "prevalence_percent": "0.05%",
+          "ppv_precision": 0.0004992311532547333,
+          "npv_specificity": 0.0
+        },
+        {
+          "prevalence_pi": 0.001,
+          "prevalence_percent": "0.10%",
+          "ppv_precision": 0.0009984630745585763,
+          "npv_specificity": 0.0
+        },
+        {
+          "prevalence_pi": 0.005,
+          "prevalence_percent": "0.50%",
+          "ppv_precision": 0.0049923460949699615,
+          "npv_specificity": 0.0
+        },
+        {
+          "prevalence_pi": 0.01,
+          "prevalence_percent": "1.00%",
+          "ppv_precision": 0.0099847689964461,
+          "npv_specificity": 0.0
+        },
+        {
+          "prevalence_pi": 0.05,
+          "prevalence_percent": "5.00%",
+          "ppv_precision": 0.04992691745518887,
+          "npv_specificity": 0.0
+        },
+        {
+          "prevalence_pi": 0.1,
+          "prevalence_percent": "10.00%",
+          "ppv_precision": 0.09986151715648563,
+          "npv_specificity": 0.0
+        },
+        {
+          "prevalence_pi": 0.5,
+          "prevalence_percent": "50.00%",
+          "ppv_precision": 0.4996150885296382,
+          "npv_specificity": 0.0
+        }
+      ],
+      "e4": [
+        {
+          "prevalence_pi": 0.0001,
+          "prevalence_percent": "0.01%",
+          "ppv_precision": 0.00011675480032496754,
+          "npv_specificity": 0.9999978945307277
+        },
+        {
+          "prevalence_pi": 0.0005,
+          "prevalence_percent": "0.05%",
+          "ppv_precision": 0.0005837348762671236,
+          "npv_specificity": 0.9999894685293327
+        },
+        {
+          "prevalence_pi": 0.001,
+          "prevalence_percent": "0.10%",
+          "ppv_precision": 0.001167371953888808,
+          "npv_specificity": 0.9999789267388075
+        },
+        {
+          "prevalence_pi": 0.005,
+          "prevalence_percent": "0.50%",
+          "ppv_precision": 0.00583295077097567,
+          "npv_specificity": 0.9998942190723012
+        },
+        {
+          "prevalence_pi": 0.01,
+          "prevalence_percent": "1.00%",
+          "ppv_precision": 0.011656143759106364,
+          "npv_specificity": 0.999787392367386
+        },
+        {
+          "prevalence_pi": 0.05,
+          "prevalence_percent": "5.00%",
+          "ppv_precision": 0.05789332618600911,
+          "npv_specificity": 0.9988931931377976
+        },
+        {
+          "prevalence_pi": 0.1,
+          "prevalence_percent": "10.00%",
+          "ppv_precision": 0.11483253588516748,
+          "npv_specificity": 0.9976662777129521
+        },
+        {
+          "prevalence_pi": 0.5,
+          "prevalence_percent": "50.00%",
+          "ppv_precision": 0.5386533665835411,
+          "npv_specificity": 0.979381443298969
+        }
+      ]
+    }
+  }
+}

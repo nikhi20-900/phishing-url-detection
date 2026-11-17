@@ -1,0 +1,21 @@
+{
+  "registry_version": "phase7-m5-reviewer-registry-v1",
+  "authentication_mechanism": "HMAC-SHA256 Cryptographic Audit Ledger",
+  "governance_disclosure": "Single-Operator Authenticated Review Ledger. Uses cryptographic HMAC-SHA256 signatures over canonical JSON records to ensure tamper-evidence and attributable audit history. Transparently noted: does not constitute multi-party double-blind consensus.",
+  "authorized_reviewers": [
+    {
+      "reviewer_id": "lead_auditor_primary",
+      "name": "Principal Security & Data Governance Auditor",
+      "role": "Lead Research Data Auditor",
+      "public_key_fingerprint": "5f1bf016e3d5a2b5",
+      "status": "ACTIVE"
+    },
+    {
+      "reviewer_id": "senior_supervisor_secondary",
+      "name": "Senior Technical Methodology Supervisor",
+      "role": "Independent Protocol Reviewer",
+      "public_key_fingerprint": "5f1bf016e3d5a2b5",
+      "status": "ACTIVE"
+    }
+  ]
+}
