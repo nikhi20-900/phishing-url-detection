@@ -10,6 +10,7 @@ Features:
 """
 
 import csv
+import hashlib
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
@@ -26,6 +27,7 @@ from experiments.phase7.external.evaluation.audit_domain_independence import (
 )
 
 RAW_PHISHTANK_CACHE = REPO_ROOT / "experiments" / "phase7" / "external" / "evidence" / "phishtank_raw.csv"
+EXPECTED_RAW_PHISHTANK_SHA256 = "4885e37276d8a33b3da045d9fca0888c152e4d20c91e7a69f39eb032893a54ba"
 
 
 def extract_structural_stratum(url: str) -> Tuple[str, bool, bool, bool]:
@@ -81,6 +83,13 @@ def ingest_clean_phishing_candidates(
     if not raw_cache_path.exists():
         raise FileNotFoundError(f"PhishTank cache not found at {raw_cache_path}")
 
+    EXPECTED_RAW_SNAPSHOT_SHA256 = "4885e37276d8a33b3da045d9fca0888c152e4d20c91e7a69f39eb032893a54ba"
+    actual_hash = hashlib.sha256(raw_cache_path.read_bytes()).hexdigest()
+    if actual_hash != EXPECTED_RAW_SNAPSHOT_SHA256:
+        raise ValueError(
+            f"PhishTank upstream snapshot hash mismatch! Expected {EXPECTED_RAW_SNAPSHOT_SHA256}, got {actual_hash}"
+        )
+
     with open(raw_cache_path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.DictReader(f)
         raw_rows = list(reader)
@@ -90,6 +99,12 @@ def ingest_clean_phishing_candidates(
     domain_counts: Dict[str, int] = {}
 
     for r in raw_rows:
+        # Defensively enforce that the threat feed entry is explicitly verified and online
+        if str(r.get("verified", "")).strip().lower() != "yes":
+            continue
+        if str(r.get("online", "")).strip().lower() != "yes":
+            continue
+
         url = r.get("url", "").strip()
         if not url:
             continue
@@ -130,6 +145,9 @@ def ingest_clean_phishing_candidates(
             "source": "PhishTank-Verified",
             "source_id": str(r.get("phish_id", f"PT-{len(clean_records)+1:06d}")),
             "verified": r.get("verified", "yes"),
+            "online": r.get("online", "yes"),
+            "verification_time": r.get("verification_time", ""),
+            "phish_detail_url": r.get("phish_detail_url", ""),
             "submission_time": r.get("submission_time", ""),
             "target": r.get("target", "Unknown"),
             "query_bearing": has_query,

@@ -64,13 +64,19 @@ class CrossDomainRedirectBlockedError(Exception):
 def is_disallowed_ip(ip_str: str) -> bool:
     """Check whether an IP string belongs to any private, loopback, or non-routable range."""
     try:
-        ip = ipaddress.ip_address(ip_str.strip())
+        clean_ip = ip_str.strip()
+        # Handle RFC 6052 NAT64 prefix (64:ff9b::/96) by validating embedded IPv4 destination
+        if clean_ip.lower().startswith("64:ff9b::"):
+            suffix = clean_ip.split(":")[-1]
+            if "." in suffix:
+                return is_disallowed_ip(suffix)
+        ip = ipaddress.ip_address(clean_ip)
         return (
             any(ip in net for net in DISALLOWED_NETWORKS)
             or ip.is_private
             or ip.is_loopback
             or ip.is_link_local
-            or ip.is_reserved
+            or (ip.is_reserved and not clean_ip.lower().startswith("64:ff9b::"))
             or ip.is_multicast
         )
     except ValueError:
@@ -97,10 +103,13 @@ def resolve_and_validate_hostname(hostname: str) -> Tuple[List[str], float]:
     except ValueError:
         pass
 
-    # Resolve via socket.getaddrinfo
+    # Resolve via socket.getaddrinfo (prefer IPv4 to avoid macOS NAT64 translation issues)
     t0 = time.perf_counter()
     try:
-        addrinfo = socket.getaddrinfo(clean_host, None, socket.AF_UNSPEC, socket.SOCK_STREAM)
+        try:
+            addrinfo = socket.getaddrinfo(clean_host, None, socket.AF_INET, socket.SOCK_STREAM)
+        except Exception:
+            addrinfo = socket.getaddrinfo(clean_host, None, socket.AF_UNSPEC, socket.SOCK_STREAM)
     except Exception as e:
         dns_ms = round((time.perf_counter() - t0) * 1000, 2)
         raise socket.gaierror(f"DNS resolution failed for {clean_host}: {e}")
@@ -192,6 +201,7 @@ def execute_secure_retrieval(
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     max_redirects: int = MAX_REDIRECTS,
     max_body_bytes: int = MAX_RESPONSE_BYTES,
+    return_body: bool = False,
 ) -> Dict[str, Any]:
     """
     Execute controlled HTTP/TLS retrieval with full safety guarantees and evidence gathering:
@@ -393,7 +403,7 @@ def execute_secure_retrieval(
                     pass
 
     # Calculate real SHA-256 of response body
-    response_sha = hashlib.sha256(final_body).hexdigest() if final_body else None
+    response_sha = hashlib.sha256(final_body).hexdigest() if final_status_code is not None else None
     html_title = extract_html_title(final_body)
 
     # Accessibility criteria:
@@ -408,7 +418,7 @@ def execute_secure_retrieval(
         and (not is_https or bool(tls_info["tls_verified"]))
     )
 
-    return {
+    res_dict = {
         "candidate_id": candidate_id,
         "target_url": target_url,
         "retrieval_timestamp_utc": retrieval_start_time,
@@ -434,4 +444,8 @@ def execute_secure_retrieval(
         "observation_error": observation_error,
         "is_synthetic": False,
     }
+    if return_body:
+        res_dict["body_bytes"] = final_body
+
+    return res_dict
 

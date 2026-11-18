@@ -45,7 +45,8 @@ SECTOR_DOMAIN_CATALOG: Dict[str, List[str]] = {
         "ulta.com", "lush.com", "uniqlo.com", "shein.com", "temu.com", "boohoo.com", "farfetch.com", "net-a-porter.com",
         "bathandbodyworks.com", "bedbathandbeyond.com", "walgreens.com", "cvs.com", "riteaid.com", "kroger.com", "albertsons.com",
         "ralphs.com", "publix.com", "heb.com", "meijer.com", "bjswholesale.com", "samsclub.com", "menards.com", "tractorsupply.com",
-        "advanceautoparts.com", "oreillyauto.com", "rockauto.com", "carparts.com", "dickssportinggoods.com", "basspro.com", "cabelas.com"
+        "advanceautoparts.com", "oreillyauto.com", "rockauto.com", "carparts.com", "dickssportinggoods.com", "basspro.com", "cabelas.com",
+        "thriftbooks.com", "bandcamp.com", "teepublic.com", "thomann.de", "monoprice.com", "adafruit.com", "sparkfun.com", "microcenter.com", "redbubble.com"
     ],
     "government_public_stats": [
         "ssb.no", "dst.dk", "ine.es", "istat.it", "stat.si", "snb.ch",
@@ -58,7 +59,8 @@ SECTOR_DOMAIN_CATALOG: Dict[str, List[str]] = {
         "e-tar.lt", "vestnesis.lv", "riigiteataja.ee", "senat.fr", "senado.es", "camera.it",
         "ausstats.gov.au", "bundesgerichtshof.de", "bundesverfassungsgericht.de",
         "tribunal-constitucional.pt", "tribunalconstitucional.es", "rechtspraak.nl",
-        "cour-de-cassation.be", "portalestadistico.com", "worlddata.info", "opendata.swiss"
+        "cour-de-cassation.be", "portalestadistico.com", "worlddata.info", "opendata.swiss",
+        "senedd.wales", "overheid.nl", "psp.cz", "parliament.uk", "belgium.be"
     ],
     "academic_research": [
         "opencontainers.org", "semanticscholar.org", "frontiersin.org", "sciencedirect.com", "springernature.com", "osf.io", "annualreviews.org",
