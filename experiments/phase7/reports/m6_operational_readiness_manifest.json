@@ -1,0 +1,129 @@
+{
+  "manifest_version": "1.0.0-m6-operational-readiness",
+  "phase": 7,
+  "milestone": "M6",
+  "milestone_name": "Operational Readiness & Generalisation Assessment",
+  "status": "PRE_EVALUATION_FROZEN",
+  "created_at_utc": "2026-11-18T20:41:33.579592+00:00",
+  "governance_rule": "Cryptographic pre-evaluation lock established before unsealing M6 diagnostics. Zero retraining or promotion authorized.",
+  "models": {
+    "frozen_production_control_e0": {
+      "path": "models/random_forest_model.joblib",
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "classification": "FROZEN_PRODUCTION_BASELINE",
+      "classes": [
+        0,
+        1
+      ],
+      "phishing_index": 0,
+      "status": "FROZEN_UNCHANGED"
+    },
+    "candidate_model_e4": {
+      "path": "models/phase7_candidates/rf_augmented_e4.joblib",
+      "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+      "classification": "EXPERIMENTAL_CANDIDATE_ONLY",
+      "classes": [
+        0,
+        1
+      ],
+      "phishing_index": 0,
+      "status": "EXPERIMENTAL_CANDIDATE_ONLY"
+    }
+  },
+  "benchmarks": {
+    "internal_test": {
+      "path": "experiments/phase7/datasets/splits/internal_test.csv",
+      "sha256": "ce004e9d8e65ea8c09175d904d4a5fee0442acc4b127af6a98f58ae0aed0e2cf",
+      "sample_count": 34092,
+      "phishing_count": 13880,
+      "legitimate_count": 20212,
+      "unique_domains": 25978,
+      "role": "Internal domain-disjoint holdout from PhiUSIIL"
+    },
+    "historical_external": {
+      "path": "data/external/external_validation_benchmark.csv",
+      "sha256": "88525183abd402e385c6329c49b8d551db86b22bcf03d8429de37d477c8312c3",
+      "sample_count": 1047,
+      "phishing_count": 547,
+      "legitimate_count": 500,
+      "unique_domains": 892,
+      "role": "Historical external benchmark (Phase 4 & Phase 6 replication holdout)"
+    },
+    "m5_1_qualified_external": {
+      "path": "experiments/phase7/external/datasets/m5_1_qualified_benchmark.csv",
+      "sha256": "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88",
+      "sample_count": 1300,
+      "phishing_count": 650,
+      "legitimate_count": 650,
+      "unique_domains": 810,
+      "raw_observations": {
+        "path": "experiments/phase7/external/evidence/raw_observations_m5_1.jsonl",
+        "sha256": "43d4e432a406083a4bb9ef61be0d9870dd7cba8b5ca7ad0103e3ff0dd6ca2282"
+      },
+      "upstream_phishtank_snapshot": {
+        "path": "experiments/phase7/external/evidence/phishtank_raw.csv",
+        "sha256": "4885e37276d8a33b3da045d9fca0888c152e4d20c91e7a69f39eb032893a54ba"
+      },
+      "role": "Socket-verified authentic crawl with 100% verified TLS"
+    }
+  },
+  "training_data": {
+    "phase7_train_split": {
+      "path": "experiments/phase7/datasets/splits/train.csv",
+      "sha256": "9297458d03841fbe9c32bae7c4ad323e1b3f0b221c0c755f912350808d0c6892",
+      "total_samples": 170615,
+      "base_phiusiil_samples": 170496,
+      "augmented_legitimate_samples": 119
+    }
+  },
+  "feature_pipeline": {
+    "schema_version": "Phase 1 Baseline 18-Feature Lexical Engine",
+    "feature_count": 18,
+    "feature_names": [
+      "URLLength",
+      "DomainLength",
+      "IsDomainIP",
+      "TLDLength",
+      "NoOfSubDomain",
+      "HasObfuscation",
+      "NoOfObfuscatedChar",
+      "ObfuscationRatio",
+      "NoOfLettersInURL",
+      "LetterRatioInURL",
+      "NoOfDegitsInURL",
+      "DegitRatioInURL",
+      "NoOfEqualsInURL",
+      "NoOfQMarkInURL",
+      "NoOfAmpersandInURL",
+      "NoOfOtherSpecialCharsInURL",
+      "SpacialCharRatioInURL",
+      "IsHTTPS"
+    ]
+  },
+  "diagnostic_framework": {
+    "sections": [
+      "M6.1",
+      "M6.2",
+      "M6.3",
+      "M6.4",
+      "M6.5",
+      "M6.6",
+      "M6.7",
+      "M6.8"
+    ],
+    "operational_thresholds": [
+      0.5,
+      0.75
+    ],
+    "operational_fpr_ceiling": 0.001,
+    "bayesian_priors": [
+      0.0001,
+      0.001,
+      0.01
+    ],
+    "covariate_shift_bins": 10,
+    "zero_count_smoothing_epsilon": "1 / (2 * N_ext)",
+    "structural_strata_count": 6,
+    "institutional_sectors_count": 5
+  }
+}
