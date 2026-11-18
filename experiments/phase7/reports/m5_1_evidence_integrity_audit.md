@@ -1,6 +1,6 @@
 # Phase 7 Milestone 5.1 — Evidence Integrity Audit and Benchmark Qualification Report
 
-- **Execution Timestamp (UTC):** 2026-11-18T19:41:50.327165+00:00
+- **Execution Timestamp (UTC):** 2026-11-18T20:09:57.870895+00:00
 - **Evaluation Protocol:** Confirmatory Single-Pass Evaluation (Frozen Production Control E0 vs Experimental Candidate E4)
 - **Qualified External Benchmark:** `m5_1_qualified_benchmark.csv` (SHA-256: `f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88`)
 - **Raw Observations Log:** `raw_observations_m5_1.jsonl` (Authentic socket-level retrieval; zero synthetic fallback)
@@ -21,7 +21,7 @@ In Milestone 5.1, the 6 critical evidence-integrity defects identified in the le
 ### 1.2 Confirmatory Evaluation Verdict ($T = 0.75$)
 - **Decision Matrix State:** **State 3**
 - **Determination:** **FAIL: False Alarm Deficit Exceeds Operational Ceiling**
-- **Evaluation Details:** Candidate E4 exceeds operational false positive ceiling (92.6154% > 0.10%) and significantly degrades false alarm rate relative to control.
+- **Evaluation Details:** Candidate E4 fails operational deployment criteria: absolute FPR (92.6154%) massively exceeds the operational ceiling of 0.10%. Although E4's empirical FPR is lower than control E0 (92.6154% vs 94.1538%, Delta_FPR = -1.5385%), the difference is not statistically significant (permutation p = 0.2837), and the 95% domain-clustered bootstrap CI upper bound (+0.9368% > 0) crosses zero, failing to certify statistical non-inferiority against zero degradation.
 - **Governance Mandate:** **Zero Retraining and Zero Production Promotion.** E0 remains the frozen production baseline. E4 remains an experimental candidate.
 
 ---

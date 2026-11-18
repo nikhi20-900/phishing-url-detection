@@ -2,7 +2,7 @@
 Comprehensive Verification Suite for Phase 7 Milestone 5.1 (M5.1):
 Evidence Integrity Audit and Benchmark Qualification.
 
-Verifies all 9 Acceptance Criteria (AC-1 through AC-9):
+Verifies all 10 Acceptance Criteria (AC-1 through AC-10):
 - AC-1: Security Quarantine and Decommissioning of Compromised HMAC Key.
 - AC-2: Fail-Closed Domain Collision Invariant (D_benchmark ∩ D_historical = ∅).
 - AC-3: Authentic Live Web Retrieval (Socket network evidence; zero synthetic fallback).
@@ -12,6 +12,7 @@ Verifies all 9 Acceptance Criteria (AC-1 through AC-9):
 - AC-7: Strict Domain Clustering Caps (phishing <= 3, legitimate <= 5, total >= 800 domains).
 - AC-8: Domain-Aware Statistical Inference & Non-Inferiority Verification.
 - AC-9: Cryptographic Manifest, Scorecard, and Report Reconciliation.
+- AC-10: State 3 Statistical Rationale & Stale Wording Regression Guard.
 """
 
 import hashlib
@@ -40,6 +41,9 @@ from experiments.phase7.external.collection.ingest_phishing_feeds import (
     EXPECTED_RAW_PHISHTANK_SHA256,
     RAW_PHISHTANK_CACHE,
     extract_structural_stratum,
+)
+from experiments.phase7.external.evaluation.verify_raw_observations_integrity import (
+    validate_raw_observations_integrity,
 )
 
 BENCHMARK_CSV = REPO_ROOT / "experiments" / "phase7" / "external" / "datasets" / "m5_1_qualified_benchmark.csv"
@@ -166,6 +170,9 @@ class TestM51EvidenceIntegrity:
             assert ev["response_sha256"] is not None, f"Missing response body hash: {o['url']}"
             assert len(ev["response_sha256"]) == 64
 
+        # 3. Execute complete independent standalone raw observations validation
+        validate_raw_observations_integrity()
+
     def test_ac4_threat_feed_integrity_and_snapshot_hash(self):
         """AC-4: Phishing candidate ingest requires verified==yes, online==yes, and locks snapshot hash."""
         assert RAW_PHISHTANK_CACHE.exists()
@@ -290,3 +297,42 @@ class TestM51EvidenceIntegrity:
         assert "State 3" in decision_075["state"] or "FAIL" in decision_075["state"], (
             f"Expected State 3 or FAIL due to operational FPR ceiling breach, got {decision_075['state']}"
         )
+        assert "significantly degrades" not in decision_075["description"].lower(), (
+            "State 3 must not claim significant degradation when Delta_FPR is negative and CI spans zero!"
+        )
+        assert "massively exceeds" in decision_075["description"].lower()
+
+    def test_ac10_state_3_statistical_rationale_and_stale_wording_guard(self):
+        """AC-10: State 3 must not claim significant degradation; verifies artifacts and statistical rationale."""
+        assert SCORECARD_JSON.exists()
+        assert EVIDENCE_AUDIT_MD.exists()
+
+        sc = json.loads(SCORECARD_JSON.read_text(encoding="utf-8"))
+        audit_md = EVIDENCE_AUDIT_MD.read_text(encoding="utf-8")
+
+        # 1. Assert stale wording is absent across both artifacts
+        stale_phrase = "significantly degrades false alarm rate relative to control"
+        assert stale_phrase not in sc["comparative_inference_t_075"]["decision_matrix_evaluation"]["description"].lower()
+        assert stale_phrase not in audit_md.lower()
+
+        # 2. Assert correct statistical justification is present in scorecard
+        desc = sc["comparative_inference_t_075"]["decision_matrix_evaluation"]["description"]
+        assert "massively exceeds the operational ceiling of 0.10%" in desc
+        assert "Delta_FPR = -1.5385%" in desc
+        assert "permutation p = 0.2837" in desc
+        assert "failing to certify statistical non-inferiority against zero degradation" in desc
+
+        # 3. Assert correct statistical justification is present in audit report
+        assert "massively exceeds the operational ceiling of 0.10%" in audit_md
+        assert "Delta_FPR = -1.5385%" in audit_md
+        assert "permutation p = 0.2837" in audit_md
+
+        # 4. Assert statistical invariants: E4 point estimate is lower than E0, but CI spans zero
+        delta_fpr = sc["comparative_inference_t_075"]["delta_fpr_e4_minus_e0"]
+        ci_upper = sc["comparative_inference_t_075"]["domain_clustered_bootstrap"]["paired_delta_e4_minus_e0"]["legitimate_fpr"]["ci_upper"]
+        ci_lower = sc["comparative_inference_t_075"]["domain_clustered_bootstrap"]["paired_delta_e4_minus_e0"]["legitimate_fpr"]["ci_lower"]
+        perm_p = sc["comparative_inference_t_075"]["monte_carlo_permutation"]["legitimate_fpr"]["monte_carlo_p_value"]
+
+        assert delta_fpr < 0, f"Expected negative Delta_FPR (point estimate improvement), got {delta_fpr}"
+        assert ci_lower < 0 < ci_upper, f"Confidence interval must span zero: [{ci_lower}, {ci_upper}]"
+        assert perm_p > 0.05, f"Permutation p-value must be non-significant: {perm_p}"
