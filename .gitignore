@@ -31,3 +31,8 @@ models/*.h5
 /data/external/phishing_feed_openphish.txt
 /data/external/phishing_feed_phishtank.csv
 /experiments/phase7/external/evidence/phishtank_raw.csv
+
+# Security quarantine: Decommissioned audit signing keys
+/experiments/phase7/external/configs/*.key
+/experiments/phase7/external/configs/m5_audit_signing_secret.key
+

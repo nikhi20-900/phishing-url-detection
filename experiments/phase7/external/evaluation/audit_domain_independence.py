@@ -110,8 +110,10 @@ def build_dynamic_historical_domain_inventory(
         rel_path = entry["path"]
         fp = repo_root / rel_path
         if not fp.exists():
-            print(f"  [WARN] Historical file not found: {rel_path}")
-            continue
+            raise FileNotFoundError(
+                f"CRITICAL AUDIT FAILURE: Registered historical dataset missing: {rel_path}. "
+                f"Fail-closed invariant violated; cannot guarantee domain isolation."
+            )
 
         file_sha = compute_file_sha256(fp)
         df = pd.read_csv(fp, low_memory=False)

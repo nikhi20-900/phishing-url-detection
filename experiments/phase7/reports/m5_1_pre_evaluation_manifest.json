@@ -1,0 +1,110 @@
+{
+  "manifest_version": "1.0.0-m5-1-qualified-benchmark",
+  "phase": 7,
+  "milestone": "M5.1",
+  "milestone_name": "Evidence Integrity Audit and Benchmark Qualification",
+  "created_at_utc": "2026-11-18T18:57:11.559462+00:00",
+  "status": "PRE_EVALUATION_FROZEN",
+  "governance_rule": "Cryptographic pre-evaluation lock established before model evaluation against qualified external benchmark.",
+  "models": {
+    "frozen_production_control_e0": {
+      "path": "models/random_forest_model.joblib",
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "classification": "FROZEN_PRODUCTION_BASELINE",
+      "status": "FROZEN_UNCHANGED",
+      "trained_on": "Original PhiUSIIL (Phase 0)"
+    },
+    "candidate_model_e4": {
+      "path": "models/phase7_candidates/rf_augmented_e4.joblib",
+      "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+      "classification": "EXPERIMENTAL_CANDIDATE_ONLY",
+      "status": "EXPERIMENTAL_CANDIDATE_ONLY",
+      "trained_on": "Phase 7 Train Split (170,615 rows, including 119 augmented benign URLs)"
+    }
+  },
+  "benchmark_dataset": {
+    "path": "experiments/phase7/external/datasets/m5_1_qualified_benchmark.csv",
+    "sha256": "8e524bb539371c3e129037cf9a28d22b2f73a99f6201995fcc90951586c6110b",
+    "total_samples": 1300,
+    "phishing_samples": 650,
+    "legitimate_samples": 650,
+    "unique_registered_domains": 810,
+    "phishing_unique_domains": 650,
+    "legitimate_unique_domains": 160,
+    "historical_domain_overlap_count": 0,
+    "evidence_observations": {
+      "path": "experiments/phase7/external/evidence/raw_observations_m5_1.jsonl",
+      "sha256": "8dfc8bd6f79b1a78434afc652b591d94cd78efda8282ddce45730c7df4ef6f06",
+      "is_synthetic_fallback": false,
+      "upstream_phishtank_snapshot_sha256": "4885e37276d8a33b3da045d9fca0888c152e4d20c91e7a69f39eb032893a54ba"
+    },
+    "quarantined_dataset": {
+      "path": "experiments/phase7/external/datasets/m5_1_quarantined_overlap.csv",
+      "sha256": "038317d8bd61fb2c580328a9d167174fc8ca72302482d63050ddd657898ac935",
+      "quarantined_samples": 613
+    }
+  },
+  "feature_pipeline": {
+    "schema_version": "Phase 1 Baseline 18-Feature Lexical Engine",
+    "feature_count": 18,
+    "feature_names": [
+      "URLLength",
+      "DomainLength",
+      "IsDomainIP",
+      "TLDLength",
+      "NoOfSubDomain",
+      "HasObfuscation",
+      "NoOfObfuscatedChar",
+      "ObfuscationRatio",
+      "NoOfLettersInURL",
+      "LetterRatioInURL",
+      "NoOfDegitsInURL",
+      "DegitRatioInURL",
+      "NoOfEqualsInURL",
+      "NoOfQMarkInURL",
+      "NoOfAmpersandInURL",
+      "NoOfOtherSpecialCharsInURL",
+      "SpacialCharRatioInURL",
+      "IsHTTPS"
+    ]
+  },
+  "pre_specified_evaluation_contract": {
+    "primary_threshold": 0.5,
+    "secondary_operating_threshold": 0.75,
+    "non_inferiority_margin_delta_recall": -0.01,
+    "significance_level_alpha": 0.05,
+    "decision_matrix_t_075": {
+      "State 1": {
+        "condition": "Recall(E4) >= 99.0% AND FPR(E4) <= 0.10% AND CI_lower(Delta_Recall) >= -1.0%",
+        "determination": "PASS: Full Operational Validation"
+      },
+      "State 2": {
+        "condition": "97.5% <= Recall(E4) < 99.0% AND FPR(E4) <= 0.10% AND FPR(E4) <= FPR(E0)",
+        "determination": "CONDITIONAL PASS: Sensitivity Trade-Off Validated"
+      },
+      "State 3": {
+        "condition": "FPR(E4) > 0.10% AND CI_upper(Delta_FPR) > 0",
+        "determination": "FAIL: False Alarm Deficit Exceeds Operational Ceiling"
+      },
+      "State 4": {
+        "condition": "Recall(E4) < 97.5% AND Monte Carlo permutation p < 0.05",
+        "determination": "FAIL: Unacceptable Threat Sensitivity Degradation"
+      }
+    },
+    "statistical_methods": {
+      "cluster_permutation_iterations": 10000,
+      "cluster_bootstrap_resamples": 1000,
+      "wilcoxon_tests": [
+        "unweighted",
+        "size_weighted",
+        "pratt_zero_check"
+      ],
+      "domain_thinning_iterations": 100,
+      "bayesian_prevalence_priors": [
+        0.0001,
+        0.001,
+        0.01
+      ]
+    }
+  }
+}
