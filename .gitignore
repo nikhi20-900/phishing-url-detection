@@ -30,7 +30,6 @@ models/*.h5
 # Raw external threat feed snapshots (redistribution-restricted upstream sources)
 /data/external/phishing_feed_openphish.txt
 /data/external/phishing_feed_phishtank.csv
-/experiments/phase7/external/evidence/phishtank_raw.csv
 
 # Security quarantine: Decommissioned audit signing keys
 /experiments/phase7/external/configs/*.key
