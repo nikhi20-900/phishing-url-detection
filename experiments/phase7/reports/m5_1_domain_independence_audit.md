@@ -27,9 +27,9 @@ This audit certifies the complete qualification, evidence integrity, and strict 
 ## Cryptographic Artifact Hashes
 | Artifact | Path | SHA-256 Hash |
 |:---------|:-----|:-------------|
-| Qualified Benchmark CSV | `experiments/phase7/external/datasets/m5_1_qualified_benchmark.csv` | `8e524bb539371c3e129037cf9a28d22b2f73a99f6201995fcc90951586c6110b` |
-| Raw Observations JSONL | `experiments/phase7/external/evidence/raw_observations_m5_1.jsonl` | `8dfc8bd6f79b1a78434afc652b591d94cd78efda8282ddce45730c7df4ef6f06` |
+| Qualified Benchmark CSV | `experiments/phase7/external/datasets/m5_1_qualified_benchmark.csv` | `f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88` |
+| Raw Observations JSONL | `experiments/phase7/external/evidence/raw_observations_m5_1.jsonl` | `43d4e432a406083a4bb9ef61be0d9870dd7cba8b5ca7ad0103e3ff0dd6ca2282` |
 | Quarantined Overlap CSV | `experiments/phase7/external/datasets/m5_1_quarantined_overlap.csv` | `038317d8bd61fb2c580328a9d167174fc8ca72302482d63050ddd657898ac935` |
-| Pre-Evaluation Manifest | `experiments/phase7/reports/m5_1_pre_evaluation_manifest.json` | `d08fdaa6ad6862c4dc0689b29493374656790212a37991974e93dfc81a396279` |
+| Pre-Evaluation Manifest | `experiments/phase7/reports/m5_1_pre_evaluation_manifest.json` | `dd051644733cf7d292fcea69ddbaa616bb4f90587d179cc8f42a58686520b6f2` |
 | Frozen Production Control E0 | `models/random_forest_model.joblib` | `95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb` |
 | Frozen Candidate E4 | `models/phase7_candidates/rf_augmented_e4.joblib` | `0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b` |

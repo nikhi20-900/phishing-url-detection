@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, phase-2-testing-reliability ]
+    branches: [ main, phase-2-testing-reliability, "phase-7*" ]
   pull_request:
     branches: [ main ]
 
@@ -38,6 +38,11 @@ jobs:
         run: |
           export MPLCONFIGDIR=/tmp/mpl
           PYTHONPATH=. pytest -v
+
+      - name: Run Phase 7 comprehensive test suite
+        run: |
+          export MPLCONFIGDIR=/tmp/mpl
+          PYTHONPATH=. pytest experiments/phase7/tests/ -v
 
       - name: Run test suite via unittest
         run: |

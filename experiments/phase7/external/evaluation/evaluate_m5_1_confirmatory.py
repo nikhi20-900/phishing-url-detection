@@ -175,15 +175,25 @@ def evaluate_decision_matrix_t_075(
     elif fpr_e4 > 0.0010 and ci_delta_fpr_upper > 0:
         state = "State 3"
         determination = "FAIL: False Alarm Deficit Exceeds Operational Ceiling"
-        desc = f"Candidate E4 exceeds operational false positive ceiling ({fpr_e4:.4%} > 0.10%)."
+        desc = f"Candidate E4 exceeds operational false positive ceiling ({fpr_e4:.4%} > 0.10%) and significantly degrades false alarm rate relative to control."
     elif rec_e4 < 0.975 and perm_p_val_rec < 0.05:
         state = "State 4"
         determination = "FAIL: Unacceptable Threat Sensitivity Degradation"
         desc = f"Candidate E4 suffers unacceptable threat detection loss ({rec_e4:.2%} < 97.5%, p < 0.05)."
+    elif fpr_e4 > 0.0010:
+        state = "FAIL: Operational False Alarm Ceiling Exceeded"
+        determination = "FAIL: Exceeds 0.10% Operational Ceiling (Outside Pre-Specified Deployment States)"
+        desc = (
+            f"Candidate E4 achieves high threat recall ({rec_e4:.2%}) and lower FPR than control "
+            f"({fpr_e4:.2%} vs {fpr_e0:.2%}, Delta_FPR 95% CI upper = {ci_delta_fpr_upper:+.4f}), but both models "
+            f"massively exceed the operational false alarm ceiling of 0.10%. Under the pre-registered decision matrix, "
+            f"State 2 cannot be assigned because State 2 strictly requires Recall < 99.0% and FPR <= 0.10%. E4 fails "
+            f"operational deployment criteria and remains strictly an experimental candidate."
+        )
     else:
-        state = "State 2 (Empirical Boundary)"
-        determination = "EMPIRICAL DETERMINATION"
-        desc = f"Measured Recall={rec_e4:.2%}, FPR={fpr_e4:.4%}. Evaluated under domain-clustered confidence bounds."
+        state = "Unclassified / Outside Pre-Specified Boundary"
+        determination = "FAIL: Boundary Violation"
+        desc = f"Measured Recall={rec_e4:.2%}, FPR={fpr_e4:.4%}. Does not satisfy operational criteria."
 
     return {
         "state": state,
@@ -554,10 +564,10 @@ def generate_markdown_report(sc: Dict[str, Any], path: Path) -> None:
 
     content = f"""# Phase 7 Milestone 5.1 — Evidence Integrity Audit and Benchmark Qualification Report
 
-**Execution Timestamp (UTC):** {sc['evaluation_timestamp_utc']}  
-**Evaluation Protocol:** Confirmatory Single-Pass Evaluation (Frozen Production Control E0 vs Experimental Candidate E4)  
-**Qualified External Benchmark:** `m5_1_qualified_benchmark.csv` (SHA-256: `{sc['benchmark_dataset']['sha256']}`)  
-**Raw Observations Log:** `raw_observations_m5_1.jsonl` (Authentic socket-level retrieval; zero synthetic fallback)  
+- **Execution Timestamp (UTC):** {sc['evaluation_timestamp_utc']}
+- **Evaluation Protocol:** Confirmatory Single-Pass Evaluation (Frozen Production Control E0 vs Experimental Candidate E4)
+- **Qualified External Benchmark:** `m5_1_qualified_benchmark.csv` (SHA-256: `{sc['benchmark_dataset']['sha256']}`)
+- **Raw Observations Log:** `raw_observations_m5_1.jsonl` (Authentic socket-level retrieval; zero synthetic fallback)
 
 ---
 

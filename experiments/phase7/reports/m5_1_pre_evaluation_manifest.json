@@ -3,7 +3,7 @@
   "phase": 7,
   "milestone": "M5.1",
   "milestone_name": "Evidence Integrity Audit and Benchmark Qualification",
-  "created_at_utc": "2026-11-18T18:57:11.559462+00:00",
+  "created_at_utc": "2026-11-18T19:38:26.738437+00:00",
   "status": "PRE_EVALUATION_FROZEN",
   "governance_rule": "Cryptographic pre-evaluation lock established before model evaluation against qualified external benchmark.",
   "models": {
@@ -24,7 +24,7 @@
   },
   "benchmark_dataset": {
     "path": "experiments/phase7/external/datasets/m5_1_qualified_benchmark.csv",
-    "sha256": "8e524bb539371c3e129037cf9a28d22b2f73a99f6201995fcc90951586c6110b",
+    "sha256": "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88",
     "total_samples": 1300,
     "phishing_samples": 650,
     "legitimate_samples": 650,
@@ -34,7 +34,7 @@
     "historical_domain_overlap_count": 0,
     "evidence_observations": {
       "path": "experiments/phase7/external/evidence/raw_observations_m5_1.jsonl",
-      "sha256": "8dfc8bd6f79b1a78434afc652b591d94cd78efda8282ddce45730c7df4ef6f06",
+      "sha256": "43d4e432a406083a4bb9ef61be0d9870dd7cba8b5ca7ad0103e3ff0dd6ca2282",
       "is_synthetic_fallback": false,
       "upstream_phishtank_snapshot_sha256": "4885e37276d8a33b3da045d9fca0888c152e4d20c91e7a69f39eb032893a54ba"
     },

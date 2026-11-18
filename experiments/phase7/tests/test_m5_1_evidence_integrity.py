@@ -91,6 +91,13 @@ class TestM51EvidenceIntegrity:
         assert "security_erratum" in auth_data
         assert "permanently compromised" in auth_data["security_erratum"].lower()
 
+        # 4. Assert HMAC signing workflow is permanently retired
+        assert auth_data.get("workflow_status") == "PERMANENTLY_RETIRED_AND_DECOMMISSIONED"
+        from experiments.phase7.external.collection.review_ledger_m5 import get_signing_secret
+        with pytest.raises(RuntimeError) as exc_info:
+            get_signing_secret()
+        assert "permanently retired" in str(exc_info.value).lower()
+
     def test_ac2_fail_closed_domain_collision_invariant(self):
         """AC-2: Dynamic historical inventory is fail-closed, and qualified benchmark has zero historical overlap."""
         # 1. Verify fail-closed behavior on missing file
@@ -121,7 +128,7 @@ class TestM51EvidenceIntegrity:
         assert len(overlap_partitions) == 0, f"Phish/Legit domain collision! {list(overlap_partitions)}"
 
     def test_ac3_authentic_live_web_retrieval_and_socket_evidence(self):
-        """AC-3: Legitimate benchmark is backed by real socket observations with zero synthetic records."""
+        """AC-3: Legitimate benchmark is backed by real socket observations with zero synthetic records and 100% verified TLS."""
         assert RAW_OBS_JSONL.exists()
         
         with open(RAW_OBS_JSONL, "r", encoding="utf-8") as f:
@@ -129,12 +136,30 @@ class TestM51EvidenceIntegrity:
 
         assert len(obs_rows) == 1300, f"Expected 1,300 observations, got {len(obs_rows)}"
         
+        # 1. Assert strict 1:1 join and cryptographic URL hash validation between benchmark CSV and observation log
+        bench_df = pd.read_csv(BENCHMARK_CSV)
+        assert len(bench_df) == 1300
+        obs_by_url = {o["url"]: o for o in obs_rows}
+        assert len(obs_by_url) == 1300, "Duplicate observation URLs detected!"
+
+        for _, row in bench_df.iterrows():
+            url = row["url"]
+            assert url in obs_by_url, f"Benchmark URL {url} missing from raw observation log!"
+            obs = obs_by_url[url]
+            expected_url_sha = hashlib.sha256(url.encode("utf-8")).hexdigest()
+            assert obs["url_sha256"] == expected_url_sha, f"URL hash mismatch for {url}"
+            assert obs["ground_truth_label"] == row["label"], f"Label mismatch for {url}"
+            assert obs["registered_domain"] == row["registered_domain"], f"Domain mismatch for {url}"
+
+        # 2. Assert 100% verified TLS for all 650 legitimate observations
         legit_obs = [o for o in obs_rows if o["ground_truth_label"] == 1]
         assert len(legit_obs) == 650, f"Expected 650 legitimate observations, got {len(legit_obs)}"
 
         for o in legit_obs:
             assert o["is_synthetic"] is False, f"Found synthetic observation: {o['url']}"
+            assert o["url"].startswith("https://"), f"Non-HTTPS legitimate URL: {o['url']}"
             ev = o["observation_evidence"]
+            assert ev["tls_verified"] is True, f"Unverified TLS on legitimate URL: {o['url']}"
             assert ev["is_accessible"] is True, f"URL not marked accessible: {o['url']}"
             assert ev["resolved_ip"] is not None, f"Missing resolved IP: {o['url']}"
             assert 200 <= ev["http_status_code"] < 400, f"Invalid HTTP status: {ev['http_status_code']}"
@@ -173,8 +198,11 @@ class TestM51EvidenceIntegrity:
     def test_ac6_exact_strata_quotas_and_marginal_targets(self):
         """AC-6: Legitimate URLs strictly satisfy DETERMINISTIC_MATRIX stratum quotas and marginal targets."""
         bench_df = pd.read_csv(BENCHMARK_CSV)
+        assert len(bench_df) == 1300, f"Expected exactly 1,300 benchmark rows, got {len(bench_df)}"
+        phish_df = bench_df[bench_df["label"] == 0]
         legit_df = bench_df[bench_df["label"] == 1]
-        assert len(legit_df) == 650
+        assert len(phish_df) == 650, f"Expected exactly 650 phishing URLs, got {len(phish_df)}"
+        assert len(legit_df) == 650, f"Expected exactly 650 legitimate URLs, got {len(legit_df)}"
 
         # Check total stratum quotas across legitimate URLs
         expected_strata_totals = {
@@ -200,17 +228,21 @@ class TestM51EvidenceIntegrity:
         assert multi_level_pct >= 0.35, f"Multi-level path pct {multi_level_pct:.2%} < 35%"
 
     def test_ac7_domain_clustering_caps(self):
-        """AC-7: Phishing max <= 3/domain, Legitimate max <= 5/domain, unique domains >= 800."""
+        """AC-7: Phishing max <= 3/domain, Legitimate max <= 5/domain, exactly 810 unique domains (650 phish, 160 legit)."""
         bench_df = pd.read_csv(BENCHMARK_CSV)
         
         phish_counts = bench_df[bench_df["label"] == 0]["registered_domain"].value_counts()
         legit_counts = bench_df[bench_df["label"] == 1]["registered_domain"].value_counts()
 
+        # Domain clustering caps
         assert phish_counts.max() <= 3, f"Phishing domain cap violated: {phish_counts.max()} > 3"
         assert legit_counts.max() <= 5, f"Legitimate domain cap violated: {legit_counts.max()} > 5"
 
+        # Exact domain diversity assertions
+        assert len(phish_counts) == 650, f"Expected 650 unique phishing domains, got {len(phish_counts)}"
+        assert len(legit_counts) == 160, f"Expected 160 unique legitimate domains, got {len(legit_counts)}"
         total_unique_domains = bench_df["registered_domain"].nunique()
-        assert total_unique_domains >= 800, f"Expected >= 800 unique domains, got {total_unique_domains}"
+        assert total_unique_domains == 810, f"Expected exactly 810 unique domains, got {total_unique_domains}"
 
     def test_ac8_domain_aware_statistical_inference(self):
         """AC-8: Domain-clustered bootstrap, Monte Carlo permutation, and recall non-inferiority."""
@@ -233,7 +265,7 @@ class TestM51EvidenceIntegrity:
         assert ci_lower_rec >= -0.010, f"Non-inferiority failed: lower CI bound {ci_lower_rec:.4%} < -1.0%"
 
     def test_ac9_manifest_and_scorecard_reconciliation(self):
-        """AC-9: Cryptographic manifest, scorecard, and report reconciliation."""
+        """AC-9: Cryptographic manifest, scorecard, and report reconciliation; decision matrix adherence."""
         assert MANIFEST_JSON.exists()
         assert SCORECARD_JSON.exists()
         assert AUDIT_REPORT_MD.exists()
@@ -250,3 +282,11 @@ class TestM51EvidenceIntegrity:
         assert manifest["benchmark_dataset"]["evidence_observations"]["sha256"] == actual_obs_sha
         assert manifest["models"]["frozen_production_control_e0"]["sha256"] == EXPECTED_E0_SHA
         assert manifest["models"]["candidate_model_e4"]["sha256"] == EXPECTED_E4_SHA
+
+        # Verify Decision Matrix adherence: E4 at T=0.75 must NOT be assigned State 2
+        decision_075 = sc["comparative_inference_t_075"]["decision_matrix_evaluation"]
+        assert decision_075["state"] != "State 2", "Ad-hoc State 2 improperly assigned!"
+        assert "State 2 (Empirical Boundary)" not in decision_075["state"], "Ad-hoc empirical State 2 improperly assigned!"
+        assert "State 3" in decision_075["state"] or "FAIL" in decision_075["state"], (
+            f"Expected State 3 or FAIL due to operational FPR ceiling breach, got {decision_075['state']}"
+        )

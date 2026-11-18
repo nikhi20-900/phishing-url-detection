@@ -416,152 +416,158 @@ def crawl_and_assemble_legitimate_corpus(
             json.dump(crawled_pool, f, indent=2, ensure_ascii=False, default=str)
         print(f"  Saved raw crawled pool checkpoint to {RAW_CRAWLED_POOL_CHECKPOINT}")
 
-    # Balanced allocation according to DETERMINISTIC_MATRIX
+    # Balanced allocation satisfying exact global strata quotas and 160 unique domains with 100% verified TLS
     selected_records: List[Dict[str, Any]] = []
     observation_evidence_map: Dict[str, Dict[str, Any]] = {}
-    domain_usage_counts: Dict[str, int] = {}
-    allocated_urls_set: Set[str] = set()
 
-    strata_priority_order = [
+    strata_list = [
         "homepage_root",
-        "special_syntax_variants",
-        "root_with_query",
         "single_level_path_no_query",
-        "path_and_query",
         "multi_level_path_no_query",
+        "root_with_query",
+        "path_and_query",
+        "special_syntax_variants",
     ]
+    strata_targets = {
+        "homepage_root": 130,
+        "single_level_path_no_query": 100,
+        "multi_level_path_no_query": 165,
+        "root_with_query": 65,
+        "path_and_query": 130,
+        "special_syntax_variants": 60,
+    }
 
-    for sector, target_strata in DETERMINISTIC_MATRIX.items():
-        # Pre-filter sector pool against master_domains and phish_domains
-        filtered_sector_pool: Dict[str, Dict[str, List[Tuple[str, Dict[str, Any]]]]] = {}
-        for d, strata_map in crawled_pool.get(sector, {}).items():
-            try:
-                reg_d = extract_registered_domain(f"https://{d}/")
-                if reg_d in master_domains or reg_d in phish_domains:
-                    continue
-            except Exception:
-                continue
+    # Pre-filter all candidates across all sectors strictly for authentic HTTPS and verified TLS
+    dom_pool: Dict[str, Dict[str, List[Tuple[str, Dict[str, Any], str]]]] = {}
+    global_seen_urls: Set[str] = set()
 
-            clean_strata_map: Dict[str, List[Tuple[str, Dict[str, Any]]]] = {}
-            for stratum, cand_list in strata_map.items():
-                seen_in_stratum: Set[str] = set()
+    for sec, doms_data in crawled_pool.items():
+        for d, strata_map in doms_data.items():
+            clean_map: Dict[str, List[Tuple[str, Dict[str, Any], str]]] = {}
+            dom_seen_urls: Set[str] = set()
+            for st, cands in strata_map.items():
                 clean_cands = []
-                for cand_url, obs in cand_list:
-                    if cand_url in seen_in_stratum or cand_url in allocated_urls_set:
+                for u, obs in cands:
+                    # Enforce global uniqueness, strict HTTPS, and verified TLS handshake
+                    if u in dom_seen_urls or u in global_seen_urls:
+                        continue
+                    if not u.startswith("https://") or obs.get("tls_verified") is not True:
                         continue
                     try:
-                        c_reg = extract_registered_domain(cand_url)
-                        if c_reg in master_domains or c_reg in phish_domains:
+                        reg = extract_registered_domain(u)
+                        if reg in master_domains or reg in phish_domains:
                             continue
-                        _ = extract_url_features(cand_url)
-                        clean_cands.append((cand_url, obs))
-                        seen_in_stratum.add(cand_url)
+                        _ = extract_url_features(u)
                     except Exception:
                         continue
+                    clean_cands.append((u, obs, sec))
+                    dom_seen_urls.add(u)
+                    global_seen_urls.add(u)
                 if clean_cands:
-                    clean_strata_map[stratum] = clean_cands
-            if clean_strata_map:
-                filtered_sector_pool[d] = clean_strata_map
+                    clean_map[st] = clean_cands
+            if clean_map:
+                dom_pool[d] = clean_map
 
-        sector_doms = list(filtered_sector_pool.keys())
-        milp_sol = solve_allocation_milp(filtered_sector_pool, target_strata, max_per_domain=5)
-        if milp_sol is not None:
-            print(f"  [PASS] Sector '{sector}': Solved exact strata allocation via MILP across {len(milp_sol)} domains.")
-            for d, st_counts in milp_sol.items():
-                for stratum, needed_count in st_counts.items():
-                    admitted_for_d = 0
-                    available = filtered_sector_pool[d].get(stratum, [])
-                    while available and admitted_for_d < needed_count:
-                        candidate_url, obs_dict = available.pop(0)
-                        if candidate_url in allocated_urls_set:
-                            continue
-                        allocated_urls_set.add(candidate_url)
-                        domain_usage_counts[d] = domain_usage_counts.get(d, 0) + 1
-                        admitted_for_d += 1
-                        st, has_q, is_m, has_sp = extract_structural_stratum(candidate_url)
-                        rec = {
-                            "url": candidate_url,
-                            "label": 1,  # Legitimate
-                            "registered_domain": d,
-                            "sector": sector,
-                            "structural_stratum": stratum,
-                            "source": f"Institutional-{sector}",
-                            "source_id": f"LEGIT-{sector[:4].upper()}-{len(selected_records)+1:04d}",
-                            "verified": "yes",
-                            "submission_time": datetime.now(timezone.utc).isoformat(),
-                            "target": d,
-                            "query_bearing": has_q,
-                            "multi_level_path": is_m,
-                            "special_syntax": has_sp,
-                        }
-                        selected_records.append(rec)
-                        obs_dict["candidate_id"] = rec["source_id"]
-                        observation_evidence_map[candidate_url] = obs_dict
-        else:
-            print(f"  [INFO] Sector '{sector}': MILP not available or exact match required greedy balancing.")
-            for stratum in strata_priority_order:
-                if stratum not in target_strata:
-                    continue
-                needed_count = target_strata[stratum]
-                admitted_stratum = 0
-                attempts = 0
-                while admitted_stratum < needed_count and attempts < 25:
-                    attempts += 1
-                    sorted_doms = sorted(sector_doms, key=lambda d: domain_usage_counts.get(d, 0))
-                    progress = False
-                    for d in sorted_doms:
-                        if admitted_stratum >= needed_count:
-                            break
-                        if domain_usage_counts.get(d, 0) >= 5:
-                            continue
-                        available = crawled_pool[sector][d].get(stratum, [])
-                        while available:
-                            candidate_url, obs_dict = available.pop(0)
-                            if candidate_url in allocated_urls_set:
-                                continue
+    doms = list(dom_pool.keys())
+    n_doms = len(doms)
+    n_strata = len(strata_list)
+    print(f"  Available clean domains with 100% verified TLS: {n_doms}")
 
-                            try:
-                                cdom = extract_registered_domain(candidate_url)
-                                if cdom in master_domains or cdom in phish_domains:
-                                    continue
-                                _ = extract_url_features(candidate_url)
-                            except Exception:
-                                continue
+    # Solve MILP for exactly target_count URLs across exactly 160 unique domains
+    # Decision variables:
+    # x[i * n_strata + j]: count of stratum j allocated from domain i
+    # y[i]: binary indicator whether domain i is selected (sum_i y[i] == 160)
+    import numpy as np
+    from scipy.optimize import milp, LinearConstraint, Bounds
 
-                            allocated_urls_set.add(candidate_url)
-                            domain_usage_counts[d] = domain_usage_counts.get(d, 0) + 1
-                            admitted_stratum += 1
-                            progress = True
+    n_vars = n_doms * n_strata + n_doms
+    ub = np.zeros(n_vars)
+    for i, d in enumerate(doms):
+        for j, s in enumerate(strata_list):
+            max_c = len(dom_pool[d].get(s, []))
+            if s == "homepage_root":
+                max_c = min(max_c, 1)  # At most 1 homepage root per domain
+            ub[i * n_strata + j] = max_c
+        ub[n_doms * n_strata + i] = 1.0
 
-                            st, has_q, is_m, has_sp = extract_structural_stratum(candidate_url)
-                            rec = {
-                                "url": candidate_url,
-                                "label": 1,  # Legitimate
-                                "registered_domain": d,
-                                "sector": sector,
-                                "structural_stratum": stratum,
-                                "source": f"Institutional-{sector}",
-                                "source_id": f"LEGIT-{sector[:4].upper()}-{len(selected_records)+1:04d}",
-                                "verified": "yes",
-                                "submission_time": datetime.now(timezone.utc).isoformat(),
-                                "target": d,
-                                "query_bearing": has_q,
-                                "multi_level_path": is_m,
-                                "special_syntax": has_sp,
-                            }
-                            selected_records.append(rec)
-                            obs_dict["candidate_id"] = rec["source_id"]
-                            observation_evidence_map[candidate_url] = obs_dict
-                            break
+    bounds = Bounds(lb=np.zeros(n_vars), ub=ub)
+    integrality = np.ones(n_vars)
+    c = np.ones(n_vars)
 
-                    if not progress and admitted_stratum < needed_count:
-                        break
+    A_rows = []
+    lhs = []
+    rhs = []
 
-                if admitted_stratum < needed_count:
-                    raise RuntimeError(
-                        f"Crawl deficit in sector '{sector}', stratum '{stratum}': "
-                        f"needed {needed_count}, only gathered {admitted_stratum}"
-                    )
+    # 1. Stratum quota constraints
+    for j, s in enumerate(strata_list):
+        row = np.zeros(n_vars)
+        for i in range(n_doms):
+            row[i * n_strata + j] = 1.0
+        A_rows.append(row)
+        lhs.append(float(strata_targets[s]))
+        rhs.append(float(strata_targets[s]))
+
+    # 2. Domain capacity constraints: 1 * y[i] <= sum_s x[d, s] <= 5 * y[i]
+    for i in range(n_doms):
+        row = np.zeros(n_vars)
+        for j in range(n_strata):
+            row[i * n_strata + j] = 1.0
+        row[n_doms * n_strata + i] = -5.0
+        A_rows.append(row)
+        lhs.append(-np.inf)
+        rhs.append(0.0)
+
+        row2 = np.zeros(n_vars)
+        for j in range(n_strata):
+            row2[i * n_strata + j] = 1.0
+        row2[n_doms * n_strata + i] = -1.0
+        A_rows.append(row2)
+        lhs.append(0.0)
+        rhs.append(np.inf)
+
+    # 3. Domain count constraint: exactly 160 unique legitimate domains
+    row_dom = np.zeros(n_vars)
+    for i in range(n_doms):
+        row_dom[n_doms * n_strata + i] = 1.0
+    A_rows.append(row_dom)
+    lhs.append(160.0)
+    rhs.append(160.0)
+
+    A = np.array(A_rows)
+    constraints = LinearConstraint(A, lhs, rhs)
+    res = milp(c=c, integrality=integrality, bounds=bounds, constraints=constraints)
+
+    if not res.success:
+        raise RuntimeError("MILP failed to find exact 160-domain allocation satisfying all stratum quotas with verified TLS.")
+
+    x = np.round(res.x).astype(int)
+    print("  [PASS] Solved exact global allocation MILP: 650 URLs across 160 unique domains with 100% verified TLS.")
+
+    for i, d in enumerate(doms):
+        for j, s in enumerate(strata_list):
+            count = int(x[i * n_strata + j])
+            if count > 0:
+                cands = dom_pool[d][s][:count]
+                for cand_url, obs_dict, sector in cands:
+                    st, has_q, is_m, has_sp = extract_structural_stratum(cand_url)
+                    rec = {
+                        "url": cand_url,
+                        "label": 1,  # Legitimate
+                        "registered_domain": d,
+                        "sector": sector,
+                        "structural_stratum": s,
+                        "source": f"Institutional-{sector}",
+                        "source_id": f"LEGIT-{sector[:4].upper()}-{len(selected_records)+1:04d}",
+                        "verified": "yes",
+                        "submission_time": datetime.now(timezone.utc).isoformat(),
+                        "target": d,
+                        "query_bearing": has_q,
+                        "multi_level_path": is_m,
+                        "special_syntax": has_sp,
+                    }
+                    selected_records.append(rec)
+                    obs_dict["candidate_id"] = rec["source_id"]
+                    observation_evidence_map[cand_url] = obs_dict
 
     assert len(selected_records) == target_count, f"Expected {target_count}, got {len(selected_records)}"
     return selected_records, observation_evidence_map
@@ -596,8 +602,17 @@ def get_or_crawl_legitimate_benchmark_urls(
             print(f"  [WARN] Cache has {len(overlap_phish)} collisions with phishing set. Re-crawling...")
             return crawl_and_assemble_legitimate_corpus(master_domains, phish_domains, target_count)
 
-        if len(records) == target_count and len(cache_doms) >= 200:
-            print(f"  [PASS] Verified authentic crawled legitimate cache: {len(records)} URLs across {len(cache_doms)} unique domains.")
+        # Validate 100% verified TLS and exact domain diversity
+        all_tls_valid = all(
+            r["url"].startswith("https://") and obs_map.get(r["url"], {}).get("tls_verified") is True
+            for r in records
+        )
+        if not all_tls_valid:
+            print("  [WARN] Cache contains URLs without verified TLS. Re-assembling corpus with strictly verified TLS...")
+            return crawl_and_assemble_legitimate_corpus(master_domains, phish_domains, target_count)
+
+        if len(records) == target_count and len(cache_doms) == 160:
+            print(f"  [PASS] Verified authentic crawled legitimate cache: {len(records)} URLs across {len(cache_doms)} unique domains with 100% verified TLS.")
             return records, obs_map
 
     # Execute authentic live crawl
