@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp_utc": "2026-11-18T19:41:50.327165+00:00",
+  "evaluation_timestamp_utc": "2026-11-18T20:09:57.870895+00:00",
   "benchmark_dataset": {
     "path": "/Users/nikhilchhetri/Desktop/phishing-url-detection/experiments/phase7/external/datasets/m5_1_qualified_benchmark.csv",
     "sha256": "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88",
@@ -32,8 +32,8 @@
         "accuracy": 0.5192307692307693
       },
       "probability_quality": {
-        "roc_auc": 0.6126094674556213,
-        "pr_auc": 0.746624589281081,
+        "roc_auc": 0.6126082840236686,
+        "pr_auc": 0.7466241975200552,
         "brier_score": 0.4573134493903992,
         "ece": 0.4617459057728714
       }
@@ -59,8 +59,8 @@
         "accuracy": 0.5146153846153846
       },
       "probability_quality": {
-        "roc_auc": 0.6126094674556213,
-        "pr_auc": 0.746624589281081,
+        "roc_auc": 0.6126082840236686,
+        "pr_auc": 0.7466241975200552,
         "brier_score": 0.4573134493903992,
         "ece": 0.4617459057728714
       }
@@ -515,13 +515,14 @@
     "decision_matrix_evaluation": {
       "state": "State 3",
       "determination": "FAIL: False Alarm Deficit Exceeds Operational Ceiling",
-      "description": "Candidate E4 exceeds operational false positive ceiling (92.6154% > 0.10%) and significantly degrades false alarm rate relative to control.",
+      "description": "Candidate E4 fails operational deployment criteria: absolute FPR (92.6154%) massively exceeds the operational ceiling of 0.10%. Although E4's empirical FPR is lower than control E0 (92.6154% vs 94.1538%, Delta_FPR = -1.5385%), the difference is not statistically significant (permutation p = 0.2837), and the 95% domain-clustered bootstrap CI upper bound (+0.9368% > 0) crosses zero, failing to certify statistical non-inferiority against zero degradation.",
       "recall_e4": 0.9923076923076923,
       "fpr_e4": 0.9261538461538461,
       "fpr_e0": 0.9415384615384615,
       "ci_delta_recall_lower": 0.009388938937839226,
       "ci_delta_fpr_upper": 0.009368066986330798,
-      "permutation_p_value_recall": 0.000999900009999
+      "permutation_p_value_recall": 0.000999900009999,
+      "permutation_p_value_fpr": 0.2836716328367163
     }
   },
   "stratified_subgroups": {

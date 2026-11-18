@@ -41,6 +41,9 @@ from experiments.phase7.external.collection.ingest_phishing_feeds import (
     RAW_PHISHTANK_CACHE,
     extract_structural_stratum,
 )
+from experiments.phase7.external.evaluation.verify_raw_observations_integrity import (
+    validate_raw_observations_integrity,
+)
 
 BENCHMARK_CSV = REPO_ROOT / "experiments" / "phase7" / "external" / "datasets" / "m5_1_qualified_benchmark.csv"
 QUARANTINED_CSV = REPO_ROOT / "experiments" / "phase7" / "external" / "datasets" / "m5_1_quarantined_overlap.csv"
@@ -166,6 +169,9 @@ class TestM51EvidenceIntegrity:
             assert ev["response_sha256"] is not None, f"Missing response body hash: {o['url']}"
             assert len(ev["response_sha256"]) == 64
 
+        # 3. Execute complete independent standalone raw observations validation
+        validate_raw_observations_integrity()
+
     def test_ac4_threat_feed_integrity_and_snapshot_hash(self):
         """AC-4: Phishing candidate ingest requires verified==yes, online==yes, and locks snapshot hash."""
         assert RAW_PHISHTANK_CACHE.exists()
@@ -290,3 +296,7 @@ class TestM51EvidenceIntegrity:
         assert "State 3" in decision_075["state"] or "FAIL" in decision_075["state"], (
             f"Expected State 3 or FAIL due to operational FPR ceiling breach, got {decision_075['state']}"
         )
+        assert "significantly degrades" not in decision_075["description"].lower(), (
+            "State 3 must not claim significant degradation when Delta_FPR is negative and CI spans zero!"
+        )
+        assert "massively exceeds" in decision_075["description"].lower()

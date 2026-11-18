@@ -162,8 +162,10 @@ def evaluate_decision_matrix_t_075(
     ci_delta_rec_lower: float,
     ci_delta_fpr_upper: float,
     perm_p_val_rec: float,
+    perm_p_val_fpr: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Evaluate candidate model performance against pre-specified 4-state decision matrix."""
+    fpr_p_str = f"permutation p = {perm_p_val_fpr:.4f}" if perm_p_val_fpr is not None else "p > 0.05"
     if rec_e4 >= 0.990 and fpr_e4 <= 0.0010 and ci_delta_rec_lower >= -0.010:
         state = "State 1"
         determination = "PASS: Full Operational Validation"
@@ -175,7 +177,13 @@ def evaluate_decision_matrix_t_075(
     elif fpr_e4 > 0.0010 and ci_delta_fpr_upper > 0:
         state = "State 3"
         determination = "FAIL: False Alarm Deficit Exceeds Operational Ceiling"
-        desc = f"Candidate E4 exceeds operational false positive ceiling ({fpr_e4:.4%} > 0.10%) and significantly degrades false alarm rate relative to control."
+        desc = (
+            f"Candidate E4 fails operational deployment criteria: absolute FPR ({fpr_e4:.4%}) massively exceeds "
+            f"the operational ceiling of 0.10%. Although E4's empirical FPR is lower than control E0 "
+            f"({fpr_e4:.4%} vs {fpr_e0:.4%}, Delta_FPR = {fpr_e4 - fpr_e0:+.4%}), the difference is not "
+            f"statistically significant ({fpr_p_str}), and the 95% domain-clustered bootstrap CI upper bound "
+            f"({ci_delta_fpr_upper:+.4%} > 0) crosses zero, failing to certify statistical non-inferiority against zero degradation."
+        )
     elif rec_e4 < 0.975 and perm_p_val_rec < 0.05:
         state = "State 4"
         determination = "FAIL: Unacceptable Threat Sensitivity Degradation"
@@ -205,6 +213,7 @@ def evaluate_decision_matrix_t_075(
         "ci_delta_recall_lower": ci_delta_rec_lower,
         "ci_delta_fpr_upper": ci_delta_fpr_upper,
         "permutation_p_value_recall": perm_p_val_rec,
+        "permutation_p_value_fpr": perm_p_val_fpr,
     }
 
 
@@ -351,6 +360,7 @@ def run_m5_1_confirmatory_evaluation() -> Dict[str, Any]:
         ci_delta_rec_lower=boot_075["paired_delta_e4_minus_e0"]["phishing_recall"]["ci_lower"],
         ci_delta_fpr_upper=boot_075["paired_delta_e4_minus_e0"]["legitimate_fpr"]["ci_upper"],
         perm_p_val_rec=perm_075["phishing_recall"]["monte_carlo_p_value"],
+        perm_p_val_fpr=perm_075["legitimate_fpr"]["monte_carlo_p_value"],
     )
     print(f"  Decision Matrix Determination (T = 0.75): {decision_075['state']} - {decision_075['determination']}")
 
