@@ -1,32 +1,29 @@
 {
-  "manifest_version": "1.0.0-m6-operational-readiness",
+  "manifest_version": "1.1.0-m6-operational-readiness-revision2",
   "phase": 7,
   "milestone": "M6",
   "milestone_name": "Operational Readiness & Generalisation Assessment",
   "status": "PRE_EVALUATION_FROZEN",
   "created_at_utc": "2026-11-18T20:41:33.579592+00:00",
-  "governance_rule": "Cryptographic pre-evaluation lock established before unsealing M6 diagnostics. Zero retraining or promotion authorized.",
+  "last_revised_utc": "2026-11-18T21:00:00.000000+00:00",
+  "governance_rule": "Cryptographic pre-evaluation lock established before unsealing M6 diagnostics. Zero retraining or promotion authorized. Models loaded read-only.",
   "models": {
     "frozen_production_control_e0": {
       "path": "models/random_forest_model.joblib",
       "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
       "classification": "FROZEN_PRODUCTION_BASELINE",
-      "classes": [
-        0,
-        1
-      ],
+      "classes": [0, 1],
       "phishing_index": 0,
+      "legitimate_index": 1,
       "status": "FROZEN_UNCHANGED"
     },
     "candidate_model_e4": {
       "path": "models/phase7_candidates/rf_augmented_e4.joblib",
       "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
       "classification": "EXPERIMENTAL_CANDIDATE_ONLY",
-      "classes": [
-        0,
-        1
-      ],
+      "classes": [0, 1],
       "phishing_index": 0,
+      "legitimate_index": 1,
       "status": "EXPERIMENTAL_CANDIDATE_ONLY"
     }
   },
@@ -72,14 +69,21 @@
       "path": "experiments/phase7/datasets/splits/train.csv",
       "sha256": "9297458d03841fbe9c32bae7c4ad323e1b3f0b221c0c755f912350808d0c6892",
       "total_samples": 170615,
+      "legitimate_count": 94523,
+      "phishing_count": 76092,
+      "unique_registered_domains": 121217,
       "base_phiusiil_samples": 170496,
       "augmented_legitimate_samples": 119
     }
   },
   "feature_pipeline": {
     "schema_version": "Phase 1 Baseline 18-Feature Lexical Engine",
+    "source_code": {
+      "path": "src/features.py",
+      "sha256": "f581fd8e38640623e0831767baf242424b5b18262ea7532a533d916d2faabe68"
+    },
     "feature_count": 18,
-    "feature_names": [
+    "ordered_features": [
       "URLLength",
       "DomainLength",
       "IsDomainIP",
@@ -98,7 +102,70 @@
       "NoOfOtherSpecialCharsInURL",
       "SpacialCharRatioInURL",
       "IsHTTPS"
-    ]
+    ],
+    "preprocessing_configuration": {
+      "normalization": "URL string whitespace stripped, lowercased scheme/netloc via standard parsing",
+      "missing_value_policy": "Lexical extraction is total and deterministic; missing/unparseable values default to standard fallback zero or special syntax flags",
+      "data_types": {
+        "integers": [
+          "URLLength",
+          "DomainLength",
+          "IsDomainIP",
+          "TLDLength",
+          "NoOfSubDomain",
+          "HasObfuscation",
+          "NoOfObfuscatedChar",
+          "NoOfLettersInURL",
+          "NoOfDegitsInURL",
+          "NoOfEqualsInURL",
+          "NoOfQMarkInURL",
+          "NoOfAmpersandInURL",
+          "NoOfOtherSpecialCharsInURL",
+          "IsHTTPS"
+        ],
+        "floats": [
+          "ObfuscationRatio",
+          "LetterRatioInURL",
+          "DegitRatioInURL",
+          "SpacialCharRatioInURL"
+        ]
+      }
+    }
+  },
+  "label_mapping": {
+    "classes": [0, 1],
+    "mapping": {
+      "0": "Phishing",
+      "1": "Legitimate"
+    },
+    "decision_target_index": 0,
+    "decision_target_name": "Phishing",
+    "threshold_rule": "Sample classified as Phishing if P(Phishing) >= T, else Legitimate"
+  },
+  "environment_metadata": {
+    "python_version": "3.14.7",
+    "python_build": "v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01",
+    "platform": "darwin",
+    "random_seed": 42,
+    "execution_mode": "READ_ONLY_DIAGNOSTIC_ZERO_RETRAINING",
+    "dependencies": {
+      "scikit-learn": "1.9.0",
+      "joblib": "1.5.3",
+      "numpy": "2.5.2",
+      "pandas": "3.0.5",
+      "scipy": "1.18.0",
+      "shap": "0.52.0"
+    }
+  },
+  "shap_configuration": {
+    "explainer_type": "TreeExplainer",
+    "feature_perturbation": "tree_path_dependent",
+    "model_output": "raw",
+    "class_index": 0,
+    "output_shape": "(N, 18, 2)",
+    "background_dataset": "Implicit tree node training sample distribution (tree_path_dependent)",
+    "numerical_additivity_tolerance": 1e-05,
+    "additivity_assertion": "|(expected_value[0] + sum(shap_values[:, :, 0])) - predict_proba[:, 0]| <= 1e-5"
   },
   "diagnostic_framework": {
     "sections": [
@@ -111,19 +178,20 @@
       "M6.7",
       "M6.8"
     ],
-    "operational_thresholds": [
-      0.5,
-      0.75
-    ],
+    "operational_thresholds": [0.5, 0.75],
     "operational_fpr_ceiling": 0.001,
-    "bayesian_priors": [
-      0.0001,
-      0.001,
-      0.01
-    ],
+    "bayesian_priors": [0.0001, 0.001, 0.01],
     "covariate_shift_bins": 10,
     "zero_count_smoothing_epsilon": "1 / (2 * N_ext)",
     "structural_strata_count": 6,
-    "institutional_sectors_count": 5
+    "institutional_sectors_count": 5,
+    "lexical_probe": {
+      "probe_type": "LogisticRegression(solver='saga', l1_ratio=1.0, random_state=42)",
+      "validation_scheme": "StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)",
+      "grouping_variable": "registered_domain",
+      "evaluation_type": "out_of_fold",
+      "classification": "DIAGNOSTIC_ONLY_STATISTICAL_FIT",
+      "prohibition": "Zero retraining or modification of E0/E4. Not a mathematical upper bound, but an empirical out-of-fold diagnostic baseline."
+    }
   }
 }
