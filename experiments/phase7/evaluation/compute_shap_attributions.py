@@ -1,5 +1,5 @@
 """
-Stage 1: TreeSHAP Attribution Computation and Local Explanation Analysis.
+Stage 1: TreeSHAP Attribution Computation, Visual Force Plots & Second-Order Interaction Analysis.
 Phase 7 Milestone 6: Operational Readiness & Generalisation Assessment.
 
 Computes TreeSHAP feature attributions strictly in probability space for the
@@ -11,11 +11,12 @@ Verifies strict probability-space additivity:
 Fails fast with explicit AssertionError if any record violates additivity.
 
 Delivers:
-1. Global mean absolute SHAP value rankings (|phi_i|).
-2. Class-separated distributions (True Positives, False Positives, True Negatives, False Negatives).
-3. 5 archetypal institutional error case studies across diverse sectors.
-4. Second-order feature attribution covariance matrices.
-5. Cryptographic pre-flight and post-flight model immutability verification.
+1. Global summary beeswarm plots (PNG) for E0 and E4.
+2. Local force plots (PNG) for 5 representative institutional URLs across diverse sectors for E0 and E4.
+3. True second-order TreeSHAP interaction values (18x18 matrices) for archetypal cases and stratified FP cohort.
+4. Validated per-record attribution aggregation statistics (linearity of expectation verified).
+5. Observational reporting language ("Evidence of Training Representation Disparity").
+6. Cryptographic pre-flight and post-flight model immutability verification.
 """
 
 import hashlib
@@ -27,13 +28,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+# Ensure MPLCONFIGDIR is set to writable temporary directory before importing matplotlib
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 import joblib
 import numpy as np
 import pandas as pd
 import shap
-
-# Ensure MPLCONFIGDIR is set to writable temporary directory
-os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -50,8 +54,10 @@ EXPECTED_E0_SHA = "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f3
 EXPECTED_E4_SHA = "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b"
 EXPECTED_BENCHMARK_SHA = "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88"
 
+FIGURES_DIR = REPO_ROOT / "experiments" / "phase7" / "reports" / "figures"
 OUTPUT_SHAP_PATH = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_attributions.json"
 OUTPUT_SUMMARY_PATH = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_summary.json"
+OUTPUT_INTERACTION_PATH = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_interaction_values.json"
 
 
 def compute_sha256(file_path: Path) -> str:
@@ -82,11 +88,11 @@ def compute_model_shap(
     clf,
     X: np.ndarray,
     tolerance: float = 1e-05,
-) -> Tuple[np.ndarray, float, float, float]:
+) -> Tuple[shap.TreeExplainer, np.ndarray, float, float, float]:
     """
     Compute TreeSHAP values strictly in probability space for Phishing class (index 0).
     Verifies probability-space additivity for all records against clf.predict_proba.
-    Returns: (shap_values_class0, base_value, max_error, mean_error)
+    Returns: (explainer, shap_values_class0, base_value, max_error, mean_error)
     """
     explainer = shap.TreeExplainer(clf, feature_perturbation="tree_path_dependent")
     raw_shap = explainer.shap_values(X)
@@ -112,7 +118,7 @@ def compute_model_shap(
         f"TreeSHAP probability additivity violated: max error {max_err:.2e} > tolerance {tolerance:.2e}"
     )
 
-    return shap_0, base_0, max_err, mean_err
+    return explainer, shap_0, base_0, max_err, mean_err
 
 
 def compile_stratified_attributions(
@@ -125,8 +131,6 @@ def compile_stratified_attributions(
     Compile class-stratified attribution profiles (True Positives, False Positives,
     True Negatives, False Negatives) at the operational threshold.
     """
-    # In labels: 0 = Phishing, 1 = Legitimate
-    # Model predicts Phishing (0) if probs >= threshold
     tp_mask = (labels == 0) & (probs >= threshold)
     fp_mask = (labels == 1) & (probs >= threshold)
     tn_mask = (labels == 1) & (probs < threshold)
@@ -168,11 +172,115 @@ def compile_stratified_attributions(
     return results
 
 
+def validate_attribution_aggregation(
+    shap_matrix: np.ndarray,
+    fp_mask: np.ndarray,
+    feature_names: List[str],
+) -> Dict[str, Any]:
+    """
+    Validate that combined feature contributions (+50% to +55%) are computed using
+    compatible per-record linear summations, documenting the aggregation population
+    and verifying linearity of expectation.
+    """
+    fp_shap = shap_matrix[fp_mask]
+    n_fp = len(fp_shap)
+
+    primary_4_names = ["NoOfOtherSpecialCharsInURL", "DomainLength", "SpacialCharRatioInURL", "NoOfSubDomain"]
+    primary_4_indices = [feature_names.index(f) for f in primary_4_names]
+
+    extended_6_names = primary_4_names + ["LetterRatioInURL", "URLLength"]
+    extended_6_indices = [feature_names.index(f) for f in extended_6_names]
+
+    # Per-record summations
+    per_record_primary4 = np.sum(fp_shap[:, primary_4_indices], axis=1)
+    per_record_extended6 = np.sum(fp_shap[:, extended_6_indices], axis=1)
+
+    # Sum of marginal means
+    sum_means_primary4 = sum(np.mean(fp_shap[:, idx]) for idx in primary_4_indices)
+    sum_means_extended6 = sum(np.mean(fp_shap[:, idx]) for idx in extended_6_indices)
+
+    assert np.isclose(np.mean(per_record_primary4), sum_means_primary4), "Linearity of expectation violated!"
+    assert np.isclose(np.mean(per_record_extended6), sum_means_extended6), "Linearity of expectation violated!"
+
+    return {
+        "aggregation_population": f"False-Positive Legitimate URLs at T=0.75 (N = {n_fp})",
+        "methodology": (
+            "Per-record additive combination: Delta_S(x_k) = sum_{j in S} phi_{k, j}. "
+            "Because expectation is linear, the population mean combined contribution "
+            "identically equals the sum of the population mean marginal SHAP values: "
+            "E[Delta_S] = sum_{j in S} E[phi_j]."
+        ),
+        "primary_4_features": {
+            "features": primary_4_names,
+            "mean_combined_contribution": float(np.mean(per_record_primary4)),
+            "median_combined_contribution": float(np.median(per_record_primary4)),
+            "std_combined_contribution": float(np.std(per_record_primary4)),
+            "min_combined_contribution": float(np.min(per_record_primary4)),
+            "max_combined_contribution": float(np.max(per_record_primary4)),
+            "sum_of_marginal_means": float(sum_means_primary4),
+            "mathematical_identity_verified": True,
+        },
+        "extended_6_features": {
+            "features": extended_6_names,
+            "mean_combined_contribution": float(np.mean(per_record_extended6)),
+            "median_combined_contribution": float(np.median(per_record_extended6)),
+            "std_combined_contribution": float(np.std(per_record_extended6)),
+            "min_combined_contribution": float(np.min(per_record_extended6)),
+            "max_combined_contribution": float(np.max(per_record_extended6)),
+            "sum_of_marginal_means": float(sum_means_extended6),
+            "mathematical_identity_verified": True,
+        },
+    }
+
+
+def generate_beeswarm_plot(
+    shap_vals: np.ndarray,
+    X: np.ndarray,
+    model_name: str,
+    output_png: Path,
+):
+    """Generate and save global summary beeswarm plot."""
+    plt.figure(figsize=(10, 8))
+    shap.summary_plot(shap_vals, X, feature_names=FEATURE_NAMES, show=False)
+    plt.title(f"TreeSHAP Global Summary Beeswarm ({model_name} — Class 0: Phishing)", fontsize=13, pad=15)
+    plt.tight_layout()
+    plt.savefig(output_png, dpi=150, bbox_inches="tight")
+    plt.close()
+
+
+def generate_force_plot_image(
+    base_val: float,
+    shap_sample: np.ndarray,
+    x_sample: np.ndarray,
+    model_name: str,
+    url: str,
+    output_png: Path,
+):
+    """Generate and save local force plot as a standalone high-resolution image."""
+    plt.figure(figsize=(14, 3))
+    shap.force_plot(
+        base_val,
+        shap_sample,
+        x_sample,
+        feature_names=FEATURE_NAMES,
+        matplotlib=True,
+        show=False,
+    )
+    # Shorten URL for title display if necessary
+    disp_url = (url[:70] + "...") if len(url) > 70 else url
+    plt.title(f"TreeSHAP Force Plot ({model_name}) — {disp_url}", fontsize=11, pad=15)
+    plt.tight_layout()
+    plt.savefig(output_png, dpi=150, bbox_inches="tight")
+    plt.close()
+
+
 def run_shap_computation() -> Dict[str, Any]:
     start_time = time.time()
     print("=" * 80)
-    print("PHASE 7 MILESTONE 6 — STAGE 1: TREESHAP ATTRIBUTION COMPUTATION")
+    print("PHASE 7 MILESTONE 6 — STAGE 1: TREESHAP ATTRIBUTIONS & INTERACTION ANALYSIS")
     print("=" * 80)
+
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
     # 1. Pre-flight verification
     pre_hashes = verify_models_integrity("PRE-FLIGHT")
@@ -206,15 +314,22 @@ def run_shap_computation() -> Dict[str, Any]:
     probs_e0 = e0_clf.predict_proba(X)[:, 0]
     probs_e4 = e4_clf.predict_proba(X)[:, 0]
 
-    # 6. Compute TreeSHAP for E0
+    # 6. Compute TreeSHAP for E0 and E4
     print("Computing TreeSHAP for E0 on all 1,300 samples (Class 0: Phishing)...")
-    shap_e0, base_e0, max_err_e0, mean_err_e0 = compute_model_shap(e0_clf, X, tolerance=1e-05)
+    explainer_e0, shap_e0, base_e0, max_err_e0, mean_err_e0 = compute_model_shap(e0_clf, X, tolerance=1e-05)
     print(f"[PASS] E0 TreeSHAP Additivity Verified: Max Error = {max_err_e0:.2e} <= 1e-05")
 
-    # 7. Compute TreeSHAP for E4
     print("Computing TreeSHAP for E4 on all 1,300 samples (Class 0: Phishing)...")
-    shap_e4, base_e4, max_err_e4, mean_err_e4 = compute_model_shap(e4_clf, X, tolerance=1e-05)
+    explainer_e4, shap_e4, base_e4, max_err_e4, mean_err_e4 = compute_model_shap(e4_clf, X, tolerance=1e-05)
     print(f"[PASS] E4 TreeSHAP Additivity Verified: Max Error = {max_err_e4:.2e} <= 1e-05")
+
+    # 7. Generate Visual Deliverable 1: Global Beeswarm Plots
+    print("Generating Global SHAP Beeswarm plots...")
+    beeswarm_e0_path = FIGURES_DIR / "m6_shap_summary_beeswarm_e0.png"
+    beeswarm_e4_path = FIGURES_DIR / "m6_shap_summary_beeswarm_e4.png"
+    generate_beeswarm_plot(shap_e0, X, "E0 (Production Control)", beeswarm_e0_path)
+    generate_beeswarm_plot(shap_e4, X, "E4 (Candidate)", beeswarm_e4_path)
+    print(f"[PASS] Beeswarm plots saved to {beeswarm_e0_path.name} and {beeswarm_e4_path.name}")
 
     # 8. Global rankings
     global_abs_e0 = np.mean(np.abs(shap_e0), axis=0)
@@ -238,21 +353,31 @@ def run_shap_computation() -> Dict[str, Any]:
     strat_e0_050 = compile_stratified_attributions(shap_e0, probs_e0, y, threshold=0.50)
     strat_e4_050 = compile_stratified_attributions(shap_e4, probs_e4, y, threshold=0.50)
 
-    # 10. Archetypal Institutional Error Case Studies (5 diverse sectors)
+    # 10. Validated Attribution Aggregation Statistics
+    legit_mask = (y == 1)
+    e0_fp_mask = legit_mask & (probs_e0 >= 0.75)
+    e4_fp_mask = legit_mask & (probs_e4 >= 0.75)
+
+    agg_validation_e0 = validate_attribution_aggregation(shap_e0, e0_fp_mask, FEATURE_NAMES)
+    agg_validation_e4 = validate_attribution_aggregation(shap_e4, e4_fp_mask, FEATURE_NAMES)
+    print(f"[PASS] Attribution aggregation validated: Linear sum of means identically matches per-record mean.")
+
+    # 11. Archetypal Institutional Error Case Studies & Force Plots
+    print("Generating Local Force Plots for 5 representative institutional URLs...")
     archetypal_targets = [
-        ("government_public_stats", "https://belgium.be/"),
-        ("academic_research", "https://www.edpsciences.org/en"),
-        ("banking_finance", "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194"),
-        ("ecommerce_retail", "https://www.farfetch.com/"),
-        ("technical_documentation", "https://www.openbsd.org/?lang=en"),
+        ("government_public_stats", "https://belgium.be/", "1_government"),
+        ("academic_research", "https://www.edpsciences.org/en", "2_academic"),
+        ("banking_finance", "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194", "3_banking"),
+        ("ecommerce_retail", "https://www.farfetch.com/", "4_ecommerce"),
+        ("technical_documentation", "https://www.openbsd.org/?lang=en", "5_technical"),
     ]
 
     case_studies = []
-    for sector_target, url_target in archetypal_targets:
-        # Locate sample index
+    visual_force_artifacts = []
+
+    for sector_target, url_target, slug in archetypal_targets:
         matching_indices = [i for i, u in enumerate(urls) if u == url_target]
         if not matching_indices:
-            # Fallback to first URL in that sector
             matching_indices = [i for i, (u, s) in enumerate(zip(urls, sectors)) if s == sector_target and y[i] == 1]
 
         idx = matching_indices[0]
@@ -269,6 +394,25 @@ def run_shap_computation() -> Dict[str, Any]:
         top_pos_e4 = sorted(shap_vals_e4.items(), key=lambda x: x[1], reverse=True)[:3]
         top_neg_e4 = sorted(shap_vals_e4.items(), key=lambda x: x[1])[:3]
 
+        # Generate PNG force plots for both models
+        force_e0_file = FIGURES_DIR / f"m6_shap_force_plot_{slug}_e0.png"
+        force_e4_file = FIGURES_DIR / f"m6_shap_force_plot_{slug}_e4.png"
+
+        generate_force_plot_image(base_e0, shap_e0[idx], X[idx], "E0 Control", actual_url, force_e0_file)
+        generate_force_plot_image(base_e4, shap_e4[idx], X[idx], "E4 Candidate", actual_url, force_e4_file)
+
+        visual_force_artifacts.append({
+            "sector": actual_sector,
+            "url": actual_url,
+            "true_label": int(y[idx]),
+            "e0_phish_probability": float(probs_e0[idx]),
+            "e4_phish_probability": float(probs_e4[idx]),
+            "e0_force_plot_image": force_e0_file.name,
+            "e4_force_plot_image": force_e4_file.name,
+            "e0_force_plot_sha256": compute_sha256(force_e0_file),
+            "e4_force_plot_sha256": compute_sha256(force_e4_file),
+        })
+
         case_studies.append({
             "url": actual_url,
             "sector": actual_sector,
@@ -278,6 +422,7 @@ def run_shap_computation() -> Dict[str, Any]:
                 "phishing_probability": float(probs_e0[idx]),
                 "base_value_phi0": base_e0,
                 "reconstructed_probability": float(base_e0 + sum(shap_vals_e0.values())),
+                "force_plot_image": force_e0_file.name,
                 "shap_attributions": shap_vals_e0,
                 "top_positive_contributors": top_pos_e0,
                 "top_negative_contributors": top_neg_e0,
@@ -286,29 +431,88 @@ def run_shap_computation() -> Dict[str, Any]:
                 "phishing_probability": float(probs_e4[idx]),
                 "base_value_phi0": base_e4,
                 "reconstructed_probability": float(base_e4 + sum(shap_vals_e4.values())),
+                "force_plot_image": force_e4_file.name,
                 "shap_attributions": shap_vals_e4,
                 "top_positive_contributors": top_pos_e4,
                 "top_negative_contributors": top_neg_e4,
             },
         })
 
-    # 11. Pairwise feature covariance in SHAP space
-    cov_e0 = np.cov(shap_e0, rowvar=False)
-    corr_e0 = np.corrcoef(shap_e0, rowvar=False)
+    # 12. Deliverable 3: Second-Order TreeSHAP Interaction Analysis
+    print("Computing second-order TreeSHAP interaction values (phi_{i, j})...")
+    # A. Compute exact 18x18 interaction matrices for all 5 archetypal case studies
+    archetypal_indices = [
+        matching_indices[0]
+        for sector_target, url_target, slug in archetypal_targets
+        for matching_indices in [[i for i, u in enumerate(urls) if u == url_target] or [i for i, (u, s) in enumerate(zip(urls, sectors)) if s == sector_target and y[i] == 1]]
+    ]
+    inter_e0_cases = explainer_e0.shap_interaction_values(X[archetypal_indices])
+    inter_e4_cases = explainer_e4.shap_interaction_values(X[archetypal_indices])
 
-    top_correlations = []
-    for i in range(len(FEATURE_NAMES)):
-        for j in range(i + 1, len(FEATURE_NAMES)):
-            if not np.isnan(corr_e0[i, j]):
-                top_correlations.append((
-                    FEATURE_NAMES[i],
-                    FEATURE_NAMES[j],
-                    float(corr_e0[i, j]),
-                    float(cov_e0[i, j]),
-                ))
-    top_correlations.sort(key=lambda x: abs(x[2]), reverse=True)
+    # Extract class 0 (Phishing) interactions
+    inter_e0_cases_0 = inter_e0_cases[:, :, :, 0] if len(np.shape(inter_e0_cases)) == 4 else inter_e0_cases
+    inter_e4_cases_0 = inter_e4_cases[:, :, :, 0] if len(np.shape(inter_e4_cases)) == 4 else inter_e4_cases
 
-    # 12. Post-flight verification
+    # B. Compute second-order interaction values for a representative stratified cohort of 100 false positives
+    # 20 samples from each of the 5 institutional sectors
+    fp_sector_indices = []
+    for sector_name in ["government_public_stats", "academic_research", "banking_finance", "ecommerce_retail", "technical_documentation"]:
+        sec_fp = [i for i in np.where(e0_fp_mask)[0] if sectors[i] == sector_name]
+        fp_sector_indices.extend(sec_fp[:20])
+
+    print(f"Computing interactions for representative cohort of {len(fp_sector_indices)} stratified false-positive URLs...")
+    inter_e0_cohort = explainer_e0.shap_interaction_values(X[fp_sector_indices])
+    inter_e4_cohort = explainer_e4.shap_interaction_values(X[fp_sector_indices])
+
+    inter_e0_cohort_0 = inter_e0_cohort[:, :, :, 0] if len(np.shape(inter_e0_cohort)) == 4 else inter_e0_cohort
+    inter_e4_cohort_0 = inter_e4_cohort[:, :, :, 0] if len(np.shape(inter_e4_cohort)) == 4 else inter_e4_cohort
+
+    # Mean absolute interaction for all 153 feature pairs (off-diagonal i < j)
+    def compute_top_interaction_pairs(inter_matrix: np.ndarray) -> List[Dict[str, Any]]:
+        mean_abs = np.mean(np.abs(inter_matrix), axis=0)
+        mean_signed = np.mean(inter_matrix, axis=0)
+        pair_list = []
+        for i in range(len(FEATURE_NAMES)):
+            for j in range(i + 1, len(FEATURE_NAMES)):
+                pair_list.append({
+                    "feature_1": FEATURE_NAMES[i],
+                    "feature_2": FEATURE_NAMES[j],
+                    "mean_absolute_interaction": float(mean_abs[i, j]),
+                    "mean_signed_interaction": float(mean_signed[i, j]),
+                })
+        pair_list.sort(key=lambda x: x["mean_absolute_interaction"], reverse=True)
+        return pair_list
+
+    top_interactions_e0 = compute_top_interaction_pairs(inter_e0_cohort_0)
+    top_interactions_e4 = compute_top_interaction_pairs(inter_e4_cohort_0)
+
+    # Save dedicated interaction values artifact
+    interaction_payload = {
+        "stage": "STAGE_1_ENSEMBLE_DISSECTION",
+        "milestone": "Phase 7 — M6",
+        "analysis_type": "TreeSHAP Second-Order Interaction Values (phi_{i, j})",
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "methodology": (
+            "Exact second-order TreeSHAP interaction computation decomposing prediction space into "
+            "main effects (diagonal phi_{i, i}) and pairwise non-linear compounding effects (off-diagonal phi_{i, j}). "
+            "Evaluated strictly on Phishing class probability space (class index 0)."
+        ),
+        "cohort_sample_size": len(fp_sector_indices),
+        "e0_top_compounding_interactions": top_interactions_e0[:15],
+        "e4_top_compounding_interactions": top_interactions_e4[:15],
+        "archetypal_case_interaction_matrices": {
+            case_studies[k]["url"]: {
+                "e0_interaction_matrix": inter_e0_cases_0[k].tolist(),
+                "e4_interaction_matrix": inter_e4_cases_0[k].tolist(),
+            }
+            for k in range(len(case_studies))
+        },
+    }
+    OUTPUT_INTERACTION_PATH.write_text(json.dumps(interaction_payload, indent=2), encoding="utf-8")
+    interaction_sha = compute_sha256(OUTPUT_INTERACTION_PATH)
+    print(f"[PASS] Second-order interaction values saved to {OUTPUT_INTERACTION_PATH.name} (SHA: {interaction_sha[:16]}...)")
+
+    # 13. Post-flight verification
     post_hashes = verify_models_integrity("POST-FLIGHT")
     print(f"[PASS] Post-flight model hashes strictly verified unchanged:")
     print(f"       E0: {post_hashes['e0_sha256']}")
@@ -347,6 +551,21 @@ def run_shap_computation() -> Dict[str, Any]:
             "e0_expected_value_phi0": base_e0,
             "e4_expected_value_phi0": base_e4,
         },
+        "visual_artifacts": {
+            "e0_global_beeswarm_plot": {
+                "file": beeswarm_e0_path.name,
+                "sha256": compute_sha256(beeswarm_e0_path),
+            },
+            "e4_global_beeswarm_plot": {
+                "file": beeswarm_e4_path.name,
+                "sha256": compute_sha256(beeswarm_e4_path),
+            },
+            "local_force_plots": visual_force_artifacts,
+        },
+        "attribution_aggregation_validation": {
+            "e0": agg_validation_e0,
+            "e4": agg_validation_e4,
+        },
         "global_importance_rankings": {
             "e0_top5": global_ranking_e0[:5],
             "e4_top5": global_ranking_e4[:5],
@@ -359,16 +578,20 @@ def run_shap_computation() -> Dict[str, Any]:
             {
                 "sector": cs["sector"],
                 "url": cs["url"],
+                "true_label": cs["true_label"],
                 "e0_phish_prob": cs["e0_evaluation"]["phishing_probability"],
                 "e4_phish_prob": cs["e4_evaluation"]["phishing_probability"],
                 "top_driver_e0": cs["e0_evaluation"]["top_positive_contributors"][0],
+                "force_plot_e0": cs["e0_evaluation"]["force_plot_image"],
+                "force_plot_e4": cs["e4_evaluation"]["force_plot_image"],
             }
             for cs in case_studies
         ],
-        "top_shap_correlations": [
-            {"feat1": c[0], "feat2": c[1], "pearson_r": c[2]}
-            for c in top_correlations[:5]
-        ],
+        "top_second_order_interactions": {
+            "e0_top5": top_interactions_e0[:5],
+            "e4_top5": top_interactions_e4[:5],
+        },
+        "scientific_classification": "Evidence of Training Representation Disparity",
     }
 
     # Build Full Data Payload
@@ -398,13 +621,14 @@ def run_shap_computation() -> Dict[str, Any]:
     print(f"[PASS] SHAP summary written to: {OUTPUT_SUMMARY_PATH.name} (SHA: {summary_sha[:16]}...)")
     print(f"[PASS] Full SHAP attributions written to: {OUTPUT_SHAP_PATH.name} (SHA: {shap_sha[:16]}...)")
     print("=" * 80)
-    print("STAGE 1 TREESHAP ATTRIBUTION COMPUTATION COMPLETE.")
+    print("STAGE 1 TREESHAP ATTRIBUTION & INTERACTION ANALYSIS COMPLETE.")
     print("=" * 80)
 
     return {
         "status": "SUCCESS",
         "summary_sha256": summary_sha,
         "shap_sha256": shap_sha,
+        "interaction_sha256": interaction_sha,
         "e0_max_additivity_error": max_err_e0,
         "e4_max_additivity_error": max_err_e4,
         "execution_time_seconds": execution_time,

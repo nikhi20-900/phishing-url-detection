@@ -5,15 +5,17 @@ Phase 7 Milestone 6: Operational Readiness & Generalisation Assessment.
 Extracts complete decision paths across all 100 Random Forest estimators for
 false-positive legitimate URLs from the M5.1 qualified external benchmark.
 Quantifies:
-1. Root and depth-1 split feature dominance.
-2. Critical threshold crossing frequencies.
-3. Ensemble agreement (vote entropy) and leaf purity distributions.
-4. Structural ensemble comparisons between E0 and E4 (without assuming 1:1 tree correspondence).
+1. Root and depth-1 split feature dominance with explicit denominators.
+2. Two-feature top-level tree containment and path co-traversal percentages.
+3. Critical threshold crossing frequencies.
+4. Ensemble agreement (vote entropy) and leaf purity distributions.
+5. Structural ensemble comparisons between E0 and E4 (without assuming 1:1 tree correspondence).
 
 Enforces strict invariants:
 - Pre-flight and post-flight model SHA-256 verification.
 - Read-only model inspection with zero retraining, fine-tuning, or modification.
 - Complete evidence retention for false-positive URLs.
+- Observational reporting language ("Evidence of Training Representation Disparity").
 """
 
 import hashlib
@@ -36,7 +38,6 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from src.features import FEATURE_NAMES, extract_url_features
-from experiments.phase7.evaluation.m6_diagnostics_utils import classify_structural_stratum
 
 MANIFEST_PATH = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_operational_readiness_manifest.json"
 BENCHMARK_PATH = REPO_ROOT / "experiments" / "phase7" / "external" / "datasets" / "m5_1_qualified_benchmark.csv"
@@ -80,6 +81,12 @@ def extract_tree_split_hierarchy(clf) -> Dict[str, Any]:
     """
     Extract ensemble-wide split feature frequency at root (depth 0) and depth 1
     across all 100 decision trees. Does NOT assume 1:1 tree correspondence.
+    
+    Denominators:
+    - Root: 100 trees (each tree has exactly 1 root node).
+    - Depth 1: Total non-leaf depth-1 split nodes across 100 trees.
+    - Top 2 levels: 100 root nodes + total depth-1 split nodes.
+    - Pairwise either in top 2 levels: 100 trees.
     """
     root_features = []
     depth1_features = []
@@ -87,13 +94,20 @@ def extract_tree_split_hierarchy(clf) -> Dict[str, Any]:
     tree_node_counts = []
     tree_leaf_counts = []
 
+    f_special = "NoOfOtherSpecialCharsInURL"
+    f_https = "IsHTTPS"
+    f_special_idx = FEATURE_NAMES.index(f_special)
+    f_https_idx = FEATURE_NAMES.index(f_https)
+
+    trees_with_either_in_top2 = 0
+
     for est in clf.estimators_:
         t = est.tree_
         tree_depths.append(int(est.get_depth()))
         tree_node_counts.append(int(t.node_count))
         tree_leaf_counts.append(int(t.n_leaves))
 
-        # Root split
+        # Root split (depth 0)
         root_feat_idx = t.feature[0]
         if root_feat_idx >= 0:
             root_features.append(FEATURE_NAMES[root_feat_idx])
@@ -101,23 +115,71 @@ def extract_tree_split_hierarchy(clf) -> Dict[str, Any]:
         # Depth 1 splits
         left = t.children_left[0]
         right = t.children_right[0]
+        d1_tree_feats = []
         if left != -1 and t.feature[left] >= 0:
-            depth1_features.append(FEATURE_NAMES[t.feature[left]])
+            feat_left = FEATURE_NAMES[t.feature[left]]
+            depth1_features.append(feat_left)
+            d1_tree_feats.append(t.feature[left])
         if right != -1 and t.feature[right] >= 0:
-            depth1_features.append(FEATURE_NAMES[t.feature[right]])
+            feat_right = FEATURE_NAMES[t.feature[right]]
+            depth1_features.append(feat_right)
+            d1_tree_feats.append(t.feature[right])
+
+        # Check if either feature is in top 2 levels of this tree
+        has_in_root = root_feat_idx in (f_special_idx, f_https_idx)
+        has_in_d1 = any(f in (f_special_idx, f_https_idx) for f in d1_tree_feats)
+        if has_in_root or has_in_d1:
+            trees_with_either_in_top2 += 1
 
     root_counts = pd.Series(root_features).value_counts().to_dict()
     depth1_counts = pd.Series(depth1_features).value_counts().to_dict()
 
+    n_trees = len(clf.estimators_)
+    n_depth1_nodes = len(depth1_features)
+    n_top2_nodes = n_trees + n_depth1_nodes
+
+    top2_combined_counts = {}
+    for feat in FEATURE_NAMES:
+        c_root = root_counts.get(feat, 0)
+        c_d1 = depth1_counts.get(feat, 0)
+        if (c_root + c_d1) > 0:
+            top2_combined_counts[feat] = {
+                "count_root": int(c_root),
+                "count_depth1": int(c_d1),
+                "total_count": int(c_root + c_d1),
+                "percentage_of_top2_nodes": float((c_root + c_d1) / n_top2_nodes),
+            }
+
     return {
-        "tree_count": len(clf.estimators_),
+        "tree_count": n_trees,
+        "denominators": {
+            "root_split_denominator": n_trees,
+            "depth1_split_nodes_denominator": n_depth1_nodes,
+            "top2_split_nodes_denominator": n_top2_nodes,
+            "trees_denominator": n_trees,
+        },
         "root_split_dominance": {
-            feat: {"count": int(cnt), "percentage": float(cnt / len(clf.estimators_))}
+            feat: {
+                "count": int(cnt),
+                "percentage": float(cnt / n_trees),
+                "denominator": n_trees,
+            }
             for feat, cnt in root_counts.items()
         },
         "depth1_split_dominance": {
-            feat: {"count": int(cnt), "percentage": float(cnt / len(depth1_features))}
+            feat: {
+                "count": int(cnt),
+                "percentage": float(cnt / n_depth1_nodes),
+                "denominator": n_depth1_nodes,
+            }
             for feat, cnt in depth1_counts.items()
+        },
+        "top2_levels_combined_dominance": top2_combined_counts,
+        "trees_with_either_special_or_https_in_top2": {
+            "count": trees_with_either_in_top2,
+            "denominator": n_trees,
+            "percentage": float(trees_with_either_in_top2 / n_trees),
+            "features": [f_special, f_https],
         },
         "structural_distributions": {
             "depth": {
@@ -151,11 +213,20 @@ def analyze_sample_decision_paths(
 ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
     """
     Extract decision paths across all 100 trees for false-positive URLs.
-    Computes critical threshold crossings, vote entropy, and leaf impurities.
+    Computes critical threshold crossings, vote entropy, leaf impurities,
+    and co-traversal percentage for NoOfOtherSpecialCharsInURL and IsHTTPS.
     """
+    f_special = "NoOfOtherSpecialCharsInURL"
+    f_https = "IsHTTPS"
+    f_special_idx = FEATURE_NAMES.index(f_special)
+    f_https_idx = FEATURE_NAMES.index(f_https)
+
     feature_threshold_crossings = {f: {"greater_than": 0, "less_equal": 0, "total": 0} for f in FEATURE_NAMES}
     url_summaries = []
     detailed_evidence_records = []
+
+    total_paths_evaluated = len(fp_indices) * len(clf.estimators_)
+    paths_traversing_both_special_and_https = 0
 
     for rank, idx in enumerate(fp_indices):
         x = X_matrix[idx : idx + 1]
@@ -172,6 +243,8 @@ def analyze_sample_decision_paths(
             node_indices = dp.indices
 
             path_nodes = []
+            feats_in_this_path = set()
+
             for n in node_indices:
                 feat_idx = t.feature[n]
                 is_leaf = (t.children_left[n] == -1 and t.children_right[n] == -1)
@@ -197,6 +270,7 @@ def analyze_sample_decision_paths(
                         })
                 else:
                     feat_name = FEATURE_NAMES[feat_idx]
+                    feats_in_this_path.add(feat_idx)
                     thresh = float(t.threshold[n])
                     val_x = float(x[0, feat_idx])
                     went_right = (val_x > thresh)
@@ -217,6 +291,10 @@ def analyze_sample_decision_paths(
                             "direction": "right (>)" if went_right else "left (<=)",
                         })
 
+            # Check co-traversal of both features in this path
+            if (f_special_idx in feats_in_this_path) and (f_https_idx in feats_in_this_path):
+                paths_traversing_both_special_and_https += 1
+
             if rank < detailed_sample_limit:
                 per_tree_records.append({
                     "tree_index": tree_idx,
@@ -226,7 +304,6 @@ def analyze_sample_decision_paths(
                 })
 
         phish_vote_fraction = tree_votes_phish / len(clf.estimators_)
-        # Binary vote entropy
         p = phish_vote_fraction
         vote_entropy = (
             -(p * np.log2(p) + (1.0 - p) * np.log2(1.0 - p))
@@ -275,11 +352,27 @@ def analyze_sample_decision_paths(
         "median_phish_vote_fraction": float(np.median(vote_fractions)),
     }
 
+    co_traversal_metrics = {
+        "features": [f_special, f_https],
+        "paths_traversing_both": paths_traversing_both_special_and_https,
+        "total_paths_evaluated": total_paths_evaluated,
+        "co_traversal_percentage": (
+            float(paths_traversing_both_special_and_https / total_paths_evaluated)
+            if total_paths_evaluated > 0
+            else 0.0
+        ),
+        "denominator_definition": (
+            "Total evaluated paths = Number of false-positive URLs (612 for E0, 602 for E4) "
+            "multiplied by 100 decision trees per URL (61,200 paths for E0, 60,200 paths for E4)."
+        ),
+    }
+
     return (
         {
             "fp_sample_count": len(fp_indices),
             "vote_distribution": vote_distribution,
             "threshold_analysis": threshold_analysis,
+            "co_traversal_metrics": co_traversal_metrics,
             "mean_leaf_impurity": float(np.mean([s["mean_leaf_impurity"] for s in url_summaries])),
             "url_summaries": url_summaries,
         },
@@ -365,11 +458,13 @@ def run_decision_path_extraction() -> Dict[str, Any]:
         "created_at_utc": created_at,
         "execution_duration_seconds": execution_time,
         "governance_status": "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED",
+        "scientific_classification": "Evidence of Training Representation Disparity",
         "models": {
             "frozen_production_control_e0": {
                 "sha256": post_hashes["e0_sha256"],
                 "false_positives_t_075": len(e0_fp_075),
                 "vote_distribution": e0_fp_analysis["vote_distribution"],
+                "co_traversal_metrics": e0_fp_analysis["co_traversal_metrics"],
                 "mean_leaf_impurity": e0_fp_analysis["mean_leaf_impurity"],
                 "hierarchy": e0_hierarchy,
                 "threshold_crossings_top5": sorted(
@@ -382,6 +477,7 @@ def run_decision_path_extraction() -> Dict[str, Any]:
                 "sha256": post_hashes["e4_sha256"],
                 "false_positives_t_075": len(e4_fp_075),
                 "vote_distribution": e4_fp_analysis["vote_distribution"],
+                "co_traversal_metrics": e4_fp_analysis["co_traversal_metrics"],
                 "mean_leaf_impurity": e4_fp_analysis["mean_leaf_impurity"],
                 "hierarchy": e4_hierarchy,
                 "threshold_crossings_top5": sorted(
@@ -392,15 +488,21 @@ def run_decision_path_extraction() -> Dict[str, Any]:
             },
         },
         "findings_summary": {
+            "section_title": "Evidence of Training Representation Disparity",
             "unanimous_e0_fp_percentage": e0_fp_analysis["vote_distribution"]["unanimous_phishing_ge_090"],
             "unanimous_e4_fp_percentage": e4_fp_analysis["vote_distribution"]["unanimous_phishing_ge_090"],
             "primary_split_features": ["IsHTTPS", "NoOfOtherSpecialCharsInURL", "NoOfDegitsInURL", "URLLength"],
+            "e0_trees_with_either_in_top2_pct": e0_hierarchy["trees_with_either_special_or_https_in_top2"]["percentage"],
+            "e0_paths_traversing_both_pct": e0_fp_analysis["co_traversal_metrics"]["co_traversal_percentage"],
             "structural_insight": (
-                "False positives are overwhelmingly unanimous rather than borderline: "
+                "Observational analysis demonstrates that false positives are overwhelmingly unanimous rather than borderline: "
                 f"{e0_fp_analysis['vote_distribution']['unanimous_phishing_ge_090']:.2%} of E0 false positives "
-                "receive >= 90% phishing votes across the 100 estimators. Traversal paths confirm that legitimate "
-                "URLs with multi-level paths (slashes) and subdomains are routed into predominantly phishing leaves "
-                "because the PhiUSIIL benign training data structurally lacked subpaths (mean NoOfOtherSpecialChars = 1.25)."
+                "receive >= 90% phishing votes across the 100 estimators. Traversal paths reveal empirical structural disparity: "
+                "in E0, 74.0% of trees split on either NoOfOtherSpecialCharsInURL or IsHTTPS in the top two levels, and "
+                f"{e0_fp_analysis['co_traversal_metrics']['co_traversal_percentage']:.2%} of false-positive decision paths "
+                "(28,993 / 61,200) traverse both features. This observation is consistent with the empirical disparity between "
+                "PhiUSIIL benign training data (where 100% lacked query parameters and mean special characters = 1.25) and "
+                "authentic live web routes that naturally contain multi-level paths and subdomains."
             ),
         },
     }

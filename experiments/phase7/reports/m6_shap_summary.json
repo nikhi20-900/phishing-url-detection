@@ -2,8 +2,8 @@
   "stage": "STAGE_1_ENSEMBLE_DISSECTION",
   "milestone": "Phase 7 \u2014 M6",
   "analysis_type": "TreeSHAP Global and Local Probability Attribution Analysis",
-  "created_at_utc": "2026-11-19T05:34:30.491147+00:00",
-  "execution_duration_seconds": 22.945339918136597,
+  "created_at_utc": "2026-11-19T05:56:45.453845+00:00",
+  "execution_duration_seconds": 68.17317581176758,
   "governance_status": "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED",
   "models": {
     "e0_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
@@ -22,13 +22,154 @@
     "e0_max_error": 1.687538997430238e-14,
     "e0_mean_error": 1.6369044207704856e-15,
     "e4_max_error": 5.617728504603292e-14,
-    "e4_mean_error": 2.2929735033782294e-15,
+    "e4_mean_error": 2.2931443069204795e-15,
     "verified_sample_count": 1300,
     "status": "ALL_1300_SAMPLES_SATISFY_ADDITIVITY"
   },
   "base_values": {
     "e0_expected_value_phi0": 0.42696148617071,
     "e4_expected_value_phi0": 0.4460259648917151
+  },
+  "visual_artifacts": {
+    "e0_global_beeswarm_plot": {
+      "file": "m6_shap_summary_beeswarm_e0.png",
+      "sha256": "bac49ed8bb5e6209e993d4f0342cb89ea724e8e70f53c9f9052b09a32afdb2c0"
+    },
+    "e4_global_beeswarm_plot": {
+      "file": "m6_shap_summary_beeswarm_e4.png",
+      "sha256": "97b75cf4efd71c1c804dbdfce0afe897e6dd2b9549d0d7f90692a720a5d58a45"
+    },
+    "local_force_plots": [
+      {
+        "sector": "government_public_stats",
+        "url": "https://belgium.be/",
+        "true_label": 1,
+        "e0_phish_probability": 1.0,
+        "e4_phish_probability": 1.0,
+        "e0_force_plot_image": "m6_shap_force_plot_1_government_e0.png",
+        "e4_force_plot_image": "m6_shap_force_plot_1_government_e4.png",
+        "e0_force_plot_sha256": "3d56cb34585d379364dfd43aec3d8e4ff155620680c23e99497c0f5903d634ea",
+        "e4_force_plot_sha256": "edd8cb6bee76f0f00a2c78fbc78a7c3a36f815950ad353c4203a11f57cc69bed"
+      },
+      {
+        "sector": "academic_research",
+        "url": "https://www.edpsciences.org/en",
+        "true_label": 1,
+        "e0_phish_probability": 0.9800626959247648,
+        "e4_phish_probability": 1.0,
+        "e0_force_plot_image": "m6_shap_force_plot_2_academic_e0.png",
+        "e4_force_plot_image": "m6_shap_force_plot_2_academic_e4.png",
+        "e0_force_plot_sha256": "d9662569b5e3f4d3d974875b5502660c0bf2f0104ea961ac60894d6ff40cdc0a",
+        "e4_force_plot_sha256": "b625495c711d17694c3caf19ea7958154f1285d90dd8beb5fdb7d2fadb7ec8cb"
+      },
+      {
+        "sector": "banking_finance",
+        "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194",
+        "true_label": 1,
+        "e0_phish_probability": 1.0,
+        "e4_phish_probability": 1.0,
+        "e0_force_plot_image": "m6_shap_force_plot_3_banking_e0.png",
+        "e4_force_plot_image": "m6_shap_force_plot_3_banking_e4.png",
+        "e0_force_plot_sha256": "439296dbc71e3394c0f5232ed9ad1de41b7bec8a91067792f07b94162ab16400",
+        "e4_force_plot_sha256": "e3c4442a86caaca4cabcfe06628c81ff3b63f74dcc44abf98ff96353df60b8f1"
+      },
+      {
+        "sector": "ecommerce_retail",
+        "url": "https://www.farfetch.com/",
+        "true_label": 1,
+        "e0_phish_probability": 1.0,
+        "e4_phish_probability": 0.99,
+        "e0_force_plot_image": "m6_shap_force_plot_4_ecommerce_e0.png",
+        "e4_force_plot_image": "m6_shap_force_plot_4_ecommerce_e4.png",
+        "e0_force_plot_sha256": "dbfbefd5edb3738f7ee067d3ba5064d0393a3b9e5cbfbaa2aa8bc78e076f4492",
+        "e4_force_plot_sha256": "d6b396d413e59ec1e6ec000e4fd234413663683fbd11b3ffe21a6ced570760e4"
+      },
+      {
+        "sector": "technical_documentation",
+        "url": "https://www.openbsd.org/?lang=en",
+        "true_label": 1,
+        "e0_phish_probability": 0.97,
+        "e4_phish_probability": 0.97,
+        "e0_force_plot_image": "m6_shap_force_plot_5_technical_e0.png",
+        "e4_force_plot_image": "m6_shap_force_plot_5_technical_e4.png",
+        "e0_force_plot_sha256": "40e1d27c526681e3bb85e042d9fcc257fe69a803b5afd6eb412dd5a2d5a1085f",
+        "e4_force_plot_sha256": "ab307fa9740d6b803893964cb99d152263acaf282c68d818843c988b898c462f"
+      }
+    ]
+  },
+  "attribution_aggregation_validation": {
+    "e0": {
+      "aggregation_population": "False-Positive Legitimate URLs at T=0.75 (N = 612)",
+      "methodology": "Per-record additive combination: Delta_S(x_k) = sum_{j in S} phi_{k, j}. Because expectation is linear, the population mean combined contribution identically equals the sum of the population mean marginal SHAP values: E[Delta_S] = sum_{j in S} E[phi_j].",
+      "primary_4_features": {
+        "features": [
+          "NoOfOtherSpecialCharsInURL",
+          "DomainLength",
+          "SpacialCharRatioInURL",
+          "NoOfSubDomain"
+        ],
+        "mean_combined_contribution": 0.49084549323498305,
+        "median_combined_contribution": 0.48160654512466883,
+        "std_combined_contribution": 0.13011898167578606,
+        "min_combined_contribution": 0.15864211856226282,
+        "max_combined_contribution": 0.7389853436546077,
+        "sum_of_marginal_means": 0.4908454932349831,
+        "mathematical_identity_verified": true
+      },
+      "extended_6_features": {
+        "features": [
+          "NoOfOtherSpecialCharsInURL",
+          "DomainLength",
+          "SpacialCharRatioInURL",
+          "NoOfSubDomain",
+          "LetterRatioInURL",
+          "URLLength"
+        ],
+        "mean_combined_contribution": 0.5642503924355196,
+        "median_combined_contribution": 0.5825108658017328,
+        "std_combined_contribution": 0.09305994849770255,
+        "min_combined_contribution": 0.30139063353281853,
+        "max_combined_contribution": 0.7193228331597898,
+        "sum_of_marginal_means": 0.5642503924355196,
+        "mathematical_identity_verified": true
+      }
+    },
+    "e4": {
+      "aggregation_population": "False-Positive Legitimate URLs at T=0.75 (N = 602)",
+      "methodology": "Per-record additive combination: Delta_S(x_k) = sum_{j in S} phi_{k, j}. Because expectation is linear, the population mean combined contribution identically equals the sum of the population mean marginal SHAP values: E[Delta_S] = sum_{j in S} E[phi_j].",
+      "primary_4_features": {
+        "features": [
+          "NoOfOtherSpecialCharsInURL",
+          "DomainLength",
+          "SpacialCharRatioInURL",
+          "NoOfSubDomain"
+        ],
+        "mean_combined_contribution": 0.433886009989123,
+        "median_combined_contribution": 0.43651703052032786,
+        "std_combined_contribution": 0.12932513249403316,
+        "min_combined_contribution": 0.1674522517698107,
+        "max_combined_contribution": 0.6832314213716953,
+        "sum_of_marginal_means": 0.4338860099891231,
+        "mathematical_identity_verified": true
+      },
+      "extended_6_features": {
+        "features": [
+          "NoOfOtherSpecialCharsInURL",
+          "DomainLength",
+          "SpacialCharRatioInURL",
+          "NoOfSubDomain",
+          "LetterRatioInURL",
+          "URLLength"
+        ],
+        "mean_combined_contribution": 0.5211333614132466,
+        "median_combined_contribution": 0.5402548563320542,
+        "std_combined_contribution": 0.09463774535038032,
+        "min_combined_contribution": 0.24090479976786425,
+        "max_combined_contribution": 0.6782110428904484,
+        "sum_of_marginal_means": 0.5211333614132466,
+        "mathematical_identity_verified": true
+      }
+    }
   },
   "global_importance_rankings": {
     "e0_top5": [
@@ -126,79 +267,134 @@
     {
       "sector": "government_public_stats",
       "url": "https://belgium.be/",
+      "true_label": 1,
       "e0_phish_prob": 1.0,
       "e4_phish_prob": 1.0,
       "top_driver_e0": [
         "NoOfSubDomain",
         0.4392554359191702
-      ]
+      ],
+      "force_plot_e0": "m6_shap_force_plot_1_government_e0.png",
+      "force_plot_e4": "m6_shap_force_plot_1_government_e4.png"
     },
     {
       "sector": "academic_research",
       "url": "https://www.edpsciences.org/en",
+      "true_label": 1,
       "e0_phish_prob": 0.9800626959247648,
       "e4_phish_prob": 1.0,
       "top_driver_e0": [
         "DomainLength",
         0.2871389732442066
-      ]
+      ],
+      "force_plot_e0": "m6_shap_force_plot_2_academic_e0.png",
+      "force_plot_e4": "m6_shap_force_plot_2_academic_e4.png"
     },
     {
       "sector": "banking_finance",
       "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194",
+      "true_label": 1,
       "e0_phish_prob": 1.0,
       "e4_phish_prob": 1.0,
       "top_driver_e0": [
         "NoOfOtherSpecialCharsInURL",
         0.16095490154801614
-      ]
+      ],
+      "force_plot_e0": "m6_shap_force_plot_3_banking_e0.png",
+      "force_plot_e4": "m6_shap_force_plot_3_banking_e4.png"
     },
     {
       "sector": "ecommerce_retail",
       "url": "https://www.farfetch.com/",
+      "true_label": 1,
       "e0_phish_prob": 1.0,
       "e4_phish_prob": 0.99,
       "top_driver_e0": [
         "DomainLength",
         0.33004110802187653
-      ]
+      ],
+      "force_plot_e0": "m6_shap_force_plot_4_ecommerce_e0.png",
+      "force_plot_e4": "m6_shap_force_plot_4_ecommerce_e4.png"
     },
     {
       "sector": "technical_documentation",
       "url": "https://www.openbsd.org/?lang=en",
+      "true_label": 1,
       "e0_phish_prob": 0.97,
       "e4_phish_prob": 0.97,
       "top_driver_e0": [
         "SpacialCharRatioInURL",
         0.2551631453564792
-      ]
+      ],
+      "force_plot_e0": "m6_shap_force_plot_5_technical_e0.png",
+      "force_plot_e4": "m6_shap_force_plot_5_technical_e4.png"
     }
   ],
-  "top_shap_correlations": [
-    {
-      "feat1": "NoOfDegitsInURL",
-      "feat2": "DegitRatioInURL",
-      "pearson_r": 0.9940077810610902
-    },
-    {
-      "feat1": "NoOfEqualsInURL",
-      "feat2": "NoOfQMarkInURL",
-      "pearson_r": 0.9567201089730087
-    },
-    {
-      "feat1": "URLLength",
-      "feat2": "NoOfLettersInURL",
-      "pearson_r": 0.7808127854222655
-    },
-    {
-      "feat1": "NoOfLettersInURL",
-      "feat2": "LetterRatioInURL",
-      "pearson_r": 0.7188843568522749
-    },
-    {
-      "feat1": "DomainLength",
-      "feat2": "NoOfDegitsInURL",
-      "pearson_r": -0.5452750122777837
-    }
-  ]
+  "top_second_order_interactions": {
+    "e0_top5": [
+      {
+        "feature_1": "NoOfOtherSpecialCharsInURL",
+        "feature_2": "SpacialCharRatioInURL",
+        "mean_absolute_interaction": 0.03846507918967427,
+        "mean_signed_interaction": -0.037574236121357484
+      },
+      {
+        "feature_1": "NoOfSubDomain",
+        "feature_2": "SpacialCharRatioInURL",
+        "mean_absolute_interaction": 0.029597731518683442,
+        "mean_signed_interaction": -0.02323355896438925
+      },
+      {
+        "feature_1": "NoOfSubDomain",
+        "feature_2": "NoOfOtherSpecialCharsInURL",
+        "mean_absolute_interaction": 0.027246599084071507,
+        "mean_signed_interaction": -0.01532785609659292
+      },
+      {
+        "feature_1": "DomainLength",
+        "feature_2": "NoOfOtherSpecialCharsInURL",
+        "mean_absolute_interaction": 0.026542351138623133,
+        "mean_signed_interaction": 0.023836928160091687
+      },
+      {
+        "feature_1": "LetterRatioInURL",
+        "feature_2": "NoOfOtherSpecialCharsInURL",
+        "mean_absolute_interaction": 0.026057462730883794,
+        "mean_signed_interaction": -0.017818964664965357
+      }
+    ],
+    "e4_top5": [
+      {
+        "feature_1": "DomainLength",
+        "feature_2": "SpacialCharRatioInURL",
+        "mean_absolute_interaction": 0.04141616967796896,
+        "mean_signed_interaction": -0.04055344579640252
+      },
+      {
+        "feature_1": "DomainLength",
+        "feature_2": "NoOfSubDomain",
+        "mean_absolute_interaction": 0.03409605416861443,
+        "mean_signed_interaction": -0.01908704601845882
+      },
+      {
+        "feature_1": "DomainLength",
+        "feature_2": "NoOfOtherSpecialCharsInURL",
+        "mean_absolute_interaction": 0.03186757408102938,
+        "mean_signed_interaction": -0.02515059348907775
+      },
+      {
+        "feature_1": "DomainLength",
+        "feature_2": "LetterRatioInURL",
+        "mean_absolute_interaction": 0.030838812186521593,
+        "mean_signed_interaction": -0.009734666852028855
+      },
+      {
+        "feature_1": "NoOfLettersInURL",
+        "feature_2": "LetterRatioInURL",
+        "mean_absolute_interaction": 0.02566548583980264,
+        "mean_signed_interaction": -0.023815086618374948
+      }
+    ]
+  },
+  "scientific_classification": "Evidence of Training Representation Disparity"
 }

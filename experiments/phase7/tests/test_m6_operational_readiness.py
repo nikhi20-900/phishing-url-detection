@@ -424,3 +424,121 @@ class TestM6OperationalReadiness:
         assert "NoOfOtherSpecialCharsInURL" in e0_drivers
         assert "DomainLength" in e0_drivers
 
+    def test_stage1_visual_shap_deliverables(self):
+        """Stage 1: Verify presence, integrity, and non-empty sizes of all 12 SHAP visual figures."""
+        figures_dir = REPO_ROOT / "experiments" / "phase7" / "reports" / "figures"
+        assert figures_dir.exists(), f"Figures directory missing: {figures_dir}"
+
+        expected_figures = [
+            "m6_shap_summary_beeswarm_e0.png",
+            "m6_shap_summary_beeswarm_e4.png",
+            "m6_shap_force_plot_1_government_e0.png",
+            "m6_shap_force_plot_1_government_e4.png",
+            "m6_shap_force_plot_2_academic_e0.png",
+            "m6_shap_force_plot_2_academic_e4.png",
+            "m6_shap_force_plot_3_banking_e0.png",
+            "m6_shap_force_plot_3_banking_e4.png",
+            "m6_shap_force_plot_4_ecommerce_e0.png",
+            "m6_shap_force_plot_4_ecommerce_e4.png",
+            "m6_shap_force_plot_5_technical_e0.png",
+            "m6_shap_force_plot_5_technical_e4.png",
+        ]
+
+        for fig_name in expected_figures:
+            fig_path = figures_dir / fig_name
+            assert fig_path.exists(), f"Missing visual figure: {fig_name}"
+            file_size = fig_path.stat().st_size
+            assert file_size > 20000, f"Figure {fig_name} is unexpectedly small ({file_size} bytes)"
+
+        # Verify summary JSON tracks visual artifacts
+        summary = json.loads(OUTPUT_SHAP_SUMMARY.read_text(encoding="utf-8"))
+        vis = summary["visual_artifacts"]
+        assert (figures_dir / vis["e0_global_beeswarm_plot"]["file"]).exists()
+        assert (figures_dir / vis["e4_global_beeswarm_plot"]["file"]).exists()
+        assert len(vis["local_force_plots"]) == 5
+
+    def test_stage1_second_order_shap_interactions(self):
+        """Stage 1: Verify second-order TreeSHAP interaction computation (phi_{i, j}) and output artifact."""
+        inter_path = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_interaction_values.json"
+        assert inter_path.exists(), f"Missing SHAP interaction artifact: {inter_path}"
+
+        iv = json.loads(inter_path.read_text(encoding="utf-8"))
+        assert iv["stage"] == "STAGE_1_ENSEMBLE_DISSECTION"
+        assert iv["cohort_sample_size"] == 100
+        assert "TreeSHAP Second-Order Interaction Values" in iv["analysis_type"]
+
+        # Check top compounding pairs
+        e0_top = iv["e0_top_compounding_interactions"]
+        assert len(e0_top) >= 5
+        assert all("feature_1" in x and "feature_2" in x and "mean_absolute_interaction" in x for x in e0_top)
+        assert e0_top[0]["mean_absolute_interaction"] > 0.02
+
+        # Check archetypal cases have 18x18 interaction matrices
+        cases = iv["archetypal_case_interaction_matrices"]
+        assert len(cases) == 5
+        for url, mats in cases.items():
+            mat_e0 = np.array(mats["e0_interaction_matrix"])
+            mat_e4 = np.array(mats["e4_interaction_matrix"])
+            assert mat_e0.shape == (18, 18), f"Expected 18x18 interaction matrix, got {mat_e0.shape}"
+            assert mat_e4.shape == (18, 18), f"Expected 18x18 interaction matrix, got {mat_e4.shape}"
+            # Verify symmetry of interaction values: phi_{i, j} == phi_{j, i}
+            assert np.allclose(mat_e0, mat_e0.T, atol=1e-5), "TreeSHAP interaction matrix must be symmetric"
+            assert np.allclose(mat_e4, mat_e4.T, atol=1e-5), "TreeSHAP interaction matrix must be symmetric"
+
+    def test_stage1_tree_path_metrics_and_clarified_denominators(self):
+        """Stage 1: Verify clarified denominators, either-feature prevalence, and co-traversal path metrics."""
+        analysis = json.loads(OUTPUT_TREE_ANALYSIS.read_text(encoding="utf-8"))
+        e0_info = analysis["models"]["frozen_production_control_e0"]
+        h = e0_info["hierarchy"]
+
+        # Explicit denominators
+        assert h["denominators"]["root_split_denominator"] == 100
+        assert h["denominators"]["depth1_split_nodes_denominator"] == 172
+        assert h["denominators"]["top2_split_nodes_denominator"] == 272
+
+        # Either feature in top 2 levels
+        either = h["trees_with_either_special_or_https_in_top2"]
+        assert either["count"] == 74
+        assert either["denominator"] == 100
+        assert np.isclose(either["percentage"], 0.74)
+
+        # Both features co-traversal across all 612 false positives
+        co_trav = e0_info["co_traversal_metrics"]
+        assert co_trav["total_paths_evaluated"] == 61200
+        assert co_trav["paths_traversing_both"] == 28993
+        assert np.isclose(co_trav["co_traversal_percentage"], 0.47374, atol=0.001)
+
+    def test_stage1_attribution_aggregation_validation(self):
+        """Stage 1: Verify validated attribution aggregation and linearity of expectation identity."""
+        summary = json.loads(OUTPUT_SHAP_SUMMARY.read_text(encoding="utf-8"))
+        agg = summary["attribution_aggregation_validation"]
+
+        for model_key in ["e0", "e4"]:
+            val = agg[model_key]
+            assert "False-Positive Legitimate URLs" in val["aggregation_population"]
+
+            # Primary 4 features
+            p4 = val["primary_4_features"]
+            assert p4["mathematical_identity_verified"] is True
+            assert np.isclose(p4["mean_combined_contribution"], p4["sum_of_marginal_means"], atol=1e-12)
+            assert 0.40 <= p4["mean_combined_contribution"] <= 0.55
+
+            # Extended 6 features
+            p6 = val["extended_6_features"]
+            assert p6["mathematical_identity_verified"] is True
+            assert np.isclose(p6["mean_combined_contribution"], p6["sum_of_marginal_means"], atol=1e-12)
+            assert 0.50 <= p6["mean_combined_contribution"] <= 0.60
+
+    def test_stage1_scientific_classification_language(self):
+        """Stage 1: Verify strictly observational language 'Evidence of Training Representation Disparity'."""
+        tree_analysis = json.loads(OUTPUT_TREE_ANALYSIS.read_text(encoding="utf-8"))
+        shap_summary = json.loads(OUTPUT_SHAP_SUMMARY.read_text(encoding="utf-8"))
+
+        assert tree_analysis["scientific_classification"] == "Evidence of Training Representation Disparity"
+        assert shap_summary["scientific_classification"] == "Evidence of Training Representation Disparity"
+
+        # Check raw text doesn't contain the unapproved 'Proof' phrasing
+        assert "Training Representation Bias Proof" not in OUTPUT_TREE_ANALYSIS.read_text(encoding="utf-8")
+        assert "Training Representation Bias Proof" not in OUTPUT_SHAP_SUMMARY.read_text(encoding="utf-8")
+
+
