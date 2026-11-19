@@ -60,6 +60,8 @@ OUTPUT_TREE_ANALYSIS = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_tr
 OUTPUT_TREE_EVIDENCE = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_tree_decision_paths_evidence.json"
 OUTPUT_SHAP_SUMMARY = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_summary.json"
 OUTPUT_SHAP_FULL = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_attributions.json"
+OUTPUT_COVARIATE_SCORECARD = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_covariate_shift_scorecard.json"
+OUTPUT_COVARIATE_FULL = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_covariate_shift_full.json"
 
 
 def compute_file_sha256(path: Path) -> str:
@@ -580,5 +582,61 @@ class TestM6OperationalReadiness:
         # Check raw text doesn't contain the unapproved 'Proof' phrasing
         assert "Training Representation Bias Proof" not in OUTPUT_TREE_ANALYSIS.read_text(encoding="utf-8")
         assert "Training Representation Bias Proof" not in OUTPUT_SHAP_SUMMARY.read_text(encoding="utf-8")
+
+    def test_stage2_covariate_shift_scorecard_and_artifacts(self):
+        """Stage 2: Verify presence, structure, and empirical findings of class-separated covariate shift."""
+        assert OUTPUT_COVARIATE_SCORECARD.exists(), f"Missing scorecard: {OUTPUT_COVARIATE_SCORECARD}"
+        assert OUTPUT_COVARIATE_FULL.exists(), f"Missing full covariate data: {OUTPUT_COVARIATE_FULL}"
+
+        sc = json.loads(OUTPUT_COVARIATE_SCORECARD.read_text(encoding="utf-8"))
+        assert sc["stage"] == "STAGE_2_CLASS_SEPARATED_COVARIATE_SHIFT"
+        assert sc["governance_status"] == "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED"
+
+        # Model and dataset hash verification
+        assert sc["models"]["e0_sha256"] == EXPECTED_E0_SHA
+        assert sc["models"]["e4_sha256"] == EXPECTED_E4_SHA
+        assert sc["dataset_hashes"]["training_split_sha256"] == EXPECTED_TRAIN_SHA
+        assert sc["dataset_hashes"]["m5_1_qualified_benchmark_sha256"] == EXPECTED_M5_1_BENCH_SHA
+
+        # Sample counts
+        counts = sc["sample_counts"]
+        assert counts["legitimate"]["reference_training_n"] == 94523
+        assert counts["legitimate"]["evaluation_external_n"] == 650
+        assert counts["phishing"]["reference_training_n"] == 76092
+        assert counts["phishing"]["evaluation_external_n"] == 650
+
+        # Legitimate partition shift properties
+        legit_table = sc["scorecard_table"]["legitimate_features"]
+        assert len(legit_table) == 18
+
+        legit_features = {r["feature"]: r for r in legit_table}
+        # Verify severe drift in key structural features
+        assert legit_features["SpacialCharRatioInURL"]["psi_severity"] == "SEVERE_SHIFT"
+        assert legit_features["SpacialCharRatioInURL"]["psi"] > 5.0
+        assert legit_features["NoOfOtherSpecialCharsInURL"]["psi_severity"] == "SEVERE_SHIFT"
+        assert legit_features["NoOfOtherSpecialCharsInURL"]["psi"] > 4.0
+        assert legit_features["NoOfSubDomain"]["psi_severity"] == "SEVERE_SHIFT"
+        assert legit_features["NoOfEqualsInURL"]["psi_severity"] == "SEVERE_SHIFT"
+        assert legit_features["NoOfQMarkInURL"]["psi_severity"] == "SEVERE_SHIFT"
+        assert legit_features["URLLength"]["psi_severity"] == "SEVERE_SHIFT"
+        assert legit_features["DomainLength"]["psi_severity"] == "SEVERE_SHIFT"
+
+        # Phishing partition shift properties
+        phish_table = sc["scorecard_table"]["phishing_features"]
+        assert len(phish_table) == 18
+
+        # Asymmetric drift: legitimate overall shift is substantially higher than phishing
+        legit_mean_psi = sc["legitimate_partition_summary"]["overall_metrics"]["mean_psi"]
+        phish_mean_psi = sc["phishing_partition_summary"]["overall_metrics"]["mean_psi"]
+        assert legit_mean_psi > 1.0, f"Expected severe legitimate mean PSI (>1.0), got {legit_mean_psi}"
+        assert phish_mean_psi < 0.30, f"Expected moderate phishing mean PSI (<0.30), got {phish_mean_psi}"
+        assert legit_mean_psi > 5 * phish_mean_psi, "Legitimate drift must be substantially larger than phishing drift"
+
+        # Check observational diagnostics wording
+        obs = sc["observational_diagnostics"]
+        assert "Empirical quantification reveals severe covariate shift" in obs["legitimate_partition_shift"]
+        assert "phishing URLs exhibit substantially milder covariate drift" in obs["phishing_partition_shift"]
+        assert "highly asymmetric" in obs["asymmetric_drift_implication"]
+
 
 

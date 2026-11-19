@@ -150,6 +150,7 @@ def compute_psi(
     ref: np.ndarray,
     eval_data: np.ndarray,
     num_bins: int = 10,
+    feature_name: Optional[str] = None,
 ) -> Tuple[float, str]:
     """
     Compute Population Stability Index (PSI) with epsilon zero-count smoothing.
@@ -165,6 +166,10 @@ def compute_psi(
     Handles constant features:
         - If Q has zero variance and P is identical: returns (0.0, 'CONSTANT_IDENTICAL')
         - If Q has zero variance and P differs: returns (inf, 'CONSTANT_DEGENERATE_SHIFT')
+
+    Discrete and binary features:
+        - Exact categorical bins [0, 1] for binary features: IsDomainIP, HasObfuscation, IsHTTPS.
+        - Tail-separated quantile bins for sparse discrete count features when quantiles collapse.
     """
     ref = np.asarray(ref, dtype=float)
     eval_data = np.asarray(eval_data, dtype=float)
@@ -176,17 +181,31 @@ def compute_psi(
         else:
             return float("inf"), "CONSTANT_DEGENERATE_SHIFT"
 
-    # Derive 10 quantile bins from reference population
-    quantiles = np.linspace(0, 100, num_bins + 1)
-    bin_edges = np.unique(np.percentile(ref, quantiles))
-
-    if len(bin_edges) < 2:
-        if np.all(eval_data == ref[0]):
-            return 0.0, "COLLAPSED_BINS_IDENTICAL"
-        return float("inf"), "COLLAPSED_BINS_DEGENERATE"
-
-    bin_edges[0] = -np.inf
-    bin_edges[-1] = np.inf
+    binary_features = {"IsDomainIP", "HasObfuscation", "IsHTTPS"}
+    if feature_name in binary_features:
+        bin_edges = np.array([-np.inf, 0.5, np.inf])
+    else:
+        quantiles = np.linspace(0, 100, num_bins + 1)
+        raw_edges = np.unique(np.percentile(ref, quantiles))
+        if len(raw_edges) >= 3:
+            bin_edges = raw_edges.copy()
+            bin_edges[0] = -np.inf
+            bin_edges[-1] = np.inf
+        else:
+            u_vals = np.unique(ref)
+            if len(u_vals) <= 1:
+                if np.all(eval_data == ref[0]):
+                    return 0.0, "CONSTANT_IDENTICAL"
+                return float("inf"), "CONSTANT_DEGENERATE_SHIFT"
+            elif len(u_vals) <= num_bins + 1:
+                midpoints = (u_vals[:-1] + u_vals[1:]) / 2.0
+                bin_edges = np.concatenate([[-np.inf], midpoints, [np.inf]])
+            else:
+                pos = ref[ref > 0]
+                pos_edges = np.unique(np.percentile(pos, np.linspace(0, 100, num_bins)))
+                mid_zero = 0.5 if np.min(pos) >= 1.0 else float(np.min(pos) / 2.0)
+                tail = pos_edges[pos_edges > mid_zero]
+                bin_edges = np.concatenate([[-np.inf, mid_zero], tail, [np.inf]])
 
     ref_counts, _ = np.histogram(ref, bins=bin_edges)
     eval_counts, _ = np.histogram(eval_data, bins=bin_edges)
