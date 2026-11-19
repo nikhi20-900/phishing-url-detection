@@ -485,19 +485,59 @@ class TestM6OperationalReadiness:
             assert np.allclose(mat_e0, mat_e0.T, atol=1e-5), "TreeSHAP interaction matrix must be symmetric"
             assert np.allclose(mat_e4, mat_e4.T, atol=1e-5), "TreeSHAP interaction matrix must be symmetric"
 
+        # Explicit TreeSHAP Interaction Numerical Integrity Verification
+        num_ver = iv["numerical_integrity_verification"]
+        assert num_ver["status"] == "ALL_IDENTITIES_VERIFIED_WITHIN_TOLERANCE"
+
+        # 1. Five Archetypal Cases Numerical Checks
+        cases_ver = num_ver["archetypal_cases"]
+        assert cases_ver["sample_count"] == 5
+        assert cases_ver["e0"]["max_symmetry_error"] <= 1e-05
+        assert cases_ver["e0"]["max_row_sum_error"] <= 1e-05
+        assert cases_ver["e0"]["max_prediction_error"] <= 1e-05
+        assert cases_ver["e4"]["max_symmetry_error"] <= 1e-05
+        assert cases_ver["e4"]["max_row_sum_error"] <= 1e-05
+        assert cases_ver["e4"]["max_prediction_error"] <= 1e-05
+
+        # 2. 100-Record Cohort Numerical Checks
+        cohort_ver = num_ver["cohort_100_records"]
+        assert cohort_ver["sample_count"] == 100
+        assert cohort_ver["e0"]["max_symmetry_error"] <= 1e-05
+        assert cohort_ver["e0"]["max_row_sum_error"] <= 1e-05
+        assert cohort_ver["e0"]["max_prediction_error"] <= 1e-05
+        assert cohort_ver["e4"]["max_symmetry_error"] <= 1e-05
+        assert cohort_ver["e4"]["max_row_sum_error"] <= 1e-05
+        assert cohort_ver["e4"]["max_prediction_error"] <= 1e-05
+
+        # 3. Observational Finding Check
+        obs = iv["observational_finding"]
+        assert "E4 exhibits a different interaction structure" in obs
+        assert "The analysis does not establish that synthetic augmentation alone caused this difference" in obs
+
     def test_stage1_tree_path_metrics_and_clarified_denominators(self):
         """Stage 1: Verify clarified denominators, either-feature prevalence, and co-traversal path metrics."""
         analysis = json.loads(OUTPUT_TREE_ANALYSIS.read_text(encoding="utf-8"))
         e0_info = analysis["models"]["frozen_production_control_e0"]
-        h = e0_info["hierarchy"]
+        e4_info = analysis["models"]["candidate_model_e4"]
+        h_e0 = e0_info["hierarchy"]
+        h_e4 = e4_info["hierarchy"]
+
+        # Explicit root IsHTTPS dominance: exactly 22% in both E0 and E4
+        assert h_e0["root_split_dominance"]["IsHTTPS"]["count"] == 22
+        assert h_e0["root_split_dominance"]["IsHTTPS"]["percentage"] == 0.22
+        assert h_e0["root_split_dominance"]["IsHTTPS"]["denominator"] == 100
+
+        assert h_e4["root_split_dominance"]["IsHTTPS"]["count"] == 22
+        assert h_e4["root_split_dominance"]["IsHTTPS"]["percentage"] == 0.22
+        assert h_e4["root_split_dominance"]["IsHTTPS"]["denominator"] == 100
 
         # Explicit denominators
-        assert h["denominators"]["root_split_denominator"] == 100
-        assert h["denominators"]["depth1_split_nodes_denominator"] == 172
-        assert h["denominators"]["top2_split_nodes_denominator"] == 272
+        assert h_e0["denominators"]["root_split_denominator"] == 100
+        assert h_e0["denominators"]["depth1_split_nodes_denominator"] == 172
+        assert h_e0["denominators"]["top2_split_nodes_denominator"] == 272
 
         # Either feature in top 2 levels
-        either = h["trees_with_either_special_or_https_in_top2"]
+        either = h_e0["trees_with_either_special_or_https_in_top2"]
         assert either["count"] == 74
         assert either["denominator"] == 100
         assert np.isclose(either["percentage"], 0.74)

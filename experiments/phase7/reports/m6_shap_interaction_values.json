@@ -2,9 +2,97 @@
   "stage": "STAGE_1_ENSEMBLE_DISSECTION",
   "milestone": "Phase 7 \u2014 M6",
   "analysis_type": "TreeSHAP Second-Order Interaction Values (phi_{i, j})",
-  "created_at_utc": "2026-11-19T05:56:45.441526+00:00",
+  "created_at_utc": "2026-11-19T06:13:29.581124+00:00",
   "methodology": "Exact second-order TreeSHAP interaction computation decomposing prediction space into main effects (diagonal phi_{i, i}) and pairwise non-linear compounding effects (off-diagonal phi_{i, j}). Evaluated strictly on Phishing class probability space (class index 0).",
   "cohort_sample_size": 100,
+  "numerical_integrity_verification": {
+    "archetypal_cases": {
+      "sample_count": 5,
+      "tolerance": 1e-05,
+      "e0": {
+        "max_symmetry_error": 6.108395039783332e-16,
+        "max_row_sum_error": 4.3298697960381105e-15,
+        "max_prediction_error": 1.5654144647214707e-14,
+        "status": "PASS"
+      },
+      "e4": {
+        "max_symmetry_error": 9.52363188311267e-16,
+        "max_row_sum_error": 3.774758283725532e-15,
+        "max_prediction_error": 1.8762769116165146e-14,
+        "status": "PASS"
+      },
+      "individual_case_results": [
+        {
+          "url": "https://belgium.be/",
+          "sector": "government_public_stats",
+          "e0_symmetry_error": 8.760353553682876e-17,
+          "e0_row_sum_error": 9.159339953157541e-16,
+          "e0_prediction_error": 3.774758283725532e-15,
+          "e4_symmetry_error": 1.249000902703301e-16,
+          "e4_row_sum_error": 3.774758283725532e-15,
+          "e4_prediction_error": 2.886579864025407e-15
+        },
+        {
+          "url": "https://www.edpsciences.org/en",
+          "sector": "academic_research",
+          "e0_symmetry_error": 6.108395039783332e-16,
+          "e0_row_sum_error": 4.3298697960381105e-15,
+          "e0_prediction_error": 1.5654144647214707e-14,
+          "e4_symmetry_error": 7.511352650979575e-16,
+          "e4_row_sum_error": 2.942091015256665e-15,
+          "e4_prediction_error": 1.1102230246251565e-14
+        },
+        {
+          "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194",
+          "sector": "banking_finance",
+          "e0_symmetry_error": 4.85722573273506e-17,
+          "e0_row_sum_error": 2.040034807748725e-15,
+          "e0_prediction_error": 8.881784197001252e-16,
+          "e4_symmetry_error": 3.9898639947466563e-17,
+          "e4_row_sum_error": 2.9282132274488504e-15,
+          "e4_prediction_error": 3.9968028886505635e-15
+        },
+        {
+          "url": "https://www.farfetch.com/",
+          "sector": "ecommerce_retail",
+          "e0_symmetry_error": 4.649058915617843e-16,
+          "e0_row_sum_error": 2.831068712794149e-15,
+          "e0_prediction_error": 1.1102230246251565e-15,
+          "e4_symmetry_error": 9.52363188311267e-16,
+          "e4_row_sum_error": 1.9984014443252818e-15,
+          "e4_prediction_error": 1.8762769116165146e-14
+        },
+        {
+          "url": "https://www.openbsd.org/?lang=en",
+          "sector": "technical_documentation",
+          "e0_symmetry_error": 1.7780915628762273e-16,
+          "e0_row_sum_error": 7.047314121155779e-16,
+          "e0_prediction_error": 4.440892098500626e-16,
+          "e4_symmetry_error": 1.238158880978446e-16,
+          "e4_row_sum_error": 1.6653345369377348e-15,
+          "e4_prediction_error": 1.7763568394002505e-15
+        }
+      ]
+    },
+    "cohort_100_records": {
+      "sample_count": 100,
+      "tolerance": 1e-05,
+      "e0": {
+        "max_symmetry_error": 7.424616477180734e-16,
+        "max_row_sum_error": 5.828670879282072e-15,
+        "max_prediction_error": 1.6431300764452317e-14,
+        "status": "PASS"
+      },
+      "e4": {
+        "max_symmetry_error": 9.52363188311267e-16,
+        "max_row_sum_error": 5.773159728050814e-15,
+        "max_prediction_error": 3.885780586188048e-14,
+        "status": "PASS"
+      }
+    },
+    "status": "ALL_IDENTITIES_VERIFIED_WITHIN_TOLERANCE"
+  },
+  "observational_finding": "E4 exhibits a different interaction structure, with DomainLength appearing prominently among the largest interaction pairs. This is an observed difference between the frozen ensembles and is consistent with a change in learned feature interactions. The analysis does not establish that synthetic augmentation alone caused this difference.",
   "e0_top_compounding_interactions": [
     {
       "feature_1": "NoOfOtherSpecialCharsInURL",

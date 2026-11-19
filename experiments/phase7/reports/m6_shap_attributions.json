@@ -3,8 +3,8 @@
     "stage": "STAGE_1_ENSEMBLE_DISSECTION",
     "milestone": "Phase 7 \u2014 M6",
     "analysis_type": "TreeSHAP Global and Local Probability Attribution Analysis",
-    "created_at_utc": "2026-11-19T05:56:45.453845+00:00",
-    "execution_duration_seconds": 68.17317581176758,
+    "created_at_utc": "2026-11-19T06:13:29.593709+00:00",
+    "execution_duration_seconds": 65.93755388259888,
     "governance_status": "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED",
     "models": {
       "e0_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
@@ -21,9 +21,9 @@
     },
     "additivity_verification": {
       "e0_max_error": 1.687538997430238e-14,
-      "e0_mean_error": 1.6369044207704856e-15,
+      "e0_mean_error": 1.6363062747719421e-15,
       "e4_max_error": 5.617728504603292e-14,
-      "e4_mean_error": 2.2931443069204795e-15,
+      "e4_mean_error": 2.2928881016071045e-15,
       "verified_sample_count": 1300,
       "status": "ALL_1300_SAMPLES_SATISFY_ADDITIVITY"
     },
@@ -34,11 +34,11 @@
     "visual_artifacts": {
       "e0_global_beeswarm_plot": {
         "file": "m6_shap_summary_beeswarm_e0.png",
-        "sha256": "bac49ed8bb5e6209e993d4f0342cb89ea724e8e70f53c9f9052b09a32afdb2c0"
+        "sha256": "6e4bb2964c60ddd9657b5d5ee95e279933a73042dd12fb5e46ad3d2d290dc71b"
       },
       "e4_global_beeswarm_plot": {
         "file": "m6_shap_summary_beeswarm_e4.png",
-        "sha256": "97b75cf4efd71c1c804dbdfce0afe897e6dd2b9549d0d7f90692a720a5d58a45"
+        "sha256": "a21d5cab7f11c2c56b38bb5a92aadd85039108c17ad163401bcd95404a5d1310"
       },
       "local_force_plots": [
         {
@@ -397,6 +397,94 @@
         }
       ]
     },
+    "interaction_numerical_integrity": {
+      "archetypal_cases": {
+        "sample_count": 5,
+        "tolerance": 1e-05,
+        "e0": {
+          "max_symmetry_error": 6.108395039783332e-16,
+          "max_row_sum_error": 4.3298697960381105e-15,
+          "max_prediction_error": 1.5654144647214707e-14,
+          "status": "PASS"
+        },
+        "e4": {
+          "max_symmetry_error": 9.52363188311267e-16,
+          "max_row_sum_error": 3.774758283725532e-15,
+          "max_prediction_error": 1.8762769116165146e-14,
+          "status": "PASS"
+        },
+        "individual_case_results": [
+          {
+            "url": "https://belgium.be/",
+            "sector": "government_public_stats",
+            "e0_symmetry_error": 8.760353553682876e-17,
+            "e0_row_sum_error": 9.159339953157541e-16,
+            "e0_prediction_error": 3.774758283725532e-15,
+            "e4_symmetry_error": 1.249000902703301e-16,
+            "e4_row_sum_error": 3.774758283725532e-15,
+            "e4_prediction_error": 2.886579864025407e-15
+          },
+          {
+            "url": "https://www.edpsciences.org/en",
+            "sector": "academic_research",
+            "e0_symmetry_error": 6.108395039783332e-16,
+            "e0_row_sum_error": 4.3298697960381105e-15,
+            "e0_prediction_error": 1.5654144647214707e-14,
+            "e4_symmetry_error": 7.511352650979575e-16,
+            "e4_row_sum_error": 2.942091015256665e-15,
+            "e4_prediction_error": 1.1102230246251565e-14
+          },
+          {
+            "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194",
+            "sector": "banking_finance",
+            "e0_symmetry_error": 4.85722573273506e-17,
+            "e0_row_sum_error": 2.040034807748725e-15,
+            "e0_prediction_error": 8.881784197001252e-16,
+            "e4_symmetry_error": 3.9898639947466563e-17,
+            "e4_row_sum_error": 2.9282132274488504e-15,
+            "e4_prediction_error": 3.9968028886505635e-15
+          },
+          {
+            "url": "https://www.farfetch.com/",
+            "sector": "ecommerce_retail",
+            "e0_symmetry_error": 4.649058915617843e-16,
+            "e0_row_sum_error": 2.831068712794149e-15,
+            "e0_prediction_error": 1.1102230246251565e-15,
+            "e4_symmetry_error": 9.52363188311267e-16,
+            "e4_row_sum_error": 1.9984014443252818e-15,
+            "e4_prediction_error": 1.8762769116165146e-14
+          },
+          {
+            "url": "https://www.openbsd.org/?lang=en",
+            "sector": "technical_documentation",
+            "e0_symmetry_error": 1.7780915628762273e-16,
+            "e0_row_sum_error": 7.047314121155779e-16,
+            "e0_prediction_error": 4.440892098500626e-16,
+            "e4_symmetry_error": 1.238158880978446e-16,
+            "e4_row_sum_error": 1.6653345369377348e-15,
+            "e4_prediction_error": 1.7763568394002505e-15
+          }
+        ]
+      },
+      "cohort_100_records": {
+        "sample_count": 100,
+        "tolerance": 1e-05,
+        "e0": {
+          "max_symmetry_error": 7.424616477180734e-16,
+          "max_row_sum_error": 5.828670879282072e-15,
+          "max_prediction_error": 1.6431300764452317e-14,
+          "status": "PASS"
+        },
+        "e4": {
+          "max_symmetry_error": 9.52363188311267e-16,
+          "max_row_sum_error": 5.773159728050814e-15,
+          "max_prediction_error": 3.885780586188048e-14,
+          "status": "PASS"
+        }
+      },
+      "status": "ALL_IDENTITIES_VERIFIED_WITHIN_TOLERANCE"
+    },
+    "interaction_observational_finding": "E4 exhibits a different interaction structure, with DomainLength appearing prominently among the largest interaction pairs. This is an observed difference between the frozen ensembles and is consistent with a change in learned feature interactions. The analysis does not establish that synthetic augmentation alone caused this difference.",
     "scientific_classification": "Evidence of Training Representation Disparity"
   },
   "stratified_profiles_t_075": {

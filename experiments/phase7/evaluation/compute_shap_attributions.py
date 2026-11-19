@@ -486,6 +486,91 @@ def run_shap_computation() -> Dict[str, Any]:
     top_interactions_e0 = compute_top_interaction_pairs(inter_e0_cohort_0)
     top_interactions_e4 = compute_top_interaction_pairs(inter_e4_cohort_0)
 
+    # C. Explicit Numerical Integrity Verification of TreeSHAP Interactions
+    # 1. Verification on the 5 Archetypal Cases
+    sym_cases_e0 = [float(np.max(np.abs(inter_e0_cases_0[k] - inter_e0_cases_0[k].T))) for k in range(len(case_studies))]
+    row_cases_e0 = [float(np.max(np.abs(np.sum(inter_e0_cases_0[k], axis=1) - shap_e0[archetypal_indices[k]]))) for k in range(len(case_studies))]
+    pred_cases_e0 = [float(abs((base_e0 + np.sum(inter_e0_cases_0[k])) - probs_e0[archetypal_indices[k]])) for k in range(len(case_studies))]
+
+    sym_cases_e4 = [float(np.max(np.abs(inter_e4_cases_0[k] - inter_e4_cases_0[k].T))) for k in range(len(case_studies))]
+    row_cases_e4 = [float(np.max(np.abs(np.sum(inter_e4_cases_0[k], axis=1) - shap_e4[archetypal_indices[k]]))) for k in range(len(case_studies))]
+    pred_cases_e4 = [float(abs((base_e4 + np.sum(inter_e4_cases_0[k])) - probs_e4[archetypal_indices[k]])) for k in range(len(case_studies))]
+
+    cases_verification = {
+        "sample_count": len(case_studies),
+        "tolerance": 1e-05,
+        "e0": {
+            "max_symmetry_error": max(sym_cases_e0),
+            "max_row_sum_error": max(row_cases_e0),
+            "max_prediction_error": max(pred_cases_e0),
+            "status": "PASS",
+        },
+        "e4": {
+            "max_symmetry_error": max(sym_cases_e4),
+            "max_row_sum_error": max(row_cases_e4),
+            "max_prediction_error": max(pred_cases_e4),
+            "status": "PASS",
+        },
+        "individual_case_results": [
+            {
+                "url": case_studies[k]["url"],
+                "sector": case_studies[k]["sector"],
+                "e0_symmetry_error": sym_cases_e0[k],
+                "e0_row_sum_error": row_cases_e0[k],
+                "e0_prediction_error": pred_cases_e0[k],
+                "e4_symmetry_error": sym_cases_e4[k],
+                "e4_row_sum_error": row_cases_e4[k],
+                "e4_prediction_error": pred_cases_e4[k],
+            }
+            for k in range(len(case_studies))
+        ],
+    }
+
+    # 2. Verification on the 100-Record Stratified Cohort
+    probs_cohort_e0 = probs_e0[fp_sector_indices]
+    probs_cohort_e4 = probs_e4[fp_sector_indices]
+
+    sym_cohort_e0 = float(np.max(np.abs(inter_e0_cohort_0 - np.swapaxes(inter_e0_cohort_0, 1, 2))))
+    row_cohort_e0 = float(np.max(np.abs(np.sum(inter_e0_cohort_0, axis=2) - shap_e0[fp_sector_indices])))
+    pred_cohort_e0 = float(np.max(np.abs(base_e0 + np.sum(inter_e0_cohort_0, axis=(1, 2)) - probs_cohort_e0)))
+
+    sym_cohort_e4 = float(np.max(np.abs(inter_e4_cohort_0 - np.swapaxes(inter_e4_cohort_0, 1, 2))))
+    row_cohort_e4 = float(np.max(np.abs(np.sum(inter_e4_cohort_0, axis=2) - shap_e4[fp_sector_indices])))
+    pred_cohort_e4 = float(np.max(np.abs(base_e4 + np.sum(inter_e4_cohort_0, axis=(1, 2)) - probs_cohort_e4)))
+
+    cohort_verification = {
+        "sample_count": len(fp_sector_indices),
+        "tolerance": 1e-05,
+        "e0": {
+            "max_symmetry_error": sym_cohort_e0,
+            "max_row_sum_error": row_cohort_e0,
+            "max_prediction_error": pred_cohort_e0,
+            "status": "PASS",
+        },
+        "e4": {
+            "max_symmetry_error": sym_cohort_e4,
+            "max_row_sum_error": row_cohort_e4,
+            "max_prediction_error": pred_cohort_e4,
+            "status": "PASS",
+        },
+    }
+
+    # Fail fast assertion checks
+    assert cases_verification["e0"]["max_symmetry_error"] <= 1e-05, "E0 case symmetry violation"
+    assert cases_verification["e0"]["max_row_sum_error"] <= 1e-05, "E0 case row-sum violation"
+    assert cases_verification["e0"]["max_prediction_error"] <= 1e-05, "E0 case prediction reconstruction violation"
+    assert cases_verification["e4"]["max_symmetry_error"] <= 1e-05, "E4 case symmetry violation"
+    assert cases_verification["e4"]["max_row_sum_error"] <= 1e-05, "E4 case row-sum violation"
+    assert cases_verification["e4"]["max_prediction_error"] <= 1e-05, "E4 case prediction reconstruction violation"
+    assert cohort_verification["e0"]["max_symmetry_error"] <= 1e-05, "E0 cohort symmetry violation"
+    assert cohort_verification["e0"]["max_row_sum_error"] <= 1e-05, "E0 cohort row-sum violation"
+    assert cohort_verification["e0"]["max_prediction_error"] <= 1e-05, "E0 cohort prediction reconstruction violation"
+    assert cohort_verification["e4"]["max_symmetry_error"] <= 1e-05, "E4 cohort symmetry violation"
+    assert cohort_verification["e4"]["max_row_sum_error"] <= 1e-05, "E4 cohort row-sum violation"
+    assert cohort_verification["e4"]["max_prediction_error"] <= 1e-05, "E4 cohort prediction reconstruction violation"
+
+    print(f"[PASS] TreeSHAP interaction numerical integrity verified (Max Cohort Error: E0={pred_cohort_e0:.2e}, E4={pred_cohort_e4:.2e} <= 1e-05)")
+
     # Save dedicated interaction values artifact
     interaction_payload = {
         "stage": "STAGE_1_ENSEMBLE_DISSECTION",
@@ -498,6 +583,16 @@ def run_shap_computation() -> Dict[str, Any]:
             "Evaluated strictly on Phishing class probability space (class index 0)."
         ),
         "cohort_sample_size": len(fp_sector_indices),
+        "numerical_integrity_verification": {
+            "archetypal_cases": cases_verification,
+            "cohort_100_records": cohort_verification,
+            "status": "ALL_IDENTITIES_VERIFIED_WITHIN_TOLERANCE",
+        },
+        "observational_finding": (
+            "E4 exhibits a different interaction structure, with DomainLength appearing prominently among the largest "
+            "interaction pairs. This is an observed difference between the frozen ensembles and is consistent with a change "
+            "in learned feature interactions. The analysis does not establish that synthetic augmentation alone caused this difference."
+        ),
         "e0_top_compounding_interactions": top_interactions_e0[:15],
         "e4_top_compounding_interactions": top_interactions_e4[:15],
         "archetypal_case_interaction_matrices": {
@@ -591,6 +686,16 @@ def run_shap_computation() -> Dict[str, Any]:
             "e0_top5": top_interactions_e0[:5],
             "e4_top5": top_interactions_e4[:5],
         },
+        "interaction_numerical_integrity": {
+            "archetypal_cases": cases_verification,
+            "cohort_100_records": cohort_verification,
+            "status": "ALL_IDENTITIES_VERIFIED_WITHIN_TOLERANCE",
+        },
+        "interaction_observational_finding": (
+            "E4 exhibits a different interaction structure, with DomainLength appearing prominently among the largest "
+            "interaction pairs. This is an observed difference between the frozen ensembles and is consistent with a change "
+            "in learned feature interactions. The analysis does not establish that synthetic augmentation alone caused this difference."
+        ),
         "scientific_classification": "Evidence of Training Representation Disparity",
     }
 
