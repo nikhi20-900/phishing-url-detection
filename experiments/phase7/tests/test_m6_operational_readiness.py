@@ -56,6 +56,12 @@ EXPECTED_M5_1_BENCH_SHA = "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e6
 EXPECTED_FEATURES_SRC_SHA = "f581fd8e38640623e0831767baf242424b5b18262ea7532a533d916d2faabe68"
 
 
+OUTPUT_TREE_ANALYSIS = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_tree_path_analysis.json"
+OUTPUT_TREE_EVIDENCE = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_tree_decision_paths_evidence.json"
+OUTPUT_SHAP_SUMMARY = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_summary.json"
+OUTPUT_SHAP_FULL = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_attributions.json"
+
+
 def compute_file_sha256(path: Path) -> str:
     import hashlib
     sha = hashlib.sha256()
@@ -363,3 +369,58 @@ class TestM6OperationalReadiness:
         assert "rf_augmented_e4.joblib" in candidate_names
         # Ensure no newly spawned models
         assert not any(f.name.startswith("m6_") for f in candidate_files), "New models improperly created in candidates dir!"
+
+    def test_stage1_decision_path_artifacts_and_metrics(self):
+        """Stage 1: Assert decision-path artifacts exist and reflect empirical false-positive properties."""
+        assert OUTPUT_TREE_ANALYSIS.exists(), f"Missing decision path analysis: {OUTPUT_TREE_ANALYSIS}"
+        assert OUTPUT_TREE_EVIDENCE.exists(), f"Missing decision path evidence: {OUTPUT_TREE_EVIDENCE}"
+
+        analysis = json.loads(OUTPUT_TREE_ANALYSIS.read_text(encoding="utf-8"))
+        assert analysis["stage"] == "STAGE_1_ENSEMBLE_DISSECTION"
+        assert analysis["governance_status"] == "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED"
+
+        e0_info = analysis["models"]["frozen_production_control_e0"]
+        e4_info = analysis["models"]["candidate_model_e4"]
+
+        # Exact false positive counts at T=0.75
+        assert e0_info["false_positives_t_075"] == 612
+        assert e4_info["false_positives_t_075"] == 602
+
+        # Unanimous voting rates (>= 90% tree votes)
+        assert e0_info["vote_distribution"]["unanimous_phishing_ge_090"] >= 0.85
+        assert e4_info["vote_distribution"]["unanimous_phishing_ge_090"] >= 0.80
+
+        # Mean vote fraction
+        assert e0_info["vote_distribution"]["mean_phish_vote_fraction"] > 0.95
+        assert e4_info["vote_distribution"]["mean_phish_vote_fraction"] > 0.90
+
+        # Structural split hierarchy
+        assert e0_info["hierarchy"]["tree_count"] == 100
+        assert e4_info["hierarchy"]["tree_count"] == 100
+        assert "IsHTTPS" in e0_info["hierarchy"]["root_split_dominance"]
+
+    def test_stage1_shap_attribution_artifacts_and_additivity(self):
+        """Stage 1: Assert SHAP attribution artifacts exist, satisfy additivity, and document false-positive drivers."""
+        assert OUTPUT_SHAP_SUMMARY.exists(), f"Missing SHAP summary: {OUTPUT_SHAP_SUMMARY}"
+        assert OUTPUT_SHAP_FULL.exists(), f"Missing full SHAP attributions: {OUTPUT_SHAP_FULL}"
+
+        summary = json.loads(OUTPUT_SHAP_SUMMARY.read_text(encoding="utf-8"))
+        assert summary["stage"] == "STAGE_1_ENSEMBLE_DISSECTION"
+
+        additivity = summary["additivity_verification"]
+        assert additivity["status"] == "ALL_1300_SAMPLES_SATISFY_ADDITIVITY"
+        assert additivity["e0_max_error"] <= 1e-05
+        assert additivity["e4_max_error"] <= 1e-05
+        assert additivity["verified_sample_count"] == 1300
+
+        # Archetypal case studies: exactly 5 distinct sectors represented
+        case_studies = summary["archetypal_case_studies_summary"]
+        assert len(case_studies) == 5
+        sectors = {cs["sector"] for cs in case_studies}
+        assert len(sectors) == 5
+
+        # Key drivers pushing legitimate URLs into phishing
+        e0_drivers = [d[0] for d in summary["false_positive_drivers_t_075"]["e0_top_pushing_features"]]
+        assert "NoOfOtherSpecialCharsInURL" in e0_drivers
+        assert "DomainLength" in e0_drivers
+

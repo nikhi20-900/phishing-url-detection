@@ -1,0 +1,2417 @@
+{
+  "summary": {
+    "stage": "STAGE_1_ENSEMBLE_DISSECTION",
+    "milestone": "Phase 7 \u2014 M6",
+    "analysis_type": "TreeSHAP Global and Local Probability Attribution Analysis",
+    "created_at_utc": "2026-11-19T05:34:30.491147+00:00",
+    "execution_duration_seconds": 22.945339918136597,
+    "governance_status": "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED",
+    "models": {
+      "e0_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "e4_sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b"
+    },
+    "benchmark_sha256": "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88",
+    "explainer_parameters": {
+      "explainer_type": "TreeExplainer",
+      "feature_perturbation": "tree_path_dependent",
+      "model_output": "raw_probability",
+      "class_index": 0,
+      "target_class": "Phishing",
+      "numerical_tolerance": 1e-05
+    },
+    "additivity_verification": {
+      "e0_max_error": 1.687538997430238e-14,
+      "e0_mean_error": 1.6369044207704856e-15,
+      "e4_max_error": 5.617728504603292e-14,
+      "e4_mean_error": 2.2929735033782294e-15,
+      "verified_sample_count": 1300,
+      "status": "ALL_1300_SAMPLES_SATISFY_ADDITIVITY"
+    },
+    "base_values": {
+      "e0_expected_value_phi0": 0.42696148617071,
+      "e4_expected_value_phi0": 0.4460259648917151
+    },
+    "global_importance_rankings": {
+      "e0_top5": [
+        [
+          "NoOfOtherSpecialCharsInURL",
+          0.12399434182806437
+        ],
+        [
+          "NoOfSubDomain",
+          0.10657899446774541
+        ],
+        [
+          "SpacialCharRatioInURL",
+          0.09387649998437492
+        ],
+        [
+          "IsHTTPS",
+          0.08408411135743707
+        ],
+        [
+          "DomainLength",
+          0.0807101447912329
+        ]
+      ],
+      "e4_top5": [
+        [
+          "DomainLength",
+          0.14000384499290827
+        ],
+        [
+          "LetterRatioInURL",
+          0.08368495605904233
+        ],
+        [
+          "NoOfOtherSpecialCharsInURL",
+          0.08137631451334006
+        ],
+        [
+          "NoOfSubDomain",
+          0.08060525601672656
+        ],
+        [
+          "IsHTTPS",
+          0.07153907519429215
+        ]
+      ]
+    },
+    "false_positive_drivers_t_075": {
+      "e0_top_pushing_features": [
+        [
+          "NoOfOtherSpecialCharsInURL",
+          0.13749951357801996
+        ],
+        [
+          "DomainLength",
+          0.12355968662941581
+        ],
+        [
+          "SpacialCharRatioInURL",
+          0.12163978924024077
+        ],
+        [
+          "NoOfSubDomain",
+          0.10814650378730643
+        ],
+        [
+          "LetterRatioInURL",
+          0.049921073525319846
+        ]
+      ],
+      "e4_top_pushing_features": [
+        [
+          "DomainLength",
+          0.2091419258156128
+        ],
+        [
+          "NoOfSubDomain",
+          0.08120243190983736
+        ],
+        [
+          "NoOfOtherSpecialCharsInURL",
+          0.08000980976129153
+        ],
+        [
+          "SpacialCharRatioInURL",
+          0.0635318425023815
+        ],
+        [
+          "LetterRatioInURL",
+          0.06071672492339881
+        ]
+      ]
+    },
+    "archetypal_case_studies_summary": [
+      {
+        "sector": "government_public_stats",
+        "url": "https://belgium.be/",
+        "e0_phish_prob": 1.0,
+        "e4_phish_prob": 1.0,
+        "top_driver_e0": [
+          "NoOfSubDomain",
+          0.4392554359191702
+        ]
+      },
+      {
+        "sector": "academic_research",
+        "url": "https://www.edpsciences.org/en",
+        "e0_phish_prob": 0.9800626959247648,
+        "e4_phish_prob": 1.0,
+        "top_driver_e0": [
+          "DomainLength",
+          0.2871389732442066
+        ]
+      },
+      {
+        "sector": "banking_finance",
+        "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194",
+        "e0_phish_prob": 1.0,
+        "e4_phish_prob": 1.0,
+        "top_driver_e0": [
+          "NoOfOtherSpecialCharsInURL",
+          0.16095490154801614
+        ]
+      },
+      {
+        "sector": "ecommerce_retail",
+        "url": "https://www.farfetch.com/",
+        "e0_phish_prob": 1.0,
+        "e4_phish_prob": 0.99,
+        "top_driver_e0": [
+          "DomainLength",
+          0.33004110802187653
+        ]
+      },
+      {
+        "sector": "technical_documentation",
+        "url": "https://www.openbsd.org/?lang=en",
+        "e0_phish_prob": 0.97,
+        "e4_phish_prob": 0.97,
+        "top_driver_e0": [
+          "SpacialCharRatioInURL",
+          0.2551631453564792
+        ]
+      }
+    ],
+    "top_shap_correlations": [
+      {
+        "feat1": "NoOfDegitsInURL",
+        "feat2": "DegitRatioInURL",
+        "pearson_r": 0.9940077810610902
+      },
+      {
+        "feat1": "NoOfEqualsInURL",
+        "feat2": "NoOfQMarkInURL",
+        "pearson_r": 0.9567201089730087
+      },
+      {
+        "feat1": "URLLength",
+        "feat2": "NoOfLettersInURL",
+        "pearson_r": 0.7808127854222655
+      },
+      {
+        "feat1": "NoOfLettersInURL",
+        "feat2": "LetterRatioInURL",
+        "pearson_r": 0.7188843568522749
+      },
+      {
+        "feat1": "DomainLength",
+        "feat2": "NoOfDegitsInURL",
+        "pearson_r": -0.5452750122777837
+      }
+    ]
+  },
+  "stratified_profiles_t_075": {
+    "e0": {
+      "true_positives": {
+        "count": 631,
+        "mean_shap": {
+          "URLLength": 0.02182127067205376,
+          "DomainLength": 0.030962136851707164,
+          "IsDomainIP": -3.4588885680517593e-07,
+          "TLDLength": 0.012275433804159649,
+          "NoOfSubDomain": 0.10827230246081253,
+          "HasObfuscation": 7.482155000865323e-06,
+          "NoOfObfuscatedChar": -3.0558879490807373e-07,
+          "ObfuscationRatio": -1.9359328122409542e-07,
+          "NoOfLettersInURL": 0.03210637380652351,
+          "LetterRatioInURL": 0.07201590506865409,
+          "NoOfDegitsInURL": 0.061417425145990336,
+          "DegitRatioInURL": 0.0488361812975813,
+          "NoOfEqualsInURL": 0.0004998522132716341,
+          "NoOfQMarkInURL": 0.0017766604130770953,
+          "NoOfAmpersandInURL": 7.252397290245979e-07,
+          "NoOfOtherSpecialCharsInURL": 0.10590494869067614,
+          "SpacialCharRatioInURL": 0.06295465099740281,
+          "IsHTTPS": 0.005923294960706277
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.024661713730768954,
+          "DomainLength": 0.03546114687846383,
+          "IsDomainIP": 1.4098815280353375e-06,
+          "TLDLength": 0.013269650398632708,
+          "NoOfSubDomain": 0.10971822438985497,
+          "HasObfuscation": 1.0878325764209695e-05,
+          "NoOfObfuscatedChar": 3.869484819370022e-07,
+          "ObfuscationRatio": 2.3944695218311603e-07,
+          "NoOfLettersInURL": 0.035091414321749434,
+          "LetterRatioInURL": 0.08216915048826366,
+          "NoOfDegitsInURL": 0.07733855391175821,
+          "DegitRatioInURL": 0.062184869992463726,
+          "NoOfEqualsInURL": 0.0007083014552462012,
+          "NoOfQMarkInURL": 0.002295940240578791,
+          "NoOfAmpersandInURL": 1.480925810668893e-05,
+          "NoOfOtherSpecialCharsInURL": 0.11394121736349108,
+          "SpacialCharRatioInURL": 0.06776909233936386,
+          "IsHTTPS": 0.09889395707585871
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfSubDomain",
+            0.10827230246081253
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.10590494869067614
+          ],
+          [
+            "LetterRatioInURL",
+            0.07201590506865409
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.06295465099740281
+          ],
+          [
+            "NoOfDegitsInURL",
+            0.061417425145990336
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsDomainIP",
+            -3.4588885680517593e-07
+          ],
+          [
+            "NoOfObfuscatedChar",
+            -3.0558879490807373e-07
+          ],
+          [
+            "ObfuscationRatio",
+            -1.9359328122409542e-07
+          ],
+          [
+            "NoOfAmpersandInURL",
+            7.252397290245979e-07
+          ],
+          [
+            "HasObfuscation",
+            7.482155000865323e-06
+          ]
+        ]
+      },
+      "false_positives": {
+        "count": 612,
+        "mean_shap": {
+          "URLLength": 0.023483825675216563,
+          "DomainLength": 0.12355968662941581,
+          "IsDomainIP": -1.0839129740219902e-06,
+          "TLDLength": 0.00786175220086452,
+          "NoOfSubDomain": 0.10814650378730643,
+          "HasObfuscation": 2.1688190154982074e-06,
+          "NoOfObfuscatedChar": -1.905286785406406e-07,
+          "ObfuscationRatio": -1.8452368728288105e-07,
+          "NoOfLettersInURL": 0.030461217263816075,
+          "LetterRatioInURL": 0.049921073525319846,
+          "NoOfDegitsInURL": -0.003202517464125428,
+          "DegitRatioInURL": -0.00492742992045971,
+          "NoOfEqualsInURL": 0.0045925936910364736,
+          "NoOfQMarkInURL": 0.014420164107924289,
+          "NoOfAmpersandInURL": 3.7503576863062314e-06,
+          "NoOfOtherSpecialCharsInURL": 0.13749951357801996,
+          "SpacialCharRatioInURL": 0.12163978924024077,
+          "IsHTTPS": -0.06461825782368055
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.025934398193134298,
+          "DomainLength": 0.12355968662941581,
+          "IsDomainIP": 1.0839129740219902e-06,
+          "TLDLength": 0.016808007801236122,
+          "NoOfSubDomain": 0.10973797822086855,
+          "HasObfuscation": 4.448060885675925e-06,
+          "NoOfObfuscatedChar": 2.438437367750413e-07,
+          "ObfuscationRatio": 2.0665957322723518e-07,
+          "NoOfLettersInURL": 0.035275049181623656,
+          "LetterRatioInURL": 0.061637304576312356,
+          "NoOfDegitsInURL": 0.03195191580457239,
+          "DegitRatioInURL": 0.025454034294966354,
+          "NoOfEqualsInURL": 0.004786053829372699,
+          "NoOfQMarkInURL": 0.014862376992611687,
+          "NoOfAmpersandInURL": 1.4095483183698083e-05,
+          "NoOfOtherSpecialCharsInURL": 0.1384326019503786,
+          "SpacialCharRatioInURL": 0.12200868591670347,
+          "IsHTTPS": 0.06461825782368055
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.13749951357801996
+          ],
+          [
+            "DomainLength",
+            0.12355968662941581
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.12163978924024077
+          ],
+          [
+            "NoOfSubDomain",
+            0.10814650378730643
+          ],
+          [
+            "LetterRatioInURL",
+            0.049921073525319846
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.06461825782368055
+          ],
+          [
+            "DegitRatioInURL",
+            -0.00492742992045971
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.003202517464125428
+          ],
+          [
+            "IsDomainIP",
+            -1.0839129740219902e-06
+          ],
+          [
+            "NoOfObfuscatedChar",
+            -1.905286785406406e-07
+          ]
+        ]
+      },
+      "true_negatives": {
+        "count": 38,
+        "mean_shap": {
+          "URLLength": -0.03731314234861567,
+          "DomainLength": 0.159566757909354,
+          "IsDomainIP": -7.785410783360912e-06,
+          "TLDLength": -0.027786248274258164,
+          "NoOfSubDomain": 0.021820246979944752,
+          "HasObfuscation": -1.344953363807233e-06,
+          "NoOfObfuscatedChar": -5.98858387305842e-07,
+          "ObfuscationRatio": -4.7659871080063824e-08,
+          "NoOfLettersInURL": -0.07528557529597753,
+          "LetterRatioInURL": -0.09118861682701142,
+          "NoOfDegitsInURL": -0.03760027915433789,
+          "DegitRatioInURL": -0.03146902102885693,
+          "NoOfEqualsInURL": 0.00040342153531700773,
+          "NoOfQMarkInURL": 0.004706577124293445,
+          "NoOfAmpersandInURL": -7.574126317959457e-06,
+          "NoOfOtherSpecialCharsInURL": 0.05200103725662237,
+          "SpacialCharRatioInURL": 0.09419801643902392,
+          "IsHTTPS": -0.13049543990729093
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.037661776378528855,
+          "DomainLength": 0.159566757909354,
+          "IsDomainIP": 7.785410783360912e-06,
+          "TLDLength": 0.034419593510183255,
+          "NoOfSubDomain": 0.05160258383192623,
+          "HasObfuscation": 1.344953363807233e-06,
+          "NoOfObfuscatedChar": 5.98858387305842e-07,
+          "ObfuscationRatio": 4.7659871080063824e-08,
+          "NoOfLettersInURL": 0.07849729538045097,
+          "LetterRatioInURL": 0.09329882232658247,
+          "NoOfDegitsInURL": 0.03760027915433789,
+          "DegitRatioInURL": 0.03146902102885693,
+          "NoOfEqualsInURL": 0.0009602674831769258,
+          "NoOfQMarkInURL": 0.005918749501051784,
+          "NoOfAmpersandInURL": 7.574126317959457e-06,
+          "NoOfOtherSpecialCharsInURL": 0.07642412087465049,
+          "SpacialCharRatioInURL": 0.100598855148601,
+          "IsHTTPS": 0.13049543990729093
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.159566757909354
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.09419801643902392
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.05200103725662237
+          ],
+          [
+            "NoOfSubDomain",
+            0.021820246979944752
+          ],
+          [
+            "NoOfQMarkInURL",
+            0.004706577124293445
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.13049543990729093
+          ],
+          [
+            "LetterRatioInURL",
+            -0.09118861682701142
+          ],
+          [
+            "NoOfLettersInURL",
+            -0.07528557529597753
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.03760027915433789
+          ],
+          [
+            "URLLength",
+            -0.03731314234861567
+          ]
+        ]
+      },
+      "false_negatives": {
+        "count": 19,
+        "mean_shap": {
+          "URLLength": -0.016459324714071355,
+          "DomainLength": 0.00183444677819651,
+          "IsDomainIP": -2.2168572391513448e-06,
+          "TLDLength": 0.0021621580347215693,
+          "NoOfSubDomain": -0.001968925663959406,
+          "HasObfuscation": -1.1604938994253411e-05,
+          "NoOfObfuscatedChar": -3.065791045839129e-07,
+          "ObfuscationRatio": -1.4599832086529341e-06,
+          "NoOfLettersInURL": 0.0020175975251432977,
+          "LetterRatioInURL": 0.0033638415820425828,
+          "NoOfDegitsInURL": 0.1945259551315437,
+          "DegitRatioInURL": 0.15745749484848667,
+          "NoOfEqualsInURL": -0.00033681456629811686,
+          "NoOfQMarkInURL": -0.0006635665403850184,
+          "NoOfAmpersandInURL": -2.249326938046954e-05,
+          "NoOfOtherSpecialCharsInURL": -0.005333077771325941,
+          "SpacialCharRatioInURL": 0.012786588734070058,
+          "IsHTTPS": -0.1264240708016689
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.021766161446841892,
+          "DomainLength": 0.045533659501799745,
+          "IsDomainIP": 2.2168572391513448e-06,
+          "TLDLength": 0.012142160731591444,
+          "NoOfSubDomain": 0.010523808488721248,
+          "HasObfuscation": 1.1604938994253411e-05,
+          "NoOfObfuscatedChar": 3.065791045839129e-07,
+          "ObfuscationRatio": 1.4599832086529341e-06,
+          "NoOfLettersInURL": 0.019370416073284057,
+          "LetterRatioInURL": 0.04440288539860322,
+          "NoOfDegitsInURL": 0.21148706229995576,
+          "DegitRatioInURL": 0.17384859853573031,
+          "NoOfEqualsInURL": 0.00033681456629811686,
+          "NoOfQMarkInURL": 0.0006635665403850184,
+          "NoOfAmpersandInURL": 2.249326938046954e-05,
+          "NoOfOtherSpecialCharsInURL": 0.08794038069748886,
+          "SpacialCharRatioInURL": 0.0413200229936308,
+          "IsHTTPS": 0.1264240708016689
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfDegitsInURL",
+            0.1945259551315437
+          ],
+          [
+            "DegitRatioInURL",
+            0.15745749484848667
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.012786588734070058
+          ],
+          [
+            "LetterRatioInURL",
+            0.0033638415820425828
+          ],
+          [
+            "TLDLength",
+            0.0021621580347215693
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.1264240708016689
+          ],
+          [
+            "URLLength",
+            -0.016459324714071355
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            -0.005333077771325941
+          ],
+          [
+            "NoOfSubDomain",
+            -0.001968925663959406
+          ],
+          [
+            "NoOfQMarkInURL",
+            -0.0006635665403850184
+          ]
+        ]
+      }
+    },
+    "e4": {
+      "true_positives": {
+        "count": 645,
+        "mean_shap": {
+          "URLLength": 0.028765684779155205,
+          "DomainLength": 0.06553953801666025,
+          "IsDomainIP": -3.0743113021692555e-06,
+          "TLDLength": 0.00979073118509491,
+          "NoOfSubDomain": 0.07996457315800097,
+          "HasObfuscation": -8.813952291249913e-06,
+          "NoOfObfuscatedChar": -3.8094473221210534e-05,
+          "ObfuscationRatio": -9.913710702301786e-05,
+          "NoOfLettersInURL": 0.042554629581869,
+          "LetterRatioInURL": 0.08340354478297016,
+          "NoOfDegitsInURL": 0.06507374111586073,
+          "DegitRatioInURL": 0.046194195570912776,
+          "NoOfEqualsInURL": 0.0005055167039967389,
+          "NoOfQMarkInURL": 0.0015009508742219431,
+          "NoOfAmpersandInURL": -0.000602285324733727,
+          "NoOfOtherSpecialCharsInURL": 0.08039980205189662,
+          "SpacialCharRatioInURL": 0.04177368004578147,
+          "IsHTTPS": 0.004442314942735148
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.029477542987726736,
+          "DomainLength": 0.07045735133727742,
+          "IsDomainIP": 3.950703494039382e-06,
+          "TLDLength": 0.011556480801895842,
+          "NoOfSubDomain": 0.08120911658233576,
+          "HasObfuscation": 3.3794336987138344e-05,
+          "NoOfObfuscatedChar": 4.6385396030320914e-05,
+          "ObfuscationRatio": 0.00010586826179629554,
+          "NoOfLettersInURL": 0.0451071430330392,
+          "LetterRatioInURL": 0.09249370297333594,
+          "NoOfDegitsInURL": 0.0824624792926077,
+          "DegitRatioInURL": 0.0611887188308421,
+          "NoOfEqualsInURL": 0.0008408031260642856,
+          "NoOfQMarkInURL": 0.0015521483700705085,
+          "NoOfAmpersandInURL": 0.001146311787125269,
+          "NoOfOtherSpecialCharsInURL": 0.08322343553445569,
+          "SpacialCharRatioInURL": 0.044142813521286565,
+          "IsHTTPS": 0.08400546521172958
+        },
+        "top_positive_contributors": [
+          [
+            "LetterRatioInURL",
+            0.08340354478297016
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.08039980205189662
+          ],
+          [
+            "NoOfSubDomain",
+            0.07996457315800097
+          ],
+          [
+            "DomainLength",
+            0.06553953801666025
+          ],
+          [
+            "NoOfDegitsInURL",
+            0.06507374111586073
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "NoOfAmpersandInURL",
+            -0.000602285324733727
+          ],
+          [
+            "ObfuscationRatio",
+            -9.913710702301786e-05
+          ],
+          [
+            "NoOfObfuscatedChar",
+            -3.8094473221210534e-05
+          ],
+          [
+            "HasObfuscation",
+            -8.813952291249913e-06
+          ],
+          [
+            "IsDomainIP",
+            -3.0743113021692555e-06
+          ]
+        ]
+      },
+      "false_positives": {
+        "count": 602,
+        "mean_shap": {
+          "URLLength": 0.026530626500724623,
+          "DomainLength": 0.2091419258156128,
+          "IsDomainIP": -4.879993624986809e-06,
+          "TLDLength": 0.004763047766937563,
+          "NoOfSubDomain": 0.08120243190983736,
+          "HasObfuscation": -2.109550693460484e-05,
+          "NoOfObfuscatedChar": 6.174573845897133e-06,
+          "ObfuscationRatio": -6.634758907952295e-05,
+          "NoOfLettersInURL": 0.039453332207227,
+          "LetterRatioInURL": 0.06071672492339881,
+          "NoOfDegitsInURL": -0.005644365585522561,
+          "DegitRatioInURL": -0.008785238701843065,
+          "NoOfEqualsInURL": 0.002856467300235276,
+          "NoOfQMarkInURL": 0.009830273450364515,
+          "NoOfAmpersandInURL": -0.000241692533837754,
+          "NoOfOtherSpecialCharsInURL": 0.08000980976129153,
+          "SpacialCharRatioInURL": 0.0635318425023815,
+          "IsHTTPS": -0.05628382671687218
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.026921946690041814,
+          "DomainLength": 0.2091419258156128,
+          "IsDomainIP": 4.879993624986809e-06,
+          "TLDLength": 0.01846860909266473,
+          "NoOfSubDomain": 0.0837824719915183,
+          "HasObfuscation": 4.9662934736257946e-05,
+          "NoOfObfuscatedChar": 5.914923053631249e-05,
+          "ObfuscationRatio": 8.475678483099255e-05,
+          "NoOfLettersInURL": 0.04377839019759133,
+          "LetterRatioInURL": 0.07377571462446102,
+          "NoOfDegitsInURL": 0.03421405858675078,
+          "DegitRatioInURL": 0.02644590103417142,
+          "NoOfEqualsInURL": 0.004588538820857738,
+          "NoOfQMarkInURL": 0.009940107908008195,
+          "NoOfAmpersandInURL": 0.0014516890028297047,
+          "NoOfOtherSpecialCharsInURL": 0.08168847413869598,
+          "SpacialCharRatioInURL": 0.06379044894020677,
+          "IsHTTPS": 0.05628382671687218
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.2091419258156128
+          ],
+          [
+            "NoOfSubDomain",
+            0.08120243190983736
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.08000980976129153
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.0635318425023815
+          ],
+          [
+            "LetterRatioInURL",
+            0.06071672492339881
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.05628382671687218
+          ],
+          [
+            "DegitRatioInURL",
+            -0.008785238701843065
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.005644365585522561
+          ],
+          [
+            "NoOfAmpersandInURL",
+            -0.000241692533837754
+          ],
+          [
+            "ObfuscationRatio",
+            -6.634758907952295e-05
+          ]
+        ]
+      },
+      "true_negatives": {
+        "count": 48,
+        "mean_shap": {
+          "URLLength": -0.012382548637587204,
+          "DomainLength": 0.207806829575366,
+          "IsDomainIP": -2.1763972119835884e-05,
+          "TLDLength": -0.01918983551096996,
+          "NoOfSubDomain": 0.01695980110345132,
+          "HasObfuscation": -5.597608329942358e-05,
+          "NoOfObfuscatedChar": -5.0737508444842116e-05,
+          "ObfuscationRatio": -0.0002714261513063871,
+          "NoOfLettersInURL": -0.0420424133260096,
+          "LetterRatioInURL": -0.03303077912242896,
+          "NoOfDegitsInURL": -0.0321886278967152,
+          "DegitRatioInURL": -0.02987082250872855,
+          "NoOfEqualsInURL": -0.015190056263808406,
+          "NoOfQMarkInURL": -0.0011958992042225046,
+          "NoOfAmpersandInURL": -0.01794310867225986,
+          "NoOfOtherSpecialCharsInURL": 0.038166101480741024,
+          "SpacialCharRatioInURL": 0.03210561857100066,
+          "IsHTTPS": -0.09257343769157816
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.02096388292951075,
+          "DomainLength": 0.20784496237648498,
+          "IsDomainIP": 2.1763972119835884e-05,
+          "TLDLength": 0.023382402232125215,
+          "NoOfSubDomain": 0.03918639329984309,
+          "HasObfuscation": 8.932785081712528e-05,
+          "NoOfObfuscatedChar": 0.00010873936452147051,
+          "ObfuscationRatio": 0.0002770632506428259,
+          "NoOfLettersInURL": 0.06430235893691352,
+          "LetterRatioInURL": 0.09020785055045205,
+          "NoOfDegitsInURL": 0.0389357192687324,
+          "DegitRatioInURL": 0.03213910103133357,
+          "NoOfEqualsInURL": 0.015223538448993173,
+          "NoOfQMarkInURL": 0.008117210908861265,
+          "NoOfAmpersandInURL": 0.01915475066378639,
+          "NoOfOtherSpecialCharsInURL": 0.046821576968452516,
+          "SpacialCharRatioInURL": 0.03522228144393617,
+          "IsHTTPS": 0.09257343769157816
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.207806829575366
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.038166101480741024
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.03210561857100066
+          ],
+          [
+            "NoOfSubDomain",
+            0.01695980110345132
+          ],
+          [
+            "IsDomainIP",
+            -2.1763972119835884e-05
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.09257343769157816
+          ],
+          [
+            "NoOfLettersInURL",
+            -0.0420424133260096
+          ],
+          [
+            "LetterRatioInURL",
+            -0.03303077912242896
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.0321886278967152
+          ],
+          [
+            "DegitRatioInURL",
+            -0.02987082250872855
+          ]
+        ]
+      },
+      "false_negatives": {
+        "count": 5,
+        "mean_shap": {
+          "URLLength": -0.004319977241556906,
+          "DomainLength": 0.1360018686333087,
+          "IsDomainIP": -2.630970269512416e-05,
+          "TLDLength": -0.00229628054895671,
+          "NoOfSubDomain": -0.006523369960340914,
+          "HasObfuscation": 1.0356212267143014e-05,
+          "NoOfObfuscatedChar": -6.659240938436713e-06,
+          "ObfuscationRatio": -7.970481493768406e-06,
+          "NoOfLettersInURL": 0.0013934914952728108,
+          "LetterRatioInURL": -0.014300200430143628,
+          "NoOfDegitsInURL": -0.053476345443275744,
+          "DegitRatioInURL": -0.0422766413201876,
+          "NoOfEqualsInURL": -0.004126798012900525,
+          "NoOfQMarkInURL": 0.0023799931319096823,
+          "NoOfAmpersandInURL": -0.035526761840729955,
+          "NoOfOtherSpecialCharsInURL": 0.13723916432748767,
+          "SpacialCharRatioInURL": 0.07871086555945918,
+          "IsHTTPS": -0.098176799652298
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.011987969838053909,
+          "DomainLength": 0.1360018686333087,
+          "IsDomainIP": 2.630970269512416e-05,
+          "TLDLength": 0.03533810717385048,
+          "NoOfSubDomain": 0.017791521770278273,
+          "HasObfuscation": 1.0356212267143014e-05,
+          "NoOfObfuscatedChar": 7.450507427213793e-06,
+          "ObfuscationRatio": 8.461969290723972e-06,
+          "NoOfLettersInURL": 0.033652564161741685,
+          "LetterRatioInURL": 0.07780948572122011,
+          "NoOfDegitsInURL": 0.053476345443275744,
+          "DegitRatioInURL": 0.0422766413201876,
+          "NoOfEqualsInURL": 0.004132809702297135,
+          "NoOfQMarkInURL": 0.0030768175489929764,
+          "NoOfAmpersandInURL": 0.03563589258442819,
+          "NoOfOtherSpecialCharsInURL": 0.13723916432748767,
+          "SpacialCharRatioInURL": 0.07871086555945918,
+          "IsHTTPS": 0.098176799652298
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.13723916432748767
+          ],
+          [
+            "DomainLength",
+            0.1360018686333087
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.07871086555945918
+          ],
+          [
+            "NoOfQMarkInURL",
+            0.0023799931319096823
+          ],
+          [
+            "NoOfLettersInURL",
+            0.0013934914952728108
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.098176799652298
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.053476345443275744
+          ],
+          [
+            "DegitRatioInURL",
+            -0.0422766413201876
+          ],
+          [
+            "NoOfAmpersandInURL",
+            -0.035526761840729955
+          ],
+          [
+            "LetterRatioInURL",
+            -0.014300200430143628
+          ]
+        ]
+      }
+    }
+  },
+  "stratified_profiles_t_050": {
+    "e0": {
+      "true_positives": {
+        "count": 649,
+        "mean_shap": {
+          "URLLength": 0.020742828861140046,
+          "DomainLength": 0.02999024374546181,
+          "IsDomainIP": -4.0065571412858607e-07,
+          "TLDLength": 0.0120365399913501,
+          "NoOfSubDomain": 0.10513103830653768,
+          "HasObfuscation": 6.937858117895682e-06,
+          "NoOfObfuscatedChar": -3.0579253346898935e-07,
+          "ObfuscationRatio": -2.307386865358732e-07,
+          "NoOfLettersInURL": 0.031253121658590254,
+          "LetterRatioInURL": 0.07009260633083707,
+          "NoOfDegitsInURL": 0.06545963566310649,
+          "DegitRatioInURL": 0.05213702411693742,
+          "NoOfEqualsInURL": 0.00047638516732472077,
+          "NoOfQMarkInURL": 0.0017089307380667512,
+          "NoOfAmpersandInURL": 5.573162054441446e-08,
+          "NoOfOtherSpecialCharsInURL": 0.10279072381342985,
+          "SpacialCharRatioInURL": 0.06149190021663994,
+          "IsHTTPS": 0.0022914264389184533
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.02460631298185498,
+          "DomainLength": 0.03564380363549558,
+          "IsDomainIP": 1.4351385732136885e-06,
+          "TLDLength": 0.013218822394662117,
+          "NoOfSubDomain": 0.10690259252244941,
+          "HasObfuscation": 1.0913395137516239e-05,
+          "NoOfObfuscatedChar": 3.848957114585949e-07,
+          "ObfuscationRatio": 2.753206069906372e-07,
+          "NoOfLettersInURL": 0.03466338994444885,
+          "LetterRatioInURL": 0.08116570292912412,
+          "NoOfDegitsInURL": 0.08133430904665902,
+          "DegitRatioInURL": 0.06550411477107262,
+          "NoOfEqualsInURL": 0.000698260387120201,
+          "NoOfQMarkInURL": 0.0022507164305878924,
+          "NoOfAmpersandInURL": 1.5047917276736377e-05,
+          "NoOfOtherSpecialCharsInURL": 0.11333476270935236,
+          "SpacialCharRatioInURL": 0.06700815250894976,
+          "IsHTTPS": 0.09961872153499916
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfSubDomain",
+            0.10513103830653768
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.10279072381342985
+          ],
+          [
+            "LetterRatioInURL",
+            0.07009260633083707
+          ],
+          [
+            "NoOfDegitsInURL",
+            0.06545963566310649
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.06149190021663994
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsDomainIP",
+            -4.0065571412858607e-07
+          ],
+          [
+            "NoOfObfuscatedChar",
+            -3.0579253346898935e-07
+          ],
+          [
+            "ObfuscationRatio",
+            -2.307386865358732e-07
+          ],
+          [
+            "NoOfAmpersandInURL",
+            5.573162054441446e-08
+          ],
+          [
+            "HasObfuscation",
+            6.937858117895682e-06
+          ]
+        ]
+      },
+      "false_positives": {
+        "count": 624,
+        "mean_shap": {
+          "URLLength": 0.022751217895496095,
+          "DomainLength": 0.12536451060668397,
+          "IsDomainIP": -1.1090271735909032e-06,
+          "TLDLength": 0.0070894871495339,
+          "NoOfSubDomain": 0.10755502081100292,
+          "HasObfuscation": 2.1041632280817236e-06,
+          "NoOfObfuscatedChar": -1.999417431180984e-07,
+          "ObfuscationRatio": -1.817282487392853e-07,
+          "NoOfLettersInURL": 0.02932043829125689,
+          "LetterRatioInURL": 0.04788606776400933,
+          "NoOfDegitsInURL": -0.0037912844189353723,
+          "DegitRatioInURL": -0.005424564652459565,
+          "NoOfEqualsInURL": 0.004541451434615018,
+          "NoOfQMarkInURL": 0.014458284202253733,
+          "NoOfAmpersandInURL": 3.505186426406403e-06,
+          "NoOfOtherSpecialCharsInURL": 0.13692381655729874,
+          "SpacialCharRatioInURL": 0.12182597689464639,
+          "IsHTTPS": -0.06542339950896081
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.02573788643233632,
+          "DomainLength": 0.12536451060668397,
+          "IsDomainIP": 1.1090271735909032e-06,
+          "TLDLength": 0.017195678536203837,
+          "NoOfSubDomain": 0.10931189386339007,
+          "HasObfuscation": 4.385468982685214e-06,
+          "NoOfObfuscatedChar": 2.522315117710681e-07,
+          "ObfuscationRatio": 2.0343844456932493e-07,
+          "NoOfLettersInURL": 0.035347254702042974,
+          "LetterRatioInURL": 0.06165546301673205,
+          "NoOfDegitsInURL": 0.03198780971437375,
+          "DegitRatioInURL": 0.02555642663514878,
+          "NoOfEqualsInURL": 0.004739882644220213,
+          "NoOfQMarkInURL": 0.014908186254943608,
+          "NoOfAmpersandInURL": 1.399746519609783e-05,
+          "NoOfOtherSpecialCharsInURL": 0.13783896092249665,
+          "SpacialCharRatioInURL": 0.122187779404254,
+          "IsHTTPS": 0.06542339950896081
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.13692381655729874
+          ],
+          [
+            "DomainLength",
+            0.12536451060668397
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.12182597689464639
+          ],
+          [
+            "NoOfSubDomain",
+            0.10755502081100292
+          ],
+          [
+            "LetterRatioInURL",
+            0.04788606776400933
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.06542339950896081
+          ],
+          [
+            "DegitRatioInURL",
+            -0.005424564652459565
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.0037912844189353723
+          ],
+          [
+            "IsDomainIP",
+            -1.1090271735909032e-06
+          ],
+          [
+            "NoOfObfuscatedChar",
+            -1.999417431180984e-07
+          ]
+        ]
+      },
+      "true_negatives": {
+        "count": 26,
+        "mean_shap": {
+          "URLLength": -0.04779069472324692,
+          "DomainLength": 0.13286963073796904,
+          "IsDomainIP": -1.0275668982632663e-05,
+          "TLDLength": -0.025704810338533803,
+          "NoOfSubDomain": -0.003827049346014715,
+          "HasObfuscation": -1.414955563952592e-06,
+          "NoOfObfuscatedChar": -5.614047030307967e-07,
+          "ObfuscationRatio": -5.158248095583021e-08,
+          "NoOfLettersInURL": -0.09671309190523084,
+          "LetterRatioInURL": -0.10747602794894259,
+          "NoOfDegitsInURL": -0.03934576224976649,
+          "DegitRatioInURL": -0.031787752587812974,
+          "NoOfEqualsInURL": -0.000302628382438549,
+          "NoOfQMarkInURL": -0.0006914991320581444,
+          "NoOfAmpersandInURL": -6.916701005409277e-06,
+          "NoOfOtherSpecialCharsInURL": 0.026356930528670677,
+          "SpacialCharRatioInURL": 0.07706407913272914,
+          "IsHTTPS": -0.14157689272992344
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.04779069472324692,
+          "DomainLength": 0.13286963073796904,
+          "IsDomainIP": 1.0275668982632663e-05,
+          "TLDLength": 0.03324392004431837,
+          "NoOfSubDomain": 0.03499688792420552,
+          "HasObfuscation": 1.414955563952592e-06,
+          "NoOfObfuscatedChar": 5.614047030307967e-07,
+          "ObfuscationRatio": 5.158248095583021e-08,
+          "NoOfLettersInURL": 0.09671309190523084,
+          "LetterRatioInURL": 0.10747602794894259,
+          "NoOfDegitsInURL": 0.03934576224976649,
+          "DegitRatioInURL": 0.031787752587812974,
+          "NoOfEqualsInURL": 0.000302628382438549,
+          "NoOfQMarkInURL": 0.0006914991320581444,
+          "NoOfAmpersandInURL": 6.916701005409277e-06,
+          "NoOfOtherSpecialCharsInURL": 0.0620522065857887,
+          "SpacialCharRatioInURL": 0.08641915109288024,
+          "IsHTTPS": 0.14157689272992344
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.13286963073796904
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.07706407913272914
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.026356930528670677
+          ],
+          [
+            "ObfuscationRatio",
+            -5.158248095583021e-08
+          ],
+          [
+            "NoOfObfuscatedChar",
+            -5.614047030307967e-07
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.14157689272992344
+          ],
+          [
+            "LetterRatioInURL",
+            -0.10747602794894259
+          ],
+          [
+            "NoOfLettersInURL",
+            -0.09671309190523084
+          ],
+          [
+            "URLLength",
+            -0.04779069472324692
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.03934576224976649
+          ]
+        ]
+      },
+      "false_negatives": {
+        "count": 1,
+        "mean_shap": {
+          "URLLength": -0.005601306381323191,
+          "DomainLength": 0.10829465140824213,
+          "IsDomainIP": -3.505977184895576e-07,
+          "TLDLength": -0.02483472130176569,
+          "NoOfSubDomain": 0.05236940421452492,
+          "HasObfuscation": -1.9239538590945726e-06,
+          "NoOfObfuscatedChar": -1.9217835271476494e-07,
+          "ObfuscationRatio": -1.4763385502839666e-07,
+          "NoOfLettersInURL": 0.014180268468979669,
+          "LetterRatioInURL": 0.01584757966627937,
+          "NoOfDegitsInURL": -0.03291513073687741,
+          "DegitRatioInURL": -0.02960585099735485,
+          "NoOfEqualsInURL": -0.00016670377900675378,
+          "NoOfQMarkInURL": -0.0006310926209900236,
+          "NoOfAmpersandInURL": -5.915670947725252e-06,
+          "NoOfOtherSpecialCharsInURL": 0.013514391245454577,
+          "SpacialCharRatioInURL": 0.05908672470917967,
+          "IsHTTPS": -0.1515939838841258
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.005601306381323191,
+          "DomainLength": 0.10829465140824213,
+          "IsDomainIP": 3.505977184895576e-07,
+          "TLDLength": 0.02483472130176569,
+          "NoOfSubDomain": 0.05236940421452492,
+          "HasObfuscation": 1.9239538590945726e-06,
+          "NoOfObfuscatedChar": 1.9217835271476494e-07,
+          "ObfuscationRatio": 1.4763385502839666e-07,
+          "NoOfLettersInURL": 0.014180268468979669,
+          "LetterRatioInURL": 0.01584757966627937,
+          "NoOfDegitsInURL": 0.03291513073687741,
+          "DegitRatioInURL": 0.02960585099735485,
+          "NoOfEqualsInURL": 0.00016670377900675378,
+          "NoOfQMarkInURL": 0.0006310926209900236,
+          "NoOfAmpersandInURL": 5.915670947725252e-06,
+          "NoOfOtherSpecialCharsInURL": 0.013514391245454577,
+          "SpacialCharRatioInURL": 0.05908672470917967,
+          "IsHTTPS": 0.1515939838841258
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.10829465140824213
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.05908672470917967
+          ],
+          [
+            "NoOfSubDomain",
+            0.05236940421452492
+          ],
+          [
+            "LetterRatioInURL",
+            0.01584757966627937
+          ],
+          [
+            "NoOfLettersInURL",
+            0.014180268468979669
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.1515939838841258
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.03291513073687741
+          ],
+          [
+            "DegitRatioInURL",
+            -0.02960585099735485
+          ],
+          [
+            "TLDLength",
+            -0.02483472130176569
+          ],
+          [
+            "URLLength",
+            -0.005601306381323191
+          ]
+        ]
+      }
+    },
+    "e4": {
+      "true_positives": {
+        "count": 648,
+        "mean_shap": {
+          "URLLength": 0.028588703788975187,
+          "DomainLength": 0.06597245889398184,
+          "IsDomainIP": -3.0641005162244546e-06,
+          "TLDLength": 0.009804674452189863,
+          "NoOfSubDomain": 0.07962528047120676,
+          "HasObfuscation": -8.758752678339209e-06,
+          "NoOfObfuscatedChar": -3.7918933099941937e-05,
+          "ObfuscationRatio": -9.868309606998807e-05,
+          "NoOfLettersInURL": 0.0423660199762015,
+          "LetterRatioInURL": 0.08292042677084455,
+          "NoOfDegitsInURL": 0.06452839197321811,
+          "DegitRatioInURL": 0.045782882181110825,
+          "NoOfEqualsInURL": 0.0005030806166933537,
+          "NoOfQMarkInURL": 0.0014922290709811885,
+          "NoOfAmpersandInURL": -0.000599182016544589,
+          "NoOfOtherSpecialCharsInURL": 0.08063471382215705,
+          "SpacialCharRatioInURL": 0.04191546016641178,
+          "IsHTTPS": 0.003900315633735548
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.029384879404911933,
+          "DomainLength": 0.0708675045603369,
+          "IsDomainIP": 3.936435336835924e-06,
+          "TLDLength": 0.011698660215608754,
+          "NoOfSubDomain": 0.08088918039540878,
+          "HasObfuscation": 3.365227600153799e-05,
+          "NoOfObfuscatedChar": 4.617270963059216e-05,
+          "ObfuscationRatio": 0.00010538688043379806,
+          "NoOfLettersInURL": 0.04498380071356194,
+          "LetterRatioInURL": 0.09225384066867419,
+          "NoOfDegitsInURL": 0.0823247903778037,
+          "DegitRatioInURL": 0.0611028890984137,
+          "NoOfEqualsInURL": 0.00083705263768372,
+          "NoOfQMarkInURL": 0.0015467354545876874,
+          "NoOfAmpersandInURL": 0.0011413197383150595,
+          "NoOfOtherSpecialCharsInURL": 0.08344527492748202,
+          "SpacialCharRatioInURL": 0.04427362543138213,
+          "IsHTTPS": 0.08413798405705109
+        },
+        "top_positive_contributors": [
+          [
+            "LetterRatioInURL",
+            0.08292042677084455
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.08063471382215705
+          ],
+          [
+            "NoOfSubDomain",
+            0.07962528047120676
+          ],
+          [
+            "DomainLength",
+            0.06597245889398184
+          ],
+          [
+            "NoOfDegitsInURL",
+            0.06452839197321811
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "NoOfAmpersandInURL",
+            -0.000599182016544589
+          ],
+          [
+            "ObfuscationRatio",
+            -9.868309606998807e-05
+          ],
+          [
+            "NoOfObfuscatedChar",
+            -3.7918933099941937e-05
+          ],
+          [
+            "HasObfuscation",
+            -8.758752678339209e-06
+          ],
+          [
+            "IsDomainIP",
+            -3.0641005162244546e-06
+          ]
+        ]
+      },
+      "false_positives": {
+        "count": 627,
+        "mean_shap": {
+          "URLLength": 0.025656834735262857,
+          "DomainLength": 0.20980845285910862,
+          "IsDomainIP": -5.726053859732538e-06,
+          "TLDLength": 0.0036404706020137416,
+          "NoOfSubDomain": 0.07915666544605619,
+          "HasObfuscation": -2.4483152722353694e-05,
+          "NoOfObfuscatedChar": 2.7063278727864804e-06,
+          "ObfuscationRatio": -7.454760923422602e-05,
+          "NoOfLettersInURL": 0.0375404256122354,
+          "LetterRatioInURL": 0.05826279467081751,
+          "NoOfDegitsInURL": -0.006297542264455058,
+          "DegitRatioInURL": -0.009356803862050865,
+          "NoOfEqualsInURL": 0.002310465860316565,
+          "NoOfQMarkInURL": 0.009620454763467188,
+          "NoOfAmpersandInURL": -0.0008320311632240848,
+          "NoOfOtherSpecialCharsInURL": 0.07896971636451827,
+          "SpacialCharRatioInURL": 0.06292721679023995,
+          "IsHTTPS": -0.0572989799141543
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.02627717768572349,
+          "DomainLength": 0.20981137211661055,
+          "IsDomainIP": 5.726053859732538e-06,
+          "TLDLength": 0.018785744324537328,
+          "NoOfSubDomain": 0.08228961643470686,
+          "HasObfuscation": 5.364809618829556e-05,
+          "NoOfObfuscatedChar": 6.358939948538439e-05,
+          "ObfuscationRatio": 9.265209801489298e-05,
+          "NoOfLettersInURL": 0.04363936738753717,
+          "LetterRatioInURL": 0.07353510337964289,
+          "NoOfDegitsInURL": 0.03424461654291793,
+          "DegitRatioInURL": 0.02648694117169473,
+          "NoOfEqualsInURL": 0.004840117282404088,
+          "NoOfQMarkInURL": 0.009843867689059493,
+          "NoOfAmpersandInURL": 0.0020560220365431906,
+          "NoOfOtherSpecialCharsInURL": 0.08074930852215303,
+          "SpacialCharRatioInURL": 0.06317551196658894,
+          "IsHTTPS": 0.0572989799141543
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.20980845285910862
+          ],
+          [
+            "NoOfSubDomain",
+            0.07915666544605619
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.07896971636451827
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.06292721679023995
+          ],
+          [
+            "LetterRatioInURL",
+            0.05826279467081751
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.0572989799141543
+          ],
+          [
+            "DegitRatioInURL",
+            -0.009356803862050865
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.006297542264455058
+          ],
+          [
+            "NoOfAmpersandInURL",
+            -0.0008320311632240848
+          ],
+          [
+            "ObfuscationRatio",
+            -7.454760923422602e-05
+          ]
+        ]
+      },
+      "true_negatives": {
+        "count": 23,
+        "mean_shap": {
+          "URLLength": -0.030859154790337875,
+          "DomainLength": 0.1881855312154519,
+          "IsDomainIP": -1.7051784953994656e-05,
+          "TLDLength": -0.014623148534467887,
+          "NoOfSubDomain": 0.002900227304805163,
+          "HasObfuscation": -1.5395833082021297e-06,
+          "NoOfObfuscatedChar": -1.8051066363455286e-05,
+          "ObfuscationRatio": -0.0002707979521182461,
+          "NoOfLettersInURL": -0.07847724825084328,
+          "LetterRatioInURL": -0.06803396750404753,
+          "NoOfDegitsInURL": -0.04323492268319955,
+          "DegitRatioInURL": -0.037208572061852484,
+          "NoOfEqualsInURL": -0.019921368710419763,
+          "NoOfQMarkInURL": -0.007461029625094326,
+          "NoOfAmpersandInURL": -0.021090634012926088,
+          "NoOfOtherSpecialCharsInURL": 0.02103766029652654,
+          "SpacialCharRatioInURL": 0.014429302189618928,
+          "IsHTTPS": -0.10434470811209062
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.03206469039448068,
+          "DomainLength": 0.1881855312154519,
+          "IsDomainIP": 1.7051784953994656e-05,
+          "TLDLength": 0.020078099540924994,
+          "NoOfSubDomain": 0.031408935335883036,
+          "HasObfuscation": 2.38029234951286e-05,
+          "NoOfObfuscatedChar": 4.159881750237776e-05,
+          "ObfuscationRatio": 0.00027085891494675054,
+          "NoOfLettersInURL": 0.09040090330156698,
+          "LetterRatioInURL": 0.11462813962222373,
+          "NoOfDegitsInURL": 0.04323492268319955,
+          "DegitRatioInURL": 0.037208572061852484,
+          "NoOfEqualsInURL": 0.01992507302785509,
+          "NoOfQMarkInURL": 0.008759393182868393,
+          "NoOfAmpersandInURL": 0.021922564984897693,
+          "NoOfOtherSpecialCharsInURL": 0.03452524706916237,
+          "SpacialCharRatioInURL": 0.020933642098353904,
+          "IsHTTPS": 0.10434470811209062
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.1881855312154519
+          ],
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.02103766029652654
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.014429302189618928
+          ],
+          [
+            "NoOfSubDomain",
+            0.002900227304805163
+          ],
+          [
+            "HasObfuscation",
+            -1.5395833082021297e-06
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.10434470811209062
+          ],
+          [
+            "NoOfLettersInURL",
+            -0.07847724825084328
+          ],
+          [
+            "LetterRatioInURL",
+            -0.06803396750404753
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.04323492268319955
+          ],
+          [
+            "DegitRatioInURL",
+            -0.037208572061852484
+          ]
+        ]
+      },
+      "false_negatives": {
+        "count": 2,
+        "mean_shap": {
+          "URLLength": 0.0033933705457011324,
+          "DomainLength": 0.10142900030608756,
+          "IsDomainIP": -6.447108443067193e-05,
+          "TLDLength": -0.024944416688799164,
+          "NoOfSubDomain": -0.026324454116534272,
+          "HasObfuscation": 2.122678452166376e-05,
+          "NoOfObfuscatedChar": -1.638139180530027e-05,
+          "ObfuscationRatio": -1.8320091981546966e-05,
+          "NoOfLettersInURL": 0.0007612966016492077,
+          "LetterRatioInURL": -0.0043255823211140465,
+          "NoOfDegitsInURL": -0.05460835306577465,
+          "DegitRatioInURL": -0.041717358361005014,
+          "NoOfEqualsInURL": -0.010285977801949694,
+          "NoOfQMarkInURL": 0.0065244207684458655,
+          "NoOfAmpersandInURL": -0.088918948468005,
+          "NoOfOtherSpecialCharsInURL": 0.1463867941765017,
+          "SpacialCharRatioInURL": 0.08817988474575522,
+          "IsHTTPS": -0.07649769542897743
+        },
+        "mean_abs_shap": {
+          "URLLength": 0.01577661094554137,
+          "DomainLength": 0.10142900030608756,
+          "IsDomainIP": 6.447108443067193e-05,
+          "TLDLength": 0.024944416688799164,
+          "NoOfSubDomain": 0.026324454116534272,
+          "HasObfuscation": 2.122678452166376e-05,
+          "NoOfObfuscatedChar": 1.7958568034669963e-05,
+          "ObfuscationRatio": 1.8320091981546966e-05,
+          "NoOfLettersInURL": 0.0564336073654234,
+          "LetterRatioInURL": 0.13349854655345467,
+          "NoOfDegitsInURL": 0.05460835306577465,
+          "DegitRatioInURL": 0.041717358361005014,
+          "NoOfEqualsInURL": 0.010285977801949694,
+          "NoOfQMarkInURL": 0.007117605933810781,
+          "NoOfAmpersandInURL": 0.08898768759489037,
+          "NoOfOtherSpecialCharsInURL": 0.1463867941765017,
+          "SpacialCharRatioInURL": 0.08817988474575522,
+          "IsHTTPS": 0.07649769542897743
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.1463867941765017
+          ],
+          [
+            "DomainLength",
+            0.10142900030608756
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.08817988474575522
+          ],
+          [
+            "NoOfQMarkInURL",
+            0.0065244207684458655
+          ],
+          [
+            "URLLength",
+            0.0033933705457011324
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "NoOfAmpersandInURL",
+            -0.088918948468005
+          ],
+          [
+            "IsHTTPS",
+            -0.07649769542897743
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.05460835306577465
+          ],
+          [
+            "DegitRatioInURL",
+            -0.041717358361005014
+          ],
+          [
+            "NoOfSubDomain",
+            -0.026324454116534272
+          ]
+        ]
+      }
+    }
+  },
+  "case_studies": [
+    {
+      "url": "https://belgium.be/",
+      "sector": "government_public_stats",
+      "true_label": 1,
+      "feature_values": {
+        "URLLength": 19.0,
+        "DomainLength": 10.0,
+        "IsDomainIP": 0.0,
+        "TLDLength": 2.0,
+        "NoOfSubDomain": 0.0,
+        "HasObfuscation": 0.0,
+        "NoOfObfuscatedChar": 0.0,
+        "ObfuscationRatio": 0.0,
+        "NoOfLettersInURL": 9.0,
+        "LetterRatioInURL": 0.474,
+        "NoOfDegitsInURL": 0.0,
+        "DegitRatioInURL": 0.0,
+        "NoOfEqualsInURL": 0.0,
+        "NoOfQMarkInURL": 0.0,
+        "NoOfAmpersandInURL": 0.0,
+        "NoOfOtherSpecialCharsInURL": 2.0,
+        "SpacialCharRatioInURL": 0.105,
+        "IsHTTPS": 1.0
+      },
+      "e0_evaluation": {
+        "phishing_probability": 1.0,
+        "base_value_phi0": 0.42696148617071,
+        "reconstructed_probability": 1.0000000000000013,
+        "shap_attributions": {
+          "URLLength": 0.007721850633977277,
+          "DomainLength": 0.0877345896828807,
+          "IsDomainIP": -2.889343339226951e-06,
+          "TLDLength": -0.01074977537219882,
+          "NoOfSubDomain": 0.4392554359191702,
+          "HasObfuscation": -8.840917665964287e-07,
+          "NoOfObfuscatedChar": -2.3557512170854147e-08,
+          "ObfuscationRatio": -6.323009822471578e-08,
+          "NoOfLettersInURL": -0.005691845356196417,
+          "LetterRatioInURL": 0.012472623317544323,
+          "NoOfDegitsInURL": -0.018431216540717027,
+          "DegitRatioInURL": -0.01605183525013024,
+          "NoOfEqualsInURL": -0.00012662912547257556,
+          "NoOfQMarkInURL": -0.00030561960933711747,
+          "NoOfAmpersandInURL": -2.427442708491078e-06,
+          "NoOfOtherSpecialCharsInURL": 0.005820945141263361,
+          "SpacialCharRatioInURL": 0.1384108037538312,
+          "IsHTTPS": -0.06701452569989885
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfSubDomain",
+            0.4392554359191702
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.1384108037538312
+          ],
+          [
+            "DomainLength",
+            0.0877345896828807
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.06701452569989885
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.018431216540717027
+          ],
+          [
+            "DegitRatioInURL",
+            -0.01605183525013024
+          ]
+        ]
+      },
+      "e4_evaluation": {
+        "phishing_probability": 1.0,
+        "base_value_phi0": 0.4460259648917151,
+        "reconstructed_probability": 0.9999999999999992,
+        "shap_attributions": {
+          "URLLength": 0.020044173592506834,
+          "DomainLength": 0.19688071233248156,
+          "IsDomainIP": -4.7878932331218125e-06,
+          "TLDLength": -0.015634614893643334,
+          "NoOfSubDomain": 0.3430951817909544,
+          "HasObfuscation": 1.7349506279845162e-06,
+          "NoOfObfuscatedChar": 1.307228989971454e-06,
+          "ObfuscationRatio": -1.3733110808515455e-06,
+          "NoOfLettersInURL": 0.004290145023408651,
+          "LetterRatioInURL": 0.018658674039052477,
+          "NoOfDegitsInURL": -0.018668637412942814,
+          "DegitRatioInURL": -0.017983568072161105,
+          "NoOfEqualsInURL": 9.126566227279454e-05,
+          "NoOfQMarkInURL": -8.12060711262915e-05,
+          "NoOfAmpersandInURL": 4.543397101291887e-05,
+          "NoOfOtherSpecialCharsInURL": 0.00030555070532486083,
+          "SpacialCharRatioInURL": 0.08230827169863231,
+          "IsHTTPS": -0.05937422823279311
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfSubDomain",
+            0.3430951817909544
+          ],
+          [
+            "DomainLength",
+            0.19688071233248156
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.08230827169863231
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.05937422823279311
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.018668637412942814
+          ],
+          [
+            "DegitRatioInURL",
+            -0.017983568072161105
+          ]
+        ]
+      }
+    },
+    {
+      "url": "https://www.edpsciences.org/en",
+      "sector": "academic_research",
+      "true_label": 1,
+      "feature_values": {
+        "URLLength": 30.0,
+        "DomainLength": 19.0,
+        "IsDomainIP": 0.0,
+        "TLDLength": 3.0,
+        "NoOfSubDomain": 1.0,
+        "HasObfuscation": 0.0,
+        "NoOfObfuscatedChar": 0.0,
+        "ObfuscationRatio": 0.0,
+        "NoOfLettersInURL": 16.0,
+        "LetterRatioInURL": 0.533,
+        "NoOfDegitsInURL": 0.0,
+        "DegitRatioInURL": 0.0,
+        "NoOfEqualsInURL": 0.0,
+        "NoOfQMarkInURL": 0.0,
+        "NoOfAmpersandInURL": 0.0,
+        "NoOfOtherSpecialCharsInURL": 2.0,
+        "SpacialCharRatioInURL": 0.067,
+        "IsHTTPS": 1.0
+      },
+      "e0_evaluation": {
+        "phishing_probability": 0.9800626959247648,
+        "base_value_phi0": 0.42696148617071,
+        "reconstructed_probability": 0.9800626959247791,
+        "shap_attributions": {
+          "URLLength": -0.005901571744091964,
+          "DomainLength": 0.2871389732442066,
+          "IsDomainIP": -3.2868234782886276e-07,
+          "TLDLength": 0.06972111222026509,
+          "NoOfSubDomain": 0.08879784006123823,
+          "HasObfuscation": -1.3054913740565997e-06,
+          "NoOfObfuscatedChar": -3.013748771580034e-08,
+          "ObfuscationRatio": -8.873602192217678e-08,
+          "NoOfLettersInURL": 0.03921458099860246,
+          "LetterRatioInURL": 0.05400018267698323,
+          "NoOfDegitsInURL": -0.02688848951326133,
+          "DegitRatioInURL": -0.023073677625449696,
+          "NoOfEqualsInURL": -0.00016422617922275424,
+          "NoOfQMarkInURL": -0.0004409376573398629,
+          "NoOfAmpersandInURL": -5.605385280166919e-06,
+          "NoOfOtherSpecialCharsInURL": 0.06812710258621592,
+          "SpacialCharRatioInURL": 0.11565966286742567,
+          "IsHTTPS": -0.11308198374899076
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.2871389732442066
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.11565966286742567
+          ],
+          [
+            "NoOfSubDomain",
+            0.08879784006123823
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.11308198374899076
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.02688848951326133
+          ],
+          [
+            "DegitRatioInURL",
+            -0.023073677625449696
+          ]
+        ]
+      },
+      "e4_evaluation": {
+        "phishing_probability": 1.0,
+        "base_value_phi0": 0.4460259648917151,
+        "reconstructed_probability": 0.9999999999999869,
+        "shap_attributions": {
+          "URLLength": 0.026374042492975328,
+          "DomainLength": 0.43251420712804317,
+          "IsDomainIP": -7.22283982881958e-07,
+          "TLDLength": 0.05104523036333007,
+          "NoOfSubDomain": 0.012432471556270157,
+          "HasObfuscation": 1.5369038387428513e-06,
+          "NoOfObfuscatedChar": -3.23731476579654e-07,
+          "ObfuscationRatio": 1.2398015282525406e-06,
+          "NoOfLettersInURL": 0.05335435653788492,
+          "LetterRatioInURL": 0.0682103746279917,
+          "NoOfDegitsInURL": -0.03114464318220506,
+          "DegitRatioInURL": -0.024271701707592748,
+          "NoOfEqualsInURL": -1.9184854523416245e-05,
+          "NoOfQMarkInURL": -0.00018142986170513868,
+          "NoOfAmpersandInURL": 3.728719609111466e-05,
+          "NoOfOtherSpecialCharsInURL": 0.013493127092511364,
+          "SpacialCharRatioInURL": 0.038967275948511904,
+          "IsHTTPS": -0.08683910891921912
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.43251420712804317
+          ],
+          [
+            "LetterRatioInURL",
+            0.0682103746279917
+          ],
+          [
+            "NoOfLettersInURL",
+            0.05335435653788492
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.08683910891921912
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.03114464318220506
+          ],
+          [
+            "DegitRatioInURL",
+            -0.024271701707592748
+          ]
+        ]
+      }
+    },
+    {
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194",
+      "sector": "banking_finance",
+      "true_label": 1,
+      "feature_values": {
+        "URLLength": 93.0,
+        "DomainLength": 11.0,
+        "IsDomainIP": 0.0,
+        "TLDLength": 2.0,
+        "NoOfSubDomain": 1.0,
+        "HasObfuscation": 0.0,
+        "NoOfObfuscatedChar": 0.0,
+        "ObfuscationRatio": 0.0,
+        "NoOfLettersInURL": 68.0,
+        "LetterRatioInURL": 0.731,
+        "NoOfDegitsInURL": 5.0,
+        "DegitRatioInURL": 0.054,
+        "NoOfEqualsInURL": 1.0,
+        "NoOfQMarkInURL": 1.0,
+        "NoOfAmpersandInURL": 0.0,
+        "NoOfOtherSpecialCharsInURL": 10.0,
+        "SpacialCharRatioInURL": 0.129,
+        "IsHTTPS": 1.0
+      },
+      "e0_evaluation": {
+        "phishing_probability": 1.0,
+        "base_value_phi0": 0.42696148617071,
+        "reconstructed_probability": 1.0000000000000002,
+        "shap_attributions": {
+          "URLLength": 0.04589108632982724,
+          "DomainLength": 0.02683269691185889,
+          "IsDomainIP": -5.239335018227797e-07,
+          "TLDLength": -0.0041498747754767805,
+          "NoOfSubDomain": 0.002678047147895932,
+          "HasObfuscation": -9.676043154372337e-08,
+          "NoOfObfuscatedChar": -5.26242027533246e-08,
+          "ObfuscationRatio": -6.87908724075205e-08,
+          "NoOfLettersInURL": 0.054698652152200905,
+          "LetterRatioInURL": 0.09626251389641076,
+          "NoOfDegitsInURL": 0.06811341254676384,
+          "DegitRatioInURL": 0.03958015321205324,
+          "NoOfEqualsInURL": 0.009116629420926042,
+          "NoOfQMarkInURL": 0.026994318101815757,
+          "NoOfAmpersandInURL": -1.366855485454201e-06,
+          "NoOfOtherSpecialCharsInURL": 0.16095490154801614,
+          "SpacialCharRatioInURL": 0.08655052660564118,
+          "IsHTTPS": -0.0404824403041489
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.16095490154801614
+          ],
+          [
+            "LetterRatioInURL",
+            0.09626251389641076
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.08655052660564118
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.0404824403041489
+          ],
+          [
+            "TLDLength",
+            -0.0041498747754767805
+          ],
+          [
+            "NoOfAmpersandInURL",
+            -1.366855485454201e-06
+          ]
+        ]
+      },
+      "e4_evaluation": {
+        "phishing_probability": 1.0,
+        "base_value_phi0": 0.4460259648917151,
+        "reconstructed_probability": 0.9999999999999992,
+        "shap_attributions": {
+          "URLLength": 0.03599117698335412,
+          "DomainLength": 0.07541981499147583,
+          "IsDomainIP": -5.069428830816758e-06,
+          "TLDLength": -0.005299282784626605,
+          "NoOfSubDomain": 0.00408160543633674,
+          "HasObfuscation": -1.7664561703361353e-06,
+          "NoOfObfuscatedChar": 0.0003056916380766425,
+          "ObfuscationRatio": 3.681977103119049e-05,
+          "NoOfLettersInURL": 0.05882533769404446,
+          "LetterRatioInURL": 0.10062136636908259,
+          "NoOfDegitsInURL": 0.08871204698608783,
+          "DegitRatioInURL": 0.04762787124658184,
+          "NoOfEqualsInURL": 0.0015320230099767382,
+          "NoOfQMarkInURL": 0.017541469583407368,
+          "NoOfAmpersandInURL": 0.0015986386849795675,
+          "NoOfOtherSpecialCharsInURL": 0.10990655117374996,
+          "SpacialCharRatioInURL": 0.05248009514076018,
+          "IsHTTPS": -0.03540035493103315
+        },
+        "top_positive_contributors": [
+          [
+            "NoOfOtherSpecialCharsInURL",
+            0.10990655117374996
+          ],
+          [
+            "LetterRatioInURL",
+            0.10062136636908259
+          ],
+          [
+            "NoOfDegitsInURL",
+            0.08871204698608783
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.03540035493103315
+          ],
+          [
+            "TLDLength",
+            -0.005299282784626605
+          ],
+          [
+            "IsDomainIP",
+            -5.069428830816758e-06
+          ]
+        ]
+      }
+    },
+    {
+      "url": "https://www.farfetch.com/",
+      "sector": "ecommerce_retail",
+      "true_label": 1,
+      "feature_values": {
+        "URLLength": 25.0,
+        "DomainLength": 16.0,
+        "IsDomainIP": 0.0,
+        "TLDLength": 3.0,
+        "NoOfSubDomain": 1.0,
+        "HasObfuscation": 0.0,
+        "NoOfObfuscatedChar": 0.0,
+        "ObfuscationRatio": 0.0,
+        "NoOfLettersInURL": 11.0,
+        "LetterRatioInURL": 0.44,
+        "NoOfDegitsInURL": 0.0,
+        "DegitRatioInURL": 0.0,
+        "NoOfEqualsInURL": 0.0,
+        "NoOfQMarkInURL": 0.0,
+        "NoOfAmpersandInURL": 0.0,
+        "NoOfOtherSpecialCharsInURL": 2.0,
+        "SpacialCharRatioInURL": 0.08,
+        "IsHTTPS": 1.0
+      },
+      "e0_evaluation": {
+        "phishing_probability": 1.0,
+        "base_value_phi0": 0.42696148617071,
+        "reconstructed_probability": 1.0000000000000044,
+        "shap_attributions": {
+          "URLLength": 0.009974737517007696,
+          "DomainLength": 0.33004110802187653,
+          "IsDomainIP": -4.5642821013870083e-07,
+          "TLDLength": 0.0882798394347505,
+          "NoOfSubDomain": 0.09893125581282816,
+          "HasObfuscation": -2.337609955754388e-06,
+          "NoOfObfuscatedChar": -2.5397004103971346e-08,
+          "ObfuscationRatio": -4.404926762996601e-08,
+          "NoOfLettersInURL": 0.004884316051302244,
+          "LetterRatioInURL": 0.002479422547692849,
+          "NoOfDegitsInURL": -0.02738129770893928,
+          "DegitRatioInURL": -0.024650441897944596,
+          "NoOfEqualsInURL": -0.00017506346412132063,
+          "NoOfQMarkInURL": -0.00041918593735980423,
+          "NoOfAmpersandInURL": -2.2714274596971506e-06,
+          "NoOfOtherSpecialCharsInURL": 0.07801387455140789,
+          "SpacialCharRatioInURL": 0.12723596239102214,
+          "IsHTTPS": -0.11417087857833132
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.33004110802187653
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.12723596239102214
+          ],
+          [
+            "NoOfSubDomain",
+            0.09893125581282816
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.11417087857833132
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.02738129770893928
+          ],
+          [
+            "DegitRatioInURL",
+            -0.024650441897944596
+          ]
+        ]
+      },
+      "e4_evaluation": {
+        "phishing_probability": 0.99,
+        "base_value_phi0": 0.4460259648917151,
+        "reconstructed_probability": 0.9900000000000161,
+        "shap_attributions": {
+          "URLLength": 0.03316293747673151,
+          "DomainLength": 0.4751397785808255,
+          "IsDomainIP": -2.668827191855953e-06,
+          "TLDLength": 0.04625838178814354,
+          "NoOfSubDomain": 0.0809075443323089,
+          "HasObfuscation": -6.07016517006093e-07,
+          "NoOfObfuscatedChar": 4.81292708771367e-07,
+          "ObfuscationRatio": -1.760934564858852e-07,
+          "NoOfLettersInURL": 0.009459574022655614,
+          "LetterRatioInURL": -0.024614429205354522,
+          "NoOfDegitsInURL": -0.030451507532484233,
+          "DegitRatioInURL": -0.026964426353243347,
+          "NoOfEqualsInURL": 8.27462761303724e-07,
+          "NoOfQMarkInURL": -0.0001750535724661799,
+          "NoOfAmpersandInURL": 3.641693298476018e-05,
+          "NoOfOtherSpecialCharsInURL": 0.02875643743261753,
+          "SpacialCharRatioInURL": 0.047896714299706496,
+          "IsHTTPS": -0.09543618991242926
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.4751397785808255
+          ],
+          [
+            "NoOfSubDomain",
+            0.0809075443323089
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.047896714299706496
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.09543618991242926
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.030451507532484233
+          ],
+          [
+            "DegitRatioInURL",
+            -0.026964426353243347
+          ]
+        ]
+      }
+    },
+    {
+      "url": "https://www.openbsd.org/?lang=en",
+      "sector": "technical_documentation",
+      "true_label": 1,
+      "feature_values": {
+        "URLLength": 32.0,
+        "DomainLength": 15.0,
+        "IsDomainIP": 0.0,
+        "TLDLength": 3.0,
+        "NoOfSubDomain": 1.0,
+        "HasObfuscation": 0.0,
+        "NoOfObfuscatedChar": 0.0,
+        "ObfuscationRatio": 0.0,
+        "NoOfLettersInURL": 16.0,
+        "LetterRatioInURL": 0.5,
+        "NoOfDegitsInURL": 0.0,
+        "DegitRatioInURL": 0.0,
+        "NoOfEqualsInURL": 1.0,
+        "NoOfQMarkInURL": 1.0,
+        "NoOfAmpersandInURL": 0.0,
+        "NoOfOtherSpecialCharsInURL": 2.0,
+        "SpacialCharRatioInURL": 0.125,
+        "IsHTTPS": 1.0
+      },
+      "e0_evaluation": {
+        "phishing_probability": 0.97,
+        "base_value_phi0": 0.42696148617071,
+        "reconstructed_probability": 0.97,
+        "shap_attributions": {
+          "URLLength": -0.002797959539974641,
+          "DomainLength": 0.15580476997843498,
+          "IsDomainIP": -1.6311546934299232e-06,
+          "TLDLength": 0.018007535074383796,
+          "NoOfSubDomain": 0.042963386609513196,
+          "HasObfuscation": -1.2323521156698022e-06,
+          "NoOfObfuscatedChar": -5.472973943161045e-08,
+          "ObfuscationRatio": -5.5952387184005716e-08,
+          "NoOfLettersInURL": 0.02509760407836752,
+          "LetterRatioInURL": 0.010850460935123636,
+          "NoOfDegitsInURL": -0.021461203579933873,
+          "DegitRatioInURL": -0.016231171665275143,
+          "NoOfEqualsInURL": 0.023177654061990936,
+          "NoOfQMarkInURL": 0.09166243803797632,
+          "NoOfAmpersandInURL": -2.336767978684037e-06,
+          "NoOfOtherSpecialCharsInURL": 0.04165257195466983,
+          "SpacialCharRatioInURL": 0.2551631453564792,
+          "IsHTTPS": -0.08084540651555136
+        },
+        "top_positive_contributors": [
+          [
+            "SpacialCharRatioInURL",
+            0.2551631453564792
+          ],
+          [
+            "DomainLength",
+            0.15580476997843498
+          ],
+          [
+            "NoOfQMarkInURL",
+            0.09166243803797632
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.08084540651555136
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.021461203579933873
+          ],
+          [
+            "DegitRatioInURL",
+            -0.016231171665275143
+          ]
+        ]
+      },
+      "e4_evaluation": {
+        "phishing_probability": 0.97,
+        "base_value_phi0": 0.4460259648917151,
+        "reconstructed_probability": 0.9700000000000019,
+        "shap_attributions": {
+          "URLLength": 0.006657933426271035,
+          "DomainLength": 0.2860923008557185,
+          "IsDomainIP": -1.1298516412841304e-06,
+          "TLDLength": 0.018093783055406844,
+          "NoOfSubDomain": 0.025044713826793217,
+          "HasObfuscation": 2.7796227339741716e-06,
+          "NoOfObfuscatedChar": 8.758758959549868e-05,
+          "ObfuscationRatio": -5.61236588243459e-06,
+          "NoOfLettersInURL": 0.04510308280462336,
+          "LetterRatioInURL": 0.010400065410375406,
+          "NoOfDegitsInURL": -0.020617691787547965,
+          "DegitRatioInURL": -0.01864355057658457,
+          "NoOfEqualsInURL": 0.028772658986143392,
+          "NoOfQMarkInURL": 0.06841021326222294,
+          "NoOfAmpersandInURL": 0.0006987935676156043,
+          "NoOfOtherSpecialCharsInURL": 0.011596832333909655,
+          "SpacialCharRatioInURL": 0.12715992456991787,
+          "IsHTTPS": -0.06487864962138429
+        },
+        "top_positive_contributors": [
+          [
+            "DomainLength",
+            0.2860923008557185
+          ],
+          [
+            "SpacialCharRatioInURL",
+            0.12715992456991787
+          ],
+          [
+            "NoOfQMarkInURL",
+            0.06841021326222294
+          ]
+        ],
+        "top_negative_contributors": [
+          [
+            "IsHTTPS",
+            -0.06487864962138429
+          ],
+          [
+            "NoOfDegitsInURL",
+            -0.020617691787547965
+          ],
+          [
+            "DegitRatioInURL",
+            -0.01864355057658457
+          ]
+        ]
+      }
+    }
+  ],
+  "global_rankings_full": {
+    "e0": [
+      [
+        "NoOfOtherSpecialCharsInURL",
+        0.12399434182806437
+      ],
+      [
+        "NoOfSubDomain",
+        0.10657899446774541
+      ],
+      [
+        "SpacialCharRatioInURL",
+        0.09387649998437492
+      ],
+      [
+        "IsHTTPS",
+        0.08408411135743707
+      ],
+      [
+        "DomainLength",
+        0.0807101447912329
+      ],
+      [
+        "LetterRatioInURL",
+        0.07227674956137012
+      ],
+      [
+        "NoOfDegitsInURL",
+        0.05677097290944745
+      ],
+      [
+        "DegitRatioInURL",
+        0.045627283173107304
+      ],
+      [
+        "NoOfLettersInURL",
+        0.03621688282002081
+      ],
+      [
+        "URLLength",
+        0.02559853663706731
+      ],
+      [
+        "TLDLength",
+        0.015537150602446897
+      ],
+      [
+        "NoOfQMarkInURL",
+        0.008293871735839127
+      ],
+      [
+        "NoOfEqualsInURL",
+        0.0026299175407360252
+      ],
+      [
+        "NoOfAmpersandInURL",
+        1.4374051147734853e-05
+      ],
+      [
+        "HasObfuscation",
+        7.583106836896515e-06
+      ],
+      [
+        "IsDomainIP",
+        1.4545814473871901e-06
+      ],
+      [
+        "NoOfObfuscatedChar",
+        3.24598831317916e-07
+      ],
+      [
+        "ObfuscationRatio",
+        2.3624418592927825e-07
+      ]
+    ],
+    "e4": [
+      [
+        "DomainLength",
+        0.14000384499290827
+      ],
+      [
+        "LetterRatioInURL",
+        0.08368495605904233
+      ],
+      [
+        "NoOfOtherSpecialCharsInURL",
+        0.08137631451334006
+      ],
+      [
+        "NoOfSubDomain",
+        0.08060525601672656
+      ],
+      [
+        "IsHTTPS",
+        0.07153907519429215
+      ],
+      [
+        "NoOfDegitsInURL",
+        0.05840112205005492
+      ],
+      [
+        "SpacialCharRatioInURL",
+        0.053044760631031106
+      ],
+      [
+        "NoOfLettersInURL",
+        0.04515651861926223
+      ],
+      [
+        "DegitRatioInURL",
+        0.043954781634284186
+      ],
+      [
+        "URLLength",
+        0.027912487203304404
+      ],
+      [
+        "TLDLength",
+        0.015285445103090947
+      ],
+      [
+        "NoOfQMarkInURL",
+        0.005684685285143638
+      ],
+      [
+        "NoOfEqualsInURL",
+        0.003120009446562289
+      ],
+      [
+        "NoOfAmpersandInURL",
+        0.002085304136294749
+      ],
+      [
+        "ObfuscationRatio",
+        0.00010203843015705963
+      ],
+      [
+        "NoOfObfuscatedChar",
+        5.444858404352592e-05
+      ],
+      [
+        "HasObfuscation",
+        4.3103039975760905e-05
+      ],
+      [
+        "IsDomainIP",
+        5.1247531470193945e-06
+      ]
+    ]
+  }
+}

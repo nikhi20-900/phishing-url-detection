@@ -1,0 +1,204 @@
+{
+  "stage": "STAGE_1_ENSEMBLE_DISSECTION",
+  "milestone": "Phase 7 \u2014 M6",
+  "analysis_type": "TreeSHAP Global and Local Probability Attribution Analysis",
+  "created_at_utc": "2026-11-19T05:34:30.491147+00:00",
+  "execution_duration_seconds": 22.945339918136597,
+  "governance_status": "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED",
+  "models": {
+    "e0_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+    "e4_sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b"
+  },
+  "benchmark_sha256": "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88",
+  "explainer_parameters": {
+    "explainer_type": "TreeExplainer",
+    "feature_perturbation": "tree_path_dependent",
+    "model_output": "raw_probability",
+    "class_index": 0,
+    "target_class": "Phishing",
+    "numerical_tolerance": 1e-05
+  },
+  "additivity_verification": {
+    "e0_max_error": 1.687538997430238e-14,
+    "e0_mean_error": 1.6369044207704856e-15,
+    "e4_max_error": 5.617728504603292e-14,
+    "e4_mean_error": 2.2929735033782294e-15,
+    "verified_sample_count": 1300,
+    "status": "ALL_1300_SAMPLES_SATISFY_ADDITIVITY"
+  },
+  "base_values": {
+    "e0_expected_value_phi0": 0.42696148617071,
+    "e4_expected_value_phi0": 0.4460259648917151
+  },
+  "global_importance_rankings": {
+    "e0_top5": [
+      [
+        "NoOfOtherSpecialCharsInURL",
+        0.12399434182806437
+      ],
+      [
+        "NoOfSubDomain",
+        0.10657899446774541
+      ],
+      [
+        "SpacialCharRatioInURL",
+        0.09387649998437492
+      ],
+      [
+        "IsHTTPS",
+        0.08408411135743707
+      ],
+      [
+        "DomainLength",
+        0.0807101447912329
+      ]
+    ],
+    "e4_top5": [
+      [
+        "DomainLength",
+        0.14000384499290827
+      ],
+      [
+        "LetterRatioInURL",
+        0.08368495605904233
+      ],
+      [
+        "NoOfOtherSpecialCharsInURL",
+        0.08137631451334006
+      ],
+      [
+        "NoOfSubDomain",
+        0.08060525601672656
+      ],
+      [
+        "IsHTTPS",
+        0.07153907519429215
+      ]
+    ]
+  },
+  "false_positive_drivers_t_075": {
+    "e0_top_pushing_features": [
+      [
+        "NoOfOtherSpecialCharsInURL",
+        0.13749951357801996
+      ],
+      [
+        "DomainLength",
+        0.12355968662941581
+      ],
+      [
+        "SpacialCharRatioInURL",
+        0.12163978924024077
+      ],
+      [
+        "NoOfSubDomain",
+        0.10814650378730643
+      ],
+      [
+        "LetterRatioInURL",
+        0.049921073525319846
+      ]
+    ],
+    "e4_top_pushing_features": [
+      [
+        "DomainLength",
+        0.2091419258156128
+      ],
+      [
+        "NoOfSubDomain",
+        0.08120243190983736
+      ],
+      [
+        "NoOfOtherSpecialCharsInURL",
+        0.08000980976129153
+      ],
+      [
+        "SpacialCharRatioInURL",
+        0.0635318425023815
+      ],
+      [
+        "LetterRatioInURL",
+        0.06071672492339881
+      ]
+    ]
+  },
+  "archetypal_case_studies_summary": [
+    {
+      "sector": "government_public_stats",
+      "url": "https://belgium.be/",
+      "e0_phish_prob": 1.0,
+      "e4_phish_prob": 1.0,
+      "top_driver_e0": [
+        "NoOfSubDomain",
+        0.4392554359191702
+      ]
+    },
+    {
+      "sector": "academic_research",
+      "url": "https://www.edpsciences.org/en",
+      "e0_phish_prob": 0.9800626959247648,
+      "e4_phish_prob": 1.0,
+      "top_driver_e0": [
+        "DomainLength",
+        0.2871389732442066
+      ]
+    },
+    {
+      "sector": "banking_finance",
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR194",
+      "e0_phish_prob": 1.0,
+      "e4_phish_prob": 1.0,
+      "top_driver_e0": [
+        "NoOfOtherSpecialCharsInURL",
+        0.16095490154801614
+      ]
+    },
+    {
+      "sector": "ecommerce_retail",
+      "url": "https://www.farfetch.com/",
+      "e0_phish_prob": 1.0,
+      "e4_phish_prob": 0.99,
+      "top_driver_e0": [
+        "DomainLength",
+        0.33004110802187653
+      ]
+    },
+    {
+      "sector": "technical_documentation",
+      "url": "https://www.openbsd.org/?lang=en",
+      "e0_phish_prob": 0.97,
+      "e4_phish_prob": 0.97,
+      "top_driver_e0": [
+        "SpacialCharRatioInURL",
+        0.2551631453564792
+      ]
+    }
+  ],
+  "top_shap_correlations": [
+    {
+      "feat1": "NoOfDegitsInURL",
+      "feat2": "DegitRatioInURL",
+      "pearson_r": 0.9940077810610902
+    },
+    {
+      "feat1": "NoOfEqualsInURL",
+      "feat2": "NoOfQMarkInURL",
+      "pearson_r": 0.9567201089730087
+    },
+    {
+      "feat1": "URLLength",
+      "feat2": "NoOfLettersInURL",
+      "pearson_r": 0.7808127854222655
+    },
+    {
+      "feat1": "NoOfLettersInURL",
+      "feat2": "LetterRatioInURL",
+      "pearson_r": 0.7188843568522749
+    },
+    {
+      "feat1": "DomainLength",
+      "feat2": "NoOfDegitsInURL",
+      "pearson_r": -0.5452750122777837
+    }
+  ]
+}

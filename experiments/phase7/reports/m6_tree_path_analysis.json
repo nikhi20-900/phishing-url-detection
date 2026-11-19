@@ -1,0 +1,397 @@
+{
+  "stage": "STAGE_1_ENSEMBLE_DISSECTION",
+  "milestone": "Phase 7 \u2014 M6",
+  "analysis_type": "Tree Decision Path & Split Hierarchy Dissection",
+  "created_at_utc": "2026-11-19T05:33:50.219385+00:00",
+  "execution_duration_seconds": 6.8180251121521,
+  "governance_status": "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED",
+  "models": {
+    "frozen_production_control_e0": {
+      "sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
+      "false_positives_t_075": 612,
+      "vote_distribution": {
+        "unanimous_phishing_ge_090": 0.9133986928104575,
+        "strong_phishing_075_to_090": 0.08660130718954248,
+        "moderate_phishing_060_to_075": 0.0,
+        "borderline_050_to_060": 0.0,
+        "dissenting_lt_050": 0.0,
+        "mean_phish_vote_fraction": 0.9757843137254903,
+        "median_phish_vote_fraction": 1.0
+      },
+      "mean_leaf_impurity": 0.00017045314173669052,
+      "hierarchy": {
+        "tree_count": 100,
+        "root_split_dominance": {
+          "IsHTTPS": {
+            "count": 22,
+            "percentage": 0.22
+          },
+          "NoOfDegitsInURL": {
+            "count": 20,
+            "percentage": 0.2
+          },
+          "NoOfOtherSpecialCharsInURL": {
+            "count": 16,
+            "percentage": 0.16
+          },
+          "DegitRatioInURL": {
+            "count": 12,
+            "percentage": 0.12
+          },
+          "NoOfLettersInURL": {
+            "count": 7,
+            "percentage": 0.07
+          },
+          "SpacialCharRatioInURL": {
+            "count": 7,
+            "percentage": 0.07
+          },
+          "URLLength": {
+            "count": 5,
+            "percentage": 0.05
+          },
+          "LetterRatioInURL": {
+            "count": 3,
+            "percentage": 0.03
+          },
+          "NoOfSubDomain": {
+            "count": 3,
+            "percentage": 0.03
+          },
+          "NoOfQMarkInURL": {
+            "count": 2,
+            "percentage": 0.02
+          },
+          "DomainLength": {
+            "count": 2,
+            "percentage": 0.02
+          },
+          "NoOfEqualsInURL": {
+            "count": 1,
+            "percentage": 0.01
+          }
+        },
+        "depth1_split_dominance": {
+          "NoOfOtherSpecialCharsInURL": {
+            "count": 43,
+            "percentage": 0.25
+          },
+          "IsHTTPS": {
+            "count": 21,
+            "percentage": 0.12209302325581395
+          },
+          "SpacialCharRatioInURL": {
+            "count": 20,
+            "percentage": 0.11627906976744186
+          },
+          "URLLength": {
+            "count": 18,
+            "percentage": 0.10465116279069768
+          },
+          "NoOfDegitsInURL": {
+            "count": 16,
+            "percentage": 0.09302325581395349
+          },
+          "DegitRatioInURL": {
+            "count": 14,
+            "percentage": 0.08139534883720931
+          },
+          "LetterRatioInURL": {
+            "count": 11,
+            "percentage": 0.06395348837209303
+          },
+          "NoOfLettersInURL": {
+            "count": 10,
+            "percentage": 0.05813953488372093
+          },
+          "DomainLength": {
+            "count": 8,
+            "percentage": 0.046511627906976744
+          },
+          "NoOfSubDomain": {
+            "count": 4,
+            "percentage": 0.023255813953488372
+          },
+          "TLDLength": {
+            "count": 4,
+            "percentage": 0.023255813953488372
+          },
+          "NoOfEqualsInURL": {
+            "count": 2,
+            "percentage": 0.011627906976744186
+          },
+          "NoOfQMarkInURL": {
+            "count": 1,
+            "percentage": 0.005813953488372093
+          }
+        },
+        "structural_distributions": {
+          "depth": {
+            "mean": 24.18,
+            "std": 2.467306223394251,
+            "min": 19,
+            "max": 34
+          },
+          "node_count": {
+            "mean": 1296.78,
+            "std": 105.34928381341754,
+            "min": 1125,
+            "max": 1577
+          },
+          "leaf_count": {
+            "mean": 648.89,
+            "std": 52.67464190670877,
+            "min": 563,
+            "max": 789
+          }
+        }
+      },
+      "threshold_crossings_top5": [
+        [
+          "NoOfOtherSpecialCharsInURL",
+          {
+            "total_crossings": 67067,
+            "greater_than_crossings": 45168,
+            "greater_than_percentage": 0.6734757779533899,
+            "overall_decision_share": 0.12742071234917154
+          }
+        ],
+        [
+          "LetterRatioInURL",
+          {
+            "total_crossings": 65558,
+            "greater_than_crossings": 32636,
+            "greater_than_percentage": 0.4978187254034595,
+            "overall_decision_share": 0.1245537605705785
+          }
+        ],
+        [
+          "SpacialCharRatioInURL",
+          {
+            "total_crossings": 57875,
+            "greater_than_crossings": 39834,
+            "greater_than_percentage": 0.6882764578833693,
+            "overall_decision_share": 0.10995681523265247
+          }
+        ],
+        [
+          "NoOfLettersInURL",
+          {
+            "total_crossings": 50306,
+            "greater_than_crossings": 30496,
+            "greater_than_percentage": 0.6062099948316304,
+            "overall_decision_share": 0.09557645869708536
+          }
+        ],
+        [
+          "DomainLength",
+          {
+            "total_crossings": 49420,
+            "greater_than_crossings": 9350,
+            "greater_than_percentage": 0.18919465803318494,
+            "overall_decision_share": 0.09389314572436605
+          }
+        ]
+      ]
+    },
+    "candidate_model_e4": {
+      "sha256": "0f872c0fa3d7f6bedfb5ed922355bb121f9c80d9bd2f991ad1cbb46be08c6f1b",
+      "false_positives_t_075": 602,
+      "vote_distribution": {
+        "unanimous_phishing_ge_090": 0.8322259136212624,
+        "strong_phishing_075_to_090": 0.16777408637873753,
+        "moderate_phishing_060_to_075": 0.0,
+        "borderline_050_to_060": 0.0,
+        "dissenting_lt_050": 0.0,
+        "mean_phish_vote_fraction": 0.9529568106312294,
+        "median_phish_vote_fraction": 0.98
+      },
+      "mean_leaf_impurity": 0.00020027081728194249,
+      "hierarchy": {
+        "tree_count": 100,
+        "root_split_dominance": {
+          "IsHTTPS": {
+            "count": 22,
+            "percentage": 0.22
+          },
+          "NoOfDegitsInURL": {
+            "count": 20,
+            "percentage": 0.2
+          },
+          "NoOfOtherSpecialCharsInURL": {
+            "count": 16,
+            "percentage": 0.16
+          },
+          "DegitRatioInURL": {
+            "count": 12,
+            "percentage": 0.12
+          },
+          "NoOfLettersInURL": {
+            "count": 7,
+            "percentage": 0.07
+          },
+          "URLLength": {
+            "count": 6,
+            "percentage": 0.06
+          },
+          "SpacialCharRatioInURL": {
+            "count": 6,
+            "percentage": 0.06
+          },
+          "LetterRatioInURL": {
+            "count": 3,
+            "percentage": 0.03
+          },
+          "NoOfSubDomain": {
+            "count": 3,
+            "percentage": 0.03
+          },
+          "NoOfQMarkInURL": {
+            "count": 2,
+            "percentage": 0.02
+          },
+          "DomainLength": {
+            "count": 2,
+            "percentage": 0.02
+          },
+          "NoOfEqualsInURL": {
+            "count": 1,
+            "percentage": 0.01
+          }
+        },
+        "depth1_split_dominance": {
+          "NoOfOtherSpecialCharsInURL": {
+            "count": 36,
+            "percentage": 0.20224719101123595
+          },
+          "URLLength": {
+            "count": 20,
+            "percentage": 0.11235955056179775
+          },
+          "SpacialCharRatioInURL": {
+            "count": 19,
+            "percentage": 0.10674157303370786
+          },
+          "IsHTTPS": {
+            "count": 18,
+            "percentage": 0.10112359550561797
+          },
+          "NoOfDegitsInURL": {
+            "count": 17,
+            "percentage": 0.09550561797752809
+          },
+          "NoOfLettersInURL": {
+            "count": 17,
+            "percentage": 0.09550561797752809
+          },
+          "DegitRatioInURL": {
+            "count": 16,
+            "percentage": 0.0898876404494382
+          },
+          "LetterRatioInURL": {
+            "count": 13,
+            "percentage": 0.07303370786516854
+          },
+          "NoOfSubDomain": {
+            "count": 7,
+            "percentage": 0.03932584269662921
+          },
+          "DomainLength": {
+            "count": 7,
+            "percentage": 0.03932584269662921
+          },
+          "TLDLength": {
+            "count": 4,
+            "percentage": 0.02247191011235955
+          },
+          "NoOfQMarkInURL": {
+            "count": 2,
+            "percentage": 0.011235955056179775
+          },
+          "NoOfEqualsInURL": {
+            "count": 2,
+            "percentage": 0.011235955056179775
+          }
+        },
+        "structural_distributions": {
+          "depth": {
+            "mean": 24.26,
+            "std": 2.3221541723150083,
+            "min": 20,
+            "max": 32
+          },
+          "node_count": {
+            "mean": 1474.3,
+            "std": 105.883473686879,
+            "min": 1255,
+            "max": 1699
+          },
+          "leaf_count": {
+            "mean": 737.65,
+            "std": 52.9417368434395,
+            "min": 628,
+            "max": 850
+          }
+        }
+      },
+      "threshold_crossings_top5": [
+        [
+          "LetterRatioInURL",
+          {
+            "total_crossings": 75763,
+            "greater_than_crossings": 35637,
+            "greater_than_percentage": 0.4703747211699642,
+            "overall_decision_share": 0.1242250588225649
+          }
+        ],
+        [
+          "NoOfOtherSpecialCharsInURL",
+          {
+            "total_crossings": 67356,
+            "greater_than_crossings": 42728,
+            "greater_than_percentage": 0.6343607102559534,
+            "overall_decision_share": 0.11044049287980522
+          }
+        ],
+        [
+          "NoOfLettersInURL",
+          {
+            "total_crossings": 62873,
+            "greater_than_crossings": 34592,
+            "greater_than_percentage": 0.550188475180125,
+            "overall_decision_share": 0.1030899267894767
+          }
+        ],
+        [
+          "SpacialCharRatioInURL",
+          {
+            "total_crossings": 61903,
+            "greater_than_crossings": 41033,
+            "greater_than_percentage": 0.6628596352357721,
+            "overall_decision_share": 0.10149946301351895
+          }
+        ],
+        [
+          "DomainLength",
+          {
+            "total_crossings": 57483,
+            "greater_than_crossings": 16066,
+            "greater_than_percentage": 0.2794913278708488,
+            "overall_decision_share": 0.09425219508595883
+          }
+        ]
+      ]
+    }
+  },
+  "findings_summary": {
+    "unanimous_e0_fp_percentage": 0.9133986928104575,
+    "unanimous_e4_fp_percentage": 0.8322259136212624,
+    "primary_split_features": [
+      "IsHTTPS",
+      "NoOfOtherSpecialCharsInURL",
+      "NoOfDegitsInURL",
+      "URLLength"
+    ],
+    "structural_insight": "False positives are overwhelmingly unanimous rather than borderline: 91.34% of E0 false positives receive >= 90% phishing votes across the 100 estimators. Traversal paths confirm that legitimate URLs with multi-level paths (slashes) and subdomains are routed into predominantly phishing leaves because the PhiUSIIL benign training data structurally lacked subpaths (mean NoOfOtherSpecialChars = 1.25)."
+  }
+}
