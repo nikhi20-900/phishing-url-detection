@@ -151,6 +151,7 @@ def compute_psi(
     eval_data: np.ndarray,
     num_bins: int = 10,
     feature_name: Optional[str] = None,
+    epsilon: Optional[float] = None,
 ) -> Tuple[float, str]:
     """
     Compute Population Stability Index (PSI) with epsilon zero-count smoothing.
@@ -160,7 +161,7 @@ def compute_psi(
     where Q is reference (training) and P is evaluation (external).
     
     Epsilon smoothing:
-        epsilon = 1.0 / (2.0 * N_eval)
+        epsilon = epsilon if provided else 1.0 / (2.0 * N_eval)
         Added to zero-count bins and normalized so sum(p) == sum(q) == 1.0.
         
     Handles constant features:
@@ -211,7 +212,7 @@ def compute_psi(
     eval_counts, _ = np.histogram(eval_data, bins=bin_edges)
 
     n_eval = len(eval_data)
-    eps = 1.0 / (2.0 * n_eval)
+    eps = float(epsilon) if epsilon is not None else (1.0 / (2.0 * n_eval))
 
     # Apply epsilon smoothing to zero-count bins
     ref_smoothed = np.where(ref_counts == 0, eps, ref_counts.astype(float))
@@ -223,6 +224,219 @@ def compute_psi(
 
     psi_val = float(np.sum((p - q) * np.log(p / q)))
     return psi_val, "OK"
+
+
+def compute_bh_fdr(raw_pvalues: np.ndarray, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute Benjamini-Hochberg (BH) False Discovery Rate (FDR) adjusted p-values (q-values).
+
+    Parameters:
+        raw_pvalues: 1D array of unadjusted p-values.
+        alpha: False discovery rate threshold (default: 0.05).
+
+    Returns:
+        q_values: 1D array of adjusted p-values matching input order.
+        significant: Boolean array indicating which hypotheses reject null under FDR control.
+    """
+    p = np.asarray(raw_pvalues, dtype=float)
+    m = len(p)
+    if m == 0:
+        return np.array([]), np.array([], dtype=bool)
+
+    order = np.argsort(p)
+    sorted_p = p[order]
+    adjusted = np.zeros(m)
+    adjusted[-1] = sorted_p[-1]
+
+    for i in range(m - 2, -1, -1):
+        adjusted[i] = min(adjusted[i + 1], sorted_p[i] * m / (i + 1))
+    adjusted = np.clip(adjusted, 0.0, 1.0)
+
+    q_values = np.zeros(m)
+    q_values[order] = adjusted
+    significant = q_values < alpha
+    return q_values, significant
+
+
+def compute_two_proportion_test(k1: int, n1: int, k2: int, n2: int) -> Dict[str, Any]:
+    """
+    Perform a two-sample pooled z-test for binary proportions between two samples.
+
+    Parameters:
+        k1: Positive count in sample 1 (e.g., reference training)
+        n1: Total size of sample 1
+        k2: Positive count in sample 2 (e.g., evaluation external)
+        n2: Total size of sample 2
+
+    Returns:
+        Dict with proportions, z-statistic, two-tailed p-value, and significance flag.
+    """
+    p1 = k1 / n1 if n1 > 0 else 0.0
+    p2 = k2 / n2 if n2 > 0 else 0.0
+    pooled_p = (k1 + k2) / (n1 + n2) if (n1 + n2) > 0 else 0.0
+    se = np.sqrt(pooled_p * (1.0 - pooled_p) * (1.0 / n1 + 1.0 / n2)) if n1 > 0 and n2 > 0 else 0.0
+
+    if se > 1e-12:
+        z = (p2 - p1) / se
+        p_val = 2.0 * (1.0 - stats.norm.cdf(abs(z)))
+    else:
+        z = 0.0
+        p_val = 1.0
+
+    return {
+        "p_ref": float(p1),
+        "p_eval": float(p2),
+        "difference": float(p2 - p1),
+        "z_statistic": float(z),
+        "p_value": float(p_val),
+        "significant_005": bool(p_val < 0.05),
+    }
+
+
+def compute_domain_cluster_bootstrap(
+    ref_df: pd.DataFrame,
+    eval_df: pd.DataFrame,
+    cluster_series: pd.Series,
+    feature_names: List[str],
+    num_iterations: int = 2000,
+    random_seed: int = 42,
+    num_bins: int = 10,
+) -> Dict[str, Any]:
+    """
+    Perform domain-cluster-aware bootstrap uncertainty analysis.
+    Resamples unique registered domains with replacement and computes 95% CIs.
+
+    Parameters:
+        ref_df: Reference training DataFrame (rows = samples, cols = features)
+        eval_df: Evaluation benchmark DataFrame (rows = samples, cols = features)
+        cluster_series: Series containing registered domain identifiers for each row in eval_df
+        feature_names: List of feature names to evaluate
+        num_iterations: Number of bootstrap iterations (>= 2,000)
+        random_seed: Fixed seed for exact reproducibility
+        num_bins: Number of quantile bins for PSI
+
+    Returns:
+        Dict containing 95% confidence intervals, bootstrap means, stds, and quantiles.
+    """
+    unique_domains = np.unique(cluster_series)
+    n_clusters = len(unique_domains)
+    domain_to_indices = {d: np.where(cluster_series == d)[0] for d in unique_domains}
+
+    rng = np.random.default_rng(random_seed)
+
+    # Pre-extract numpy matrices and pre-sort reference arrays for fast KS computation
+    ref_mat = {f: ref_df[f].values.astype(float) for f in feature_names}
+    ref_sorted = {f: np.sort(ref_mat[f]) for f in feature_names}
+    n1_ref = {f: len(ref_mat[f]) for f in feature_names}
+    eval_mat = {f: eval_df[f].values.astype(float) for f in feature_names}
+
+    # Precompute bin edges for reference distributions for high performance
+    bin_edges_map = {}
+    binary_features = {"IsDomainIP", "HasObfuscation", "IsHTTPS"}
+    for f in feature_names:
+        ref = ref_mat[f]
+        if f in binary_features:
+            edges = np.array([-np.inf, 0.5, np.inf])
+        else:
+            quantiles = np.linspace(0, 100, num_bins + 1)
+            raw_edges = np.unique(np.percentile(ref, quantiles))
+            if len(raw_edges) >= 3:
+                edges = raw_edges.copy()
+                edges[0] = -np.inf
+                edges[-1] = np.inf
+            else:
+                u_vals = np.unique(ref)
+                if len(u_vals) <= num_bins + 1:
+                    midpoints = (u_vals[:-1] + u_vals[1:]) / 2.0
+                    edges = np.concatenate([[-np.inf], midpoints, [np.inf]])
+                else:
+                    pos = ref[ref > 0]
+                    pos_edges = np.unique(np.percentile(pos, np.linspace(0, 100, num_bins)))
+                    mid_zero = 0.5 if np.min(pos) >= 1.0 else float(np.min(pos) / 2.0)
+                    tail = pos_edges[pos_edges > mid_zero]
+                    edges = np.concatenate([[-np.inf, mid_zero], tail, [np.inf]])
+        bin_edges_map[f] = edges
+
+    # Precompute reference histograms
+    ref_counts_map = {}
+    for f in feature_names:
+        counts, _ = np.histogram(ref_mat[f], bins=bin_edges_map[f])
+        ref_counts_map[f] = counts
+
+    # Storage for bootstrap distributions
+    boot_mean_psi = np.zeros(num_iterations)
+    boot_feature_psi = {f: np.zeros(num_iterations) for f in feature_names}
+    boot_feature_ks = {f: np.zeros(num_iterations) for f in feature_names}
+
+    n_eval_nominal = len(eval_df)
+    eps = 1.0 / (2.0 * n_eval_nominal)
+
+    for it in range(num_iterations):
+        sampled_doms = rng.choice(unique_domains, size=n_clusters, replace=True)
+        sample_idx = np.concatenate([domain_to_indices[d] for d in sampled_doms])
+        n2_sample = len(sample_idx)
+
+        iter_psis = []
+        for f in feature_names:
+            eval_sample = eval_mat[f][sample_idx]
+            edges = bin_edges_map[f]
+            ref_counts = ref_counts_map[f]
+            eval_counts, _ = np.histogram(eval_sample, bins=edges)
+
+            # Smoothed proportions
+            ref_s = np.where(ref_counts == 0, eps, ref_counts.astype(float))
+            eval_s = np.where(eval_counts == 0, eps, eval_counts.astype(float))
+            q = ref_s / np.sum(ref_s)
+            p = eval_s / np.sum(eval_s)
+
+            psi_val = float(np.sum((p - q) * np.log(p / q)))
+            boot_feature_psi[f][it] = psi_val
+            iter_psis.append(psi_val)
+
+            # Fast exact 2-sample KS D-statistic using pre-sorted reference
+            y_sorted = np.sort(eval_sample)
+            n1 = n1_ref[f]
+            c1_right = np.searchsorted(ref_sorted[f], y_sorted, side="right") / n1
+            c1_left = np.searchsorted(ref_sorted[f], y_sorted, side="left") / n1
+            c2_right = np.arange(1, n2_sample + 1) / n2_sample
+            c2_left = np.arange(0, n2_sample) / n2_sample
+            d_stat = float(max(np.max(c2_right - c1_right), np.max(c1_left - c2_left)))
+            boot_feature_ks[f][it] = d_stat
+
+        boot_mean_psi[it] = float(np.mean(iter_psis))
+
+    # Calculate summaries
+    feature_summaries = {}
+    for f in feature_names:
+        psis = boot_feature_psi[f]
+        ks_ds = boot_feature_ks[f]
+        feature_summaries[f] = {
+            "psi": {
+                "bootstrap_mean": float(np.mean(psis)),
+                "bootstrap_std": float(np.std(psis)),
+                "ci_95": [float(np.percentile(psis, 2.5)), float(np.percentile(psis, 97.5))],
+                "median": float(np.median(psis)),
+            },
+            "ks_d": {
+                "bootstrap_mean": float(np.mean(ks_ds)),
+                "bootstrap_std": float(np.std(ks_ds)),
+                "ci_95": [float(np.percentile(ks_ds, 2.5)), float(np.percentile(ks_ds, 97.5))],
+                "median": float(np.median(ks_ds)),
+            },
+        }
+
+    return {
+        "num_iterations": num_iterations,
+        "random_seed": random_seed,
+        "cluster_count": n_clusters,
+        "mean_psi": {
+            "bootstrap_mean": float(np.mean(boot_mean_psi)),
+            "bootstrap_std": float(np.std(boot_mean_psi)),
+            "ci_95": [float(np.percentile(boot_mean_psi, 2.5)), float(np.percentile(boot_mean_psi, 97.5))],
+            "median": float(np.median(boot_mean_psi)),
+        },
+        "features": feature_summaries,
+    }
 
 
 def compute_bounding_box_analysis(

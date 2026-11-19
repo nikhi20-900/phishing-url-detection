@@ -62,6 +62,9 @@ OUTPUT_SHAP_SUMMARY = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_sha
 OUTPUT_SHAP_FULL = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_shap_attributions.json"
 OUTPUT_COVARIATE_SCORECARD = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_covariate_shift_scorecard.json"
 OUTPUT_COVARIATE_FULL = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_covariate_shift_full.json"
+OUTPUT_DOMAIN_INDEP = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_stage2_domain_independence.json"
+OUTPUT_STAT_INFERENCE = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_stage2_statistical_inference.json"
+OUTPUT_PSI_SENSITIVITY = REPO_ROOT / "experiments" / "phase7" / "reports" / "m6_stage2_psi_sensitivity.json"
 
 
 def compute_file_sha256(path: Path) -> str:
@@ -637,6 +640,176 @@ class TestM6OperationalReadiness:
         assert "Empirical quantification reveals severe covariate shift" in obs["legitimate_partition_shift"]
         assert "phishing URLs exhibit substantially milder covariate drift" in obs["phishing_partition_shift"]
         assert "highly asymmetric" in obs["asymmetric_drift_implication"]
+
+    def test_stage2_data_integrity_and_provenance_audit(self):
+        """Stage 2 Finding A & B: Verify data integrity, feature extraction skew, and evidence provenance."""
+        assert OUTPUT_COVARIATE_FULL.exists()
+        full_data = json.loads(OUTPUT_COVARIATE_FULL.read_text(encoding="utf-8"))
+
+        # Finding A: Integrity
+        audit_a = full_data["audit_finding_a_integrity"]
+        assert audit_a["status"] == "PASS"
+        assert audit_a["sample_counts"]["train"]["total"] == 170615
+        assert audit_a["sample_counts"]["train"]["legitimate"] == 94523
+        assert audit_a["sample_counts"]["train"]["phishing"] == 76092
+        assert audit_a["sample_counts"]["benchmark"]["total"] == 1300
+        assert audit_a["sample_counts"]["benchmark"]["legitimate"] == 650
+        assert audit_a["sample_counts"]["benchmark"]["phishing"] == 650
+        assert audit_a["duplicate_urls"]["train"] == 0
+        assert audit_a["duplicate_urls"]["benchmark"] == 0
+        assert audit_a["missing_values"]["train_features"] == 0
+        assert audit_a["missing_values"]["benchmark_columns"] == 0
+        assert audit_a["label_encoding"]["phishing"] == 0
+        assert audit_a["label_encoding"]["legitimate"] == 1
+
+        # Feature skew audit
+        skew = audit_a["feature_extraction_skew_audit"]
+        assert skew["DomainLength"]["mismatches_per_1000"] == 0
+        assert skew["URLLength"]["max_absolute_difference"] == 1.0
+
+        # Finding B: Provenance
+        audit_b = full_data["audit_finding_b_provenance"]
+        assert audit_b["status"] == "PASS"
+        assert audit_b["total_observations_verified"] == 1300
+        assert audit_b["legitimate_verification"]["tls_verified_count"] == 650
+        assert audit_b["phishing_verification"]["phishtank_snapshot_matches"] == 650
+
+    def test_stage2_domain_clustering_and_bootstrap_uncertainty(self):
+        """Stage 2 Finding C: Verify domain clustering, zero overlap, and 2,000-iteration cluster bootstrap."""
+        assert OUTPUT_DOMAIN_INDEP.exists()
+        domain_data = json.loads(OUTPUT_DOMAIN_INDEP.read_text(encoding="utf-8"))
+
+        # Domain counts
+        fqdn = domain_data["domain_counts"]["fully_qualified_domain_names_fqdn"]
+        assert fqdn["legitimate"] == 219
+        assert fqdn["phishing"] == 650
+        assert fqdn["total"] == 869
+
+        etld1 = domain_data["domain_counts"]["registered_domains_etld_plus_1"]
+        assert etld1["legitimate"] == 160
+        assert etld1["phishing"] == 650
+        assert etld1["total"] == 810
+
+        # Cluster caps
+        clusters = domain_data["cluster_size_distributions"]
+        assert clusters["legitimate"]["max_urls_per_domain"] == 5
+        assert clusters["phishing"]["max_urls_per_domain"] == 1
+
+        # Zero overlaps
+        iso = domain_data["domain_isolation_audit"]
+        assert iso["cross_class_overlap_count"] == 0
+        assert iso["cross_class_status"] == "CERTIFIED_ZERO_OVERLAP"
+        assert iso["training_overlap_count"] == 0
+        assert iso["training_status"] == "CERTIFIED_ZERO_OVERLAP"
+
+        # 2,000-iteration cluster bootstrap uncertainty
+        boot = domain_data["cluster_bootstrap_uncertainty"]
+        assert boot["iterations"] == 2000
+        assert boot["random_seed"] == 42
+
+        # Legitimate Mean PSI CI
+        legit_boot = boot["legitimate_partition"]
+        mean_psi_ci = legit_boot["mean_psi"]["ci_95"]
+        assert mean_psi_ci[0] > 1.0, f"Lower bound of Mean PSI must exceed 1.0, got {mean_psi_ci[0]}"
+        assert mean_psi_ci[1] < 2.5, f"Upper bound of Mean PSI must be reasonable, got {mean_psi_ci[1]}"
+
+        # SpacialCharRatioInURL CI
+        spacial_ci = legit_boot["features"]["SpacialCharRatioInURL"]["psi"]["ci_95"]
+        assert spacial_ci[0] > 5.0, f"Lower bound of SpacialCharRatioInURL PSI must exceed 5.0, got {spacial_ci[0]}"
+
+        # Phishing Mean PSI CI
+        phish_boot = boot["phishing_partition"]
+        phish_mean_psi_ci = phish_boot["mean_psi"]["ci_95"]
+        assert phish_mean_psi_ci[1] < 0.35, f"Upper bound of Phishing Mean PSI must be < 0.35, got {phish_mean_psi_ci[1]}"
+
+    def test_stage2_multiple_testing_fdr_and_discrete_inference(self):
+        """Stage 2 Finding D: Verify Benjamini-Hochberg FDR correction (m=36) and discrete proportion tests."""
+        assert OUTPUT_STAT_INFERENCE.exists()
+        stat_data = json.loads(OUTPUT_STAT_INFERENCE.read_text(encoding="utf-8"))
+
+        summary = stat_data["summary"]
+        assert summary["total_hypotheses_tested"] == 36
+        assert summary["statistically_significant_under_fdr_005"] == 23
+        assert summary["non_significant_under_fdr_005"] == 13
+
+        ranking = stat_data["fdr_corrected_tests_ranking"]
+        assert len(ranking) == 36
+
+        # Check FDR monotonicity and bounds
+        prev_p = -1.0
+        for item in ranking:
+            assert item["p_value"] >= prev_p
+            prev_p = item["p_value"]
+            assert 0.0 <= item["fdr_q_value"] <= 1.0
+
+        # Discrete tests for binary features
+        discrete = stat_data["discrete_feature_inferential_tests"]
+        # Phishing IsHTTPS
+        p_https = discrete["phishing"]["IsHTTPS"]
+        assert p_https["z_statistic"] > 10.0
+        assert p_https["p_value"] < 1e-10
+        assert p_https["significant_005"] is True
+
+        # Legitimate IsHTTPS
+        l_https = discrete["legitimate"]["IsHTTPS"]
+        assert l_https["z_statistic"] == 0.0
+        assert l_https["p_value"] == 1.0
+        assert l_https["significant_005"] is False
+
+    def test_stage2_psi_sensitivity_analysis(self):
+        """Stage 2 Finding E: Verify PSI stability across bin counts (5, 10, 20) and smoothing epsilons."""
+        assert OUTPUT_PSI_SENSITIVITY.exists()
+        sens_data = json.loads(OUTPUT_PSI_SENSITIVITY.read_text(encoding="utf-8"))
+
+        bins_data = sens_data["bin_count_sensitivity"]["legitimate"]
+        assert "bins_5" in bins_data and "bins_10" in bins_data and "bins_20" in bins_data
+
+        # Verify key severe features remain SEVERE_SHIFT across all bin counts
+        severe_keys = [
+            "SpacialCharRatioInURL",
+            "NoOfOtherSpecialCharsInURL",
+            "NoOfSubDomain",
+            "NoOfEqualsInURL",
+            "NoOfQMarkInURL",
+            "URLLength",
+            "DomainLength",
+        ]
+        for b_key in ["bins_5", "bins_10", "bins_20"]:
+            for feat in severe_keys:
+                assert bins_data[b_key][feat]["severity"] == "SEVERE_SHIFT"
+                assert bins_data[b_key][feat]["psi"] >= 0.25
+
+        # Smoothing sensitivity
+        smooth_data = sens_data["smoothing_epsilon_sensitivity"]["legitimate"]
+        for eps_key in ["half_over_n", "one_over_n", "fixed_0001", "fixed_001"]:
+            assert smooth_data[eps_key]["SpacialCharRatioInURL"]["severity"] == "SEVERE_SHIFT"
+
+    def test_stage2_scale_normalized_wasserstein_and_fpr_linkage(self):
+        """Stage 2 Finding F, G & H: Verify scale-normalized W1, observational wording, and linkage to M5.1 FPR."""
+        sc = json.loads(OUTPUT_COVARIATE_SCORECARD.read_text(encoding="utf-8"))
+
+        # Normalized W1
+        legit_features = {r["feature"]: r for r in sc["scorecard_table"]["legitimate_features"]}
+        assert legit_features["NoOfQMarkInURL"]["normalized_w1"] > 10.0
+        assert legit_features["NoOfEqualsInURL"]["normalized_w1"] > 7.0
+        assert legit_features["NoOfOtherSpecialCharsInURL"]["normalized_w1"] > 4.0
+        assert legit_features["SpacialCharRatioInURL"]["normalized_w1"] > 3.0
+
+        # Observational Diagnostics and FPR Linkage
+        obs = sc["observational_diagnostics"]
+        assert "linkage_to_historical_fpr" in obs
+        fpr_text = obs["linkage_to_historical_fpr"]
+        assert "94.15%" in fpr_text
+        assert "92.62%" in fpr_text
+        assert "special characters" in fpr_text
+        assert "query markers" in fpr_text
+
+        # Strict Non-Causal Wording Audit: no unauthorized causal assertions
+        full_text = OUTPUT_COVARIATE_SCORECARD.read_text(encoding="utf-8")
+        assert "Training Representation Bias Proof" not in full_text
+        assert "synthetic augmentation caused the feature shift" not in full_text
+        assert "drift in SpacialCharRatio proves" not in full_text
+
 
 
 

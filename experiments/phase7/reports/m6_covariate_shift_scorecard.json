@@ -1,9 +1,9 @@
 {
   "stage": "STAGE_2_CLASS_SEPARATED_COVARIATE_SHIFT",
   "milestone": "Phase 7 \u2014 M6",
-  "analysis_type": "Class-Separated Distribution Drift & Covariate Shift Scorecard",
-  "created_at_utc": "2026-11-19T06:39:58.158086+00:00",
-  "execution_duration_seconds": 0.558251142501831,
+  "analysis_type": "Class-Separated Distribution Drift & Covariate Shift Scorecard (Remediation & Audit)",
+  "created_at_utc": "2026-11-19T13:59:53.433051+00:00",
+  "execution_duration_seconds": 4.652642250061035,
   "governance_status": "ZERO_RETRAINING_MODEL_IMMUTABILITY_PRESERVED",
   "models": {
     "e0_sha256": "95f09ddc7bda88bad29cf8329a5ee83f74079da24d4e916427e95524d02f39bb",
@@ -11,7 +11,9 @@
   },
   "dataset_hashes": {
     "training_split_sha256": "9297458d03841fbe9c32bae7c4ad323e1b3f0b221c0c755f912350808d0c6892",
-    "m5_1_qualified_benchmark_sha256": "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88"
+    "m5_1_qualified_benchmark_sha256": "f6cdbf797b683d6c82d7b5c72c6ddf35aba7cbb448edafc2d68e67e26695fc88",
+    "raw_observations_sha256": "43d4e432a406083a4bb9ef61be0d9870dd7cba8b5ca7ad0103e3ff0dd6ca2282",
+    "phishtank_raw_sha256": "4885e37276d8a33b3da045d9fca0888c152e4d20c91e7a69f39eb032893a54ba"
   },
   "sample_counts": {
     "legitimate": {
@@ -24,10 +26,12 @@
     }
   },
   "methodology": {
-    "psi_bins": "10 quantile bins derived from reference training partition; exact [0, 1] categorical bins for binary features",
+    "psi_bins": "10 quantile bins derived from reference training partition; exact [-inf, 0.5, inf] categorical bins for binary features",
     "zero_count_smoothing_epsilon": 0.0007692307692307692,
-    "ks_test": "Two-sample Kolmogorov-Smirnov test (scipy.stats.ks_2samp)",
-    "wasserstein_metric": "First Wasserstein distance (L1 earth mover distance)"
+    "ks_test": "Two-sample Kolmogorov-Smirnov test (scipy.stats.ks_2samp) with Benjamini-Hochberg FDR correction across m=36 tests",
+    "discrete_binary_tests": "Two-sample pooled z-tests for binary proportions",
+    "wasserstein_metric": "First Wasserstein distance (unnormalized and scale-normalized by reference std)",
+    "domain_cluster_bootstrap": "2,000-iteration cluster bootstrap resampling registered domains with fixed seed 42"
   },
   "legitimate_partition_summary": {
     "overall_metrics": {
@@ -35,7 +39,8 @@
       "median_psi": 0.7664248147909271,
       "mean_ks_d": 0.2606684910315773,
       "median_ks_d": 0.22573669900447513,
-      "mean_w1": 2.05269381592017
+      "mean_w1": 2.05269381592017,
+      "mean_normalized_w1": 2.5036559015064688
     },
     "psi_severity_counts": {
       "severe_shift_count": 11,
@@ -161,6 +166,28 @@
           "feature": "NoOfDegitsInURL",
           "w1": 0.991893613194672
         }
+      ],
+      "by_normalized_w1": [
+        {
+          "feature": "NoOfQMarkInURL",
+          "normalized_w1": 12.069155950901491
+        },
+        {
+          "feature": "NoOfEqualsInURL",
+          "normalized_w1": 8.895943534163285
+        },
+        {
+          "feature": "NoOfOtherSpecialCharsInURL",
+          "normalized_w1": 4.839965335405882
+        },
+        {
+          "feature": "SpacialCharRatioInURL",
+          "normalized_w1": 3.1467593591751433
+        },
+        {
+          "feature": "URLLength",
+          "normalized_w1": 2.9592400577462192
+        }
       ]
     }
   },
@@ -170,7 +197,8 @@
       "median_psi": 0.10728657747357795,
       "mean_ks_d": 0.11268638144288673,
       "median_ks_d": 0.14213407656318877,
-      "mean_w1": 0.8725271658801521
+      "mean_w1": 0.8725271658801521,
+      "mean_normalized_w1": 0.21529483587050338
     },
     "psi_severity_counts": {
       "severe_shift_count": 5,
@@ -296,13 +324,36 @@
           "feature": "NoOfOtherSpecialCharsInURL",
           "w1": 0.626923804786901
         }
+      ],
+      "by_normalized_w1": [
+        {
+          "feature": "TLDLength",
+          "normalized_w1": 0.852964097477856
+        },
+        {
+          "feature": "NoOfSubDomain",
+          "normalized_w1": 0.7201410524499375
+        },
+        {
+          "feature": "IsHTTPS",
+          "normalized_w1": 0.5381886058517797
+        },
+        {
+          "feature": "DegitRatioInURL",
+          "normalized_w1": 0.27801398196153504
+        },
+        {
+          "feature": "LetterRatioInURL",
+          "normalized_w1": 0.2658915897242365
+        }
       ]
     }
   },
   "observational_diagnostics": {
-    "legitimate_partition_shift": "Empirical quantification reveals severe covariate shift across legitimate web URLs: 11 of 18 features exhibit severe PSI (>= 0.25), led by SpacialCharRatioInURL (PSI = 6.79), NoOfOtherSpecialCharsInURL (PSI = 4.97), NoOfSubDomain (PSI = 2.28), NoOfEqualsInURL (PSI = 2.04), NoOfQMarkInURL (PSI = 1.99), URLLength (PSI = 1.34), and DomainLength (PSI = 1.24). This reflects the empirical disparity between the PhiUSIIL benign training distribution (where 100% lacked query parameters and mean special characters = 1.25) and authentic live operational routes that routinely possess multi-level path slashes, query parameters, and subdomains.",
+    "legitimate_partition_shift": "Empirical quantification reveals severe covariate shift across legitimate web URLs: 11 of 18 features exhibit severe PSI (>= 0.25), led by SpacialCharRatioInURL (PSI = 6.79), NoOfOtherSpecialCharsInURL (PSI = 4.97), NoOfSubDomain (PSI = 2.28), NoOfEqualsInURL (PSI = 2.04), NoOfQMarkInURL (PSI = 1.99), URLLength (PSI = 1.34), and DomainLength (PSI = 1.24). Under scale-normalized Wasserstein distance, query features display extreme divergence: NoOfQMarkInURL (norm W1 = 12.07), NoOfEqualsInURL (norm W1 = 8.90), NoOfOtherSpecialCharsInURL (norm W1 = 4.84). This empirical disparity aligns directly with the structural composition of the PhiUSIIL benign training data (where 100% lacked query parameters and mean special characters = 1.25) versus live authentic operational routes that routinely possess query strings (30.4%) and multi-level path hierarchies (mean special characters = 3.82). The data establishes significant distribution divergence; causal attribution to synthetic augmentation or specific features requires controlled counterfactual intervention.",
     "phishing_partition_shift": "In contrast to the legitimate partition, phishing URLs exhibit substantially milder covariate drift: mean PSI is 0.1877 (vs 1.3280 for legitimate). Only 5 features show severe PSI in phishing, primarily IsHTTPS (PSI = 0.33, reflecting external phishing having 79.2% TLS adoption vs 52.1% in historical training), NoOfSubDomain (PSI = 0.79), TLDLength (PSI = 0.46), and NoOfOtherSpecialCharsInURL (PSI = 0.57). Query parameters in phishing (NoOfEqualsInURL PSI = 0.06, NoOfQMarkInURL PSI = 0.02) show negligible drift because phishing URLs in both environments consistently utilized query strings.",
-    "asymmetric_drift_implication": "The observed covariate shift is highly asymmetric: legitimate URL structures diverged dramatically from the training baseline (mean D_KS = 0.306, mean PSI = 1.393), while phishing URL structures remained comparatively stable (mean D_KS = 0.134, mean PSI = 0.198). This asymmetric shift is consistent with the ensemble's high false-positive rate on benign URLs."
+    "asymmetric_drift_implication": "The observed covariate shift is highly asymmetric: legitimate URL structures diverged dramatically from the training baseline (mean D_KS = 0.306, mean PSI = 1.328), while phishing URL structures remained comparatively stable (mean D_KS = 0.134, mean PSI = 0.188). This asymmetric shift is consistent with the ensemble's high false-positive rate on benign URLs.",
+    "linkage_to_historical_fpr": "In Milestone 5.1, production control E0 exhibited a 94.15% false-positive rate (612/650) and candidate E4 exhibited a 92.62% false-positive rate (602/650) on the qualified external benchmark at threshold T=0.75. Stage 1 tree-path analysis proved that decision splits in both ensembles rely heavily on special characters, length, and query markers. Because benign training instances entirely lacked query markers and possessed low special-character ratios, authentic benign operational URLs bearing query parameters and complex routes map into feature regions assigned high phishing probabilities by the learned decision trees."
   },
   "scorecard_table": {
     "legitimate_features": [
@@ -312,14 +363,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.4959876432191107,
         "ks_pvalue": 2.611447451779417e-147,
+        "fdr_q_value": 3.1337369421353005e-146,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 14.751573479470602,
+        "normalized_w1": 2.9592400577462192,
         "ref_mean": 26.269712133554798,
         "ref_std": 4.984919503524671,
         "ref_p95": 35.0,
         "eval_mean": 40.93692307692308,
         "eval_std": 23.540551390384078,
-        "eval_p95": 88.0
+        "eval_p95": 88.0,
+        "psi_95_ci": [
+          1.1506827135416944,
+          1.600872969642741
+        ],
+        "ks_d_95_ci": [
+          0.45072262413560527,
+          0.5440503288615053
+        ]
       },
       {
         "feature": "DomainLength",
@@ -327,14 +389,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.4390082836981475,
         "ks_pvalue": 7.632024828368081e-114,
+        "fdr_q_value": 5.495057876425018e-113,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 5.051598870116269,
+        "normalized_w1": 1.04858665292045,
         "ref_mean": 19.230060408577806,
         "ref_std": 4.817531155910587,
         "ref_p95": 28.0,
         "eval_mean": 14.178461538461539,
         "eval_std": 4.448560434660679,
-        "eval_p95": 22.549999999999955
+        "eval_p95": 22.549999999999955,
+        "psi_95_ci": [
+          0.9664885631881462,
+          2.162338608219117
+        ],
+        "ks_d_95_ci": [
+          0.370102302338295,
+          0.5090026289236428
+        ]
       },
       {
         "feature": "IsDomainIP",
@@ -342,14 +415,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.0,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.0,
+        "normalized_w1": 0.0,
         "ref_mean": 0.0,
         "ref_std": 0.0,
         "ref_p95": 0.0,
         "eval_mean": 0.0,
         "eval_std": 0.0,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          5.463967700651787e-06,
+          6.318521407117647e-06
+        ],
+        "ks_d_95_ci": [
+          0.0,
+          0.0
+        ]
       },
       {
         "feature": "TLDLength",
@@ -357,14 +441,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.07636300159749476,
         "ks_pvalue": 0.0010087031539881344,
+        "fdr_q_value": 0.0016506051610714926,
+        "significant_under_fdr_005": true,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.10998296710853439,
+        "normalized_w1": 0.21266488178332535,
         "ref_mean": 2.721358822720396,
         "ref_std": 0.5171656278472487,
         "ref_p95": 3.0,
         "eval_mean": 2.6769230769230767,
         "eval_std": 0.6374876724646358,
-        "eval_p95": 3.0
+        "eval_p95": 3.0,
+        "psi_95_ci": [
+          0.00017794371603018365,
+          0.10086450351326727
+        ],
+        "ks_d_95_ci": [
+          0.015245738611335295,
+          0.15283853023181002
+        ]
       },
       {
         "feature": "NoOfSubDomain",
@@ -372,14 +467,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.30277011944182897,
         "ks_pvalue": 4.900713091412375e-53,
+        "fdr_q_value": 2.205320891135569e-52,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 0.4259155972620421,
+        "normalized_w1": 1.0410396466180913,
         "ref_mean": 1.1628386741851189,
         "ref_std": 0.40912524191145483,
         "ref_p95": 2.0,
         "eval_mean": 0.7369230769230769,
         "eval_std": 0.5233234713074714,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          1.7011740552790884,
+          2.9621110815642844
+        ],
+        "ks_d_95_ci": [
+          0.233724685726608,
+          0.37252100047233083
+        ]
       },
       {
         "feature": "HasObfuscation",
@@ -387,14 +493,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.0030240258984585155,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.0030240258984586266,
+        "normalized_w1": 0.41579641386076943,
         "ref_mean": 5.2897178464500704e-05,
         "ref_std": 0.007272852284558736,
         "ref_p95": 0.0,
         "eval_mean": 0.003076923076923077,
         "eval_std": 0.055384615384615365,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          0.00019502098221262315,
+          0.03956621775428674
+        ],
+        "ks_d_95_ci": [
+          5.2897178464461625e-05,
+          0.007883610758043447
+        ]
       },
       {
         "feature": "NoOfObfuscatedChar",
@@ -402,14 +519,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.0030240258984585155,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.013655724003681535,
+        "normalized_w1": 0.4947975824069532,
         "ref_mean": 0.00019042984247220253,
         "ref_std": 0.027598606964191256,
         "ref_p95": 0.0,
         "eval_mean": 0.013846153846153847,
         "eval_std": 0.2627528368152051,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          0.00016619250639678725,
+          0.04287049767132333
+        ],
+        "ks_d_95_ci": [
+          5.2897178464461625e-05,
+          0.007883610758043447
+        ]
       },
       {
         "feature": "ObfuscationRatio",
@@ -417,14 +545,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.0030663436412301515,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.0001732052516318813,
+        "normalized_w1": 0.4344286388302159,
         "ref_mean": 2.750653280154037e-06,
         "ref_std": 0.00039869666994853364,
         "ref_p95": 0.0,
         "eval_mean": 0.0001753846153846154,
         "eval_std": 0.0031574103687494275,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          0.00010132303193772623,
+          0.052615166893801704
+        ],
+        "ks_d_95_ci": [
+          5.2897178464461625e-05,
+          0.007925928500814972
+        ]
       },
       {
         "feature": "NoOfLettersInURL",
@@ -432,14 +571,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.4723485289294669,
         "ks_pvalue": 8.44158364386687e-133,
+        "fdr_q_value": 7.597425279480183e-132,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 12.158865461316292,
+        "normalized_w1": 2.4791095130903344,
         "ref_mean": 12.967288384837552,
         "ref_std": 4.904529387312001,
         "ref_p95": 21.0,
         "eval_mean": 25.126153846153848,
         "eval_std": 19.024019448484893,
-        "eval_p95": 57.0
+        "eval_p95": 57.0,
+        "psi_95_ci": [
+          0.9591081591631905,
+          1.3727685119046633
+        ],
+        "ks_d_95_ci": [
+          0.4265456626991996,
+          0.5216495880078862
+        ]
       },
       {
         "feature": "LetterRatioInURL",
@@ -447,14 +597,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.41673624408874027,
         "ks_pvalue": 4.029772603324786e-102,
+        "fdr_q_value": 2.4178635619948717e-101,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 0.0981545278926822,
+        "normalized_w1": 1.0296635634877003,
         "ref_mean": 0.4769716259534717,
         "ref_std": 0.09532679544395152,
         "ref_p95": 0.618,
         "eval_mean": 0.5751261538461538,
         "eval_std": 0.11596419643337279,
-        "eval_p95": 0.738
+        "eval_p95": 0.738,
+        "psi_95_ci": [
+          0.7307386175672179,
+          1.1640297463662197
+        ],
+        "ks_d_95_ci": [
+          0.36433336043539144,
+          0.47553386898928596
+        ]
       },
       {
         "feature": "NoOfDegitsInURL",
@@ -462,14 +623,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.1505697026120627,
         "ks_pvalue": 2.9899600317899333e-13,
+        "fdr_q_value": 5.979920063579867e-13,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 0.991893613194672,
+        "normalized_w1": 2.7523189902926672,
         "ref_mean": 0.05118330988225088,
         "ref_std": 0.3603846853119301,
         "ref_p95": 0.0,
         "eval_mean": 1.043076923076923,
         "eval_std": 3.93852644177291,
-        "eval_p95": 7.0
+        "eval_p95": 7.0,
+        "psi_95_ci": [
+          0.38590149075253316,
+          0.9151792650336957
+        ],
+        "ks_d_95_ci": [
+          0.10505333660344,
+          0.1967195643354915
+        ]
       },
       {
         "feature": "DegitRatioInURL",
@@ -477,14 +649,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.1505697026120627,
         "ks_pvalue": 2.9899600317899333e-13,
+        "fdr_q_value": 5.979920063579867e-13,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 0.012638559292447341,
+        "normalized_w1": 0.8613395485241809,
         "ref_mean": 0.0021106714767834284,
         "ref_std": 0.0146731440743691,
         "ref_p95": 0.0,
         "eval_mean": 0.01474923076923077,
         "eval_std": 0.046177985507838366,
-        "eval_p95": 0.10164999999999987
+        "eval_p95": 0.10164999999999987,
+        "psi_95_ci": [
+          0.26652315934056314,
+          0.589627097427903
+        ],
+        "ks_d_95_ci": [
+          0.10505333660344,
+          0.1967195643354915
+        ]
       },
       {
         "feature": "NoOfEqualsInURL",
@@ -492,14 +675,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.30090369539688755,
         "ks_pvalue": 2.2410481103387792e-52,
+        "fdr_q_value": 8.964192441355117e-52,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 0.3483315171968727,
+        "normalized_w1": 8.895943534163285,
         "ref_mean": 0.0008992520338965119,
         "ref_std": 0.039156219445319954,
         "ref_p95": 0.0,
         "eval_mean": 0.34923076923076923,
         "eval_std": 0.6223091185683001,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          1.5549743095921233,
+          2.590719602321358
+        ],
+        "ks_d_95_ci": [
+          0.24015316570416506,
+          0.3645180551750404
+        ]
       },
       {
         "feature": "NoOfQMarkInURL",
@@ -507,14 +701,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.30398061847381064,
         "ks_pvalue": 1.8184511007450065e-53,
+        "fdr_q_value": 9.35203423240289e-53,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 0.30398061847381064,
+        "normalized_w1": 12.069155950901491,
         "ref_mean": 0.0006347661415740084,
         "ref_std": 0.0251865681171437,
         "ref_p95": 0.0,
         "eval_mean": 0.3046153846153846,
         "eval_std": 0.4602443395317382,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          1.5152913085976347,
+          2.508591103016987
+        ],
+        "ks_d_95_ci": [
+          0.24322541091830024,
+          0.3677058542181026
+        ]
       },
       {
         "feature": "NoOfAmpersandInURL",
@@ -522,14 +727,25 @@
         "psi_severity": "MODERATE_SHIFT",
         "ks_d": 0.0243932164658337,
         "ks_pvalue": 0.8275256445437146,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.04588936026152368,
+        "normalized_w1": 2.3849965579097256,
         "ref_mean": 0.0002644858923225035,
         "ref_std": 0.01924084968145293,
         "ref_p95": 0.0,
         "eval_mean": 0.046153846153846156,
         "eval_std": 0.32490326279912124,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          0.03420806572729767,
+          0.277340474227816
+        ],
+        "ks_d_95_ci": [
+          0.0076145158345347266,
+          0.04523404597406406
+        ]
       },
       {
         "feature": "NoOfOtherSpecialCharsInURL",
@@ -537,14 +753,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.7787344879024153,
         "ks_pvalue": 0.0,
+        "fdr_q_value": 0.0,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 2.5721327084413312,
+        "normalized_w1": 4.839965335405882,
         "ref_mean": 1.2509442146355914,
         "ref_std": 0.5314361839795348,
         "ref_p95": 2.0,
         "eval_mean": 3.8230769230769233,
         "eval_std": 2.4440363355456594,
-        "eval_p95": 9.0
+        "eval_p95": 9.0,
+        "psi_95_ci": [
+          4.190918004523537,
+          11.747417510946484
+        ],
+        "ks_d_95_ci": [
+          0.7694084578952708,
+          0.7848883340562615
+        ]
       },
       {
         "feature": "SpacialCharRatioInURL",
@@ -552,14 +779,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.7705531986923817,
         "ks_pvalue": 0.0,
+        "fdr_q_value": 0.0,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 0.06067845138220327,
+        "normalized_w1": 3.1467593591751433,
         "ref_mean": 0.048481258529670015,
         "ref_std": 0.01928283813799758,
         "ref_p95": 0.091,
         "eval_mean": 0.10915846153846152,
         "eval_std": 0.02861206519208659,
-        "eval_p95": 0.156
+        "eval_p95": 0.156,
+        "psi_95_ci": [
+          6.4288076802113965,
+          8.824253158875294
+        ],
+        "ks_d_95_ci": [
+          0.7431682602296277,
+          0.8006039204743819
+        ]
       },
       {
         "feature": "IsHTTPS",
@@ -567,14 +805,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.0,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.0,
+        "normalized_w1": 0.0,
         "ref_mean": 1.0,
         "ref_std": 0.0,
         "ref_p95": 1.0,
         "eval_mean": 1.0,
         "eval_std": 0.0,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          5.463967700651787e-06,
+          6.318521407117647e-06
+        ],
+        "ks_d_95_ci": [
+          0.0,
+          0.0
+        ]
       }
     ],
     "phishing_features": [
@@ -584,14 +833,25 @@
         "psi_severity": "MODERATE_SHIFT",
         "ks_d": 0.13822045378266798,
         "ks_pvalue": 3.403579167865845e-11,
+        "fdr_q_value": 5.834707144912877e-11,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 5.073828361618851,
+        "normalized_w1": 0.08308051638292946,
         "ref_mean": 45.17444672238869,
         "ref_std": 61.071218409775916,
         "ref_p95": 98.0,
         "eval_mean": 47.54461538461538,
         "eval_std": 56.34158467165802,
-        "eval_p95": 101.19999999999982
+        "eval_p95": 101.19999999999982,
+        "psi_95_ci": [
+          0.1514186686792255,
+          0.2948219545087564
+        ],
+        "ks_d_95_ci": [
+          0.11256478999106342,
+          0.17154906307748916
+        ]
       },
       {
         "feature": "DomainLength",
@@ -599,14 +859,25 @@
         "psi_severity": "MODERATE_SHIFT",
         "ks_d": 0.07598372819946705,
         "ks_pvalue": 0.0011127831984339065,
+        "fdr_q_value": 0.0017417476149400276,
+        "significant_under_fdr_005": true,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 1.323197788911399,
+        "normalized_w1": 0.11711218260243218,
         "ref_mean": 24.446498974925092,
         "ref_std": 11.298549472033484,
         "ref_p95": 46.0,
         "eval_mean": 23.686153846153847,
         "eval_std": 10.018596200191183,
-        "eval_p95": 41.0
+        "eval_p95": 41.0,
+        "psi_95_ci": [
+          0.0762789155358132,
+          0.1885236395441599
+        ],
+        "ks_d_95_ci": [
+          0.052906805122543976,
+          0.10802473928321585
+        ]
       },
       {
         "feature": "IsDomainIP",
@@ -614,14 +885,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.0004370822364829774,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.0004370822364829774,
+        "normalized_w1": 0.00579739603559137,
         "ref_mean": 0.005716763917363192,
         "ref_std": 0.0753928546194951,
         "ref_p95": 0.0,
         "eval_mean": 0.006153846153846154,
         "eval_std": 0.0782047078593159,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          3.23939445976556e-05,
+          0.009665300429480049
+        ],
+        "ks_d_95_ci": [
+          0.0004370822364829774,
+          0.008129389928790642
+        ]
       },
       {
         "feature": "TLDLength",
@@ -629,14 +911,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.2310860941613189,
         "ks_pvalue": 1.0181594543771012e-30,
+        "fdr_q_value": 3.0544783631313035e-30,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 0.5762666650491914,
+        "normalized_w1": 0.852964097477856,
         "ref_mean": 2.8148162750354833,
         "ref_std": 0.675604831144903,
         "ref_p95": 4.0,
         "eval_mean": 3.3815384615384616,
         "eval_std": 0.9441141240813744,
-        "eval_p95": 5.0
+        "eval_p95": 5.0,
+        "psi_95_ci": [
+          0.3502444657587405,
+          0.5755294183441461
+        ],
+        "ks_d_95_ci": [
+          0.21416301723824197,
+          0.24800917108439582
+        ]
       },
       {
         "feature": "NoOfSubDomain",
@@ -644,14 +937,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.29232645502003646,
         "ks_pvalue": 3.0114104602041558e-49,
+        "fdr_q_value": 1.0841077656734961e-48,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 0.5558465663023302,
+        "normalized_w1": 0.7201410524499375,
         "ref_mean": 1.1635388739946382,
         "ref_std": 0.7718579081297012,
         "ref_p95": 2.0,
         "eval_mean": 0.6076923076923076,
         "eval_std": 0.5560320113384984,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          0.6492540470497402,
+          0.9746681937687743
+        ],
+        "ks_d_95_ci": [
+          0.2538264550200365,
+          0.33078799348157495
+        ]
       },
       {
         "feature": "HasObfuscation",
@@ -659,14 +963,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.004920197817217309,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.004920197817217198,
+        "normalized_w1": 0.07510229243131844,
         "ref_mean": 0.004310571413552016,
         "ref_std": 0.06551328405476774,
         "ref_p95": 0.0,
         "eval_mean": 0.009230769230769232,
         "eval_std": 0.09563243241796955,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          2.091960759238822e-05,
+          0.017409744310437354
+        ],
+        "ks_d_95_ci": [
+          0.00030481320183251004,
+          0.012612505509524863
+        ]
       },
       {
         "feature": "NoOfObfuscatedChar",
@@ -674,14 +989,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.005313608223243893,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.48313248335009884,
+        "normalized_w1": 0.166520373013701,
         "ref_mean": 0.053777006781264784,
         "ref_std": 2.9013415872563986,
         "ref_p95": 0.0,
         "eval_mean": 0.5123076923076924,
         "eval_std": 7.280363636148692,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          0.010890247225831809,
+          0.051295812366713295
+        ],
+        "ks_d_95_ci": [
+          0.001499035580410757,
+          0.013005915915551558
+        ]
       },
       {
         "feature": "ObfuscationRatio",
@@ -689,14 +1015,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.005603581090097509,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.0008245698526884363,
+        "normalized_w1": 0.14293734968938562,
         "ref_mean": 0.00030386900068338327,
         "ref_std": 0.005768750116609081,
         "ref_p95": 0.0,
         "eval_mean": 0.001123076923076923,
         "eval_std": 0.014104781177707292,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          0.022013420929668952,
+          0.05619260415134185
+        ],
+        "ks_d_95_ci": [
+          0.0017758664612472774,
+          0.013295888782405063
+        ]
       },
       {
         "feature": "NoOfLettersInURL",
@@ -704,14 +1041,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.16123247566710747,
         "ks_pvalue": 4.29052406869756e-15,
+        "fdr_q_value": 1.0297257764874145e-14,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 5.085530228589571,
+        "normalized_w1": 0.11524302336898355,
         "ref_mean": 27.72520107238606,
         "ref_std": 44.12874705921927,
         "ref_p95": 71.0,
         "eval_mean": 29.686153846153847,
         "eval_std": 40.48958033835781,
-        "eval_p95": 66.0
+        "eval_p95": 66.0,
+        "psi_95_ci": [
+          0.200324007782448,
+          0.368391713696325
+        ],
+        "ks_d_95_ci": [
+          0.13218743302641742,
+          0.19509693225609473
+        ]
       },
       {
         "feature": "LetterRatioInURL",
@@ -719,14 +1067,25 @@
         "psi_severity": "MODERATE_SHIFT",
         "ks_d": 0.16521829849696118,
         "ks_pvalue": 7.851242412148752e-16,
+        "fdr_q_value": 2.0188909059811077e-15,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 0.03617630564620156,
+        "normalized_w1": 0.2658915897242365,
         "ref_mean": 0.5689902355043893,
         "ref_std": 0.13605659992375468,
         "ref_p95": 0.763,
         "eval_mean": 0.6014753846153845,
         "eval_std": 0.10874793795501345,
-        "eval_p95": 0.75
+        "eval_p95": 0.75,
+        "psi_95_ci": [
+          0.11200127223586419,
+          0.24466324433435618
+        ],
+        "ks_d_95_ci": [
+          0.13598752926619195,
+          0.20060291388157656
+        ]
       },
       {
         "feature": "NoOfDegitsInURL",
@@ -734,14 +1093,25 @@
         "psi_severity": "MODERATE_SHIFT",
         "ks_d": 0.14604769934370954,
         "ks_pvalue": 1.879648213803896e-12,
+        "fdr_q_value": 3.3833667848470126e-12,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 1.5449697329952068,
+        "normalized_w1": 0.09166654969749191,
         "ref_mean": 4.268714188088103,
         "ref_std": 16.854236775505893,
         "ref_p95": 18.0,
         "eval_mean": 5.5892307692307694,
         "eval_std": 12.765899565482108,
-        "eval_p95": 21.0
+        "eval_p95": 21.0,
+        "psi_95_ci": [
+          0.06116915390807907,
+          0.15941186155231607
+        ],
+        "ks_d_95_ci": [
+          0.10758616088217099,
+          0.18450923780524797
+        ]
       },
       {
         "feature": "DegitRatioInURL",
@@ -749,14 +1119,25 @@
         "psi_severity": "MODERATE_SHIFT",
         "ks_d": 0.15451574814293634,
         "ks_pvalue": 6.820352500908897e-14,
+        "fdr_q_value": 1.5345793127045018e-13,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 0.027029864617325587,
+        "normalized_w1": 0.27801398196153504,
         "ref_mean": 0.06674432266204068,
         "ref_std": 0.09722483893297618,
         "ref_p95": 0.269,
         "eval_mean": 0.09361538461538461,
         "eval_std": 0.11108412505950924,
-        "eval_p95": 0.3226499999999999
+        "eval_p95": 0.3226499999999999,
+        "psi_95_ci": [
+          0.06172495753283196,
+          0.16238288841792067
+        ],
+        "ks_d_95_ci": [
+          0.11913113275832088,
+          0.19297728660447466
+        ]
       },
       {
         "feature": "NoOfEqualsInURL",
@@ -764,14 +1145,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.008839461542505145,
         "ks_pvalue": 0.999999999115305,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.03392880682897481,
+        "normalized_w1": 0.02701453251692863,
         "ref_mean": 0.13691321032434423,
         "ref_std": 1.2559464727999035,
         "ref_p95": 1.0,
         "eval_mean": 0.11538461538461539,
         "eval_std": 0.6614042797727991,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          0.003827890624163709,
+          0.1070422971223677
+        ],
+        "ks_d_95_ci": [
+          0.00551158718797895,
+          0.023263498841483377
+        ]
       },
       {
         "feature": "NoOfQMarkInURL",
@@ -779,14 +1171,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.006251824714212373,
         "ks_pvalue": 1.0,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.011468343988451313,
+        "normalized_w1": 0.040894242364797,
         "ref_mean": 0.06511854071387269,
         "ref_std": 0.2804390869048991,
         "ref_p95": 1.0,
         "eval_mean": 0.06615384615384616,
         "eval_std": 0.2546653448544236,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          0.015797181707720574,
+          0.043783877093544386
+        ],
+        "ks_d_95_ci": [
+          0.002102717762708317,
+          0.02471336317575079
+        ]
       },
       {
         "feature": "NoOfAmpersandInURL",
@@ -794,14 +1197,25 @@
         "psi_severity": "NEGLIGIBLE_SHIFT",
         "ks_d": 0.014626626068039106,
         "ks_pvalue": 0.9988466846044844,
+        "fdr_q_value": 1.0,
+        "significant_under_fdr_005": false,
         "ks_severity": "NEGLIGIBLE_DIVERGENCE",
         "w1_distance": 0.04580325840378996,
+        "normalized_w1": 0.03746209064233032,
         "ref_mean": 0.05485464963465279,
         "ref_std": 1.2226562270935977,
         "ref_p95": 0.0,
         "eval_mean": 0.05692307692307692,
         "eval_std": 0.5157426999428868,
-        "eval_p95": 0.0
+        "eval_p95": 0.0,
+        "psi_95_ci": [
+          0.02822620929847768,
+          0.07971721941082084
+        ],
+        "ks_d_95_ci": [
+          0.0038573952988083526,
+          0.026934318375731348
+        ]
       },
       {
         "feature": "NoOfOtherSpecialCharsInURL",
@@ -809,14 +1223,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.19929437644309117,
         "ks_pvalue": 6.805252047485652e-23,
+        "fdr_q_value": 1.884531336226796e-22,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 0.626923804786901,
+        "normalized_w1": 0.1371473761654054,
         "ref_mean": 3.7980208169058507,
         "ref_std": 4.571168784379841,
         "ref_p95": 9.0,
         "eval_mean": 3.9953846153846153,
         "eval_std": 3.7900651818722375,
-        "eval_p95": 9.549999999999955
+        "eval_p95": 9.549999999999955,
+        "psi_95_ci": [
+          0.46256782892311576,
+          0.7310396964063182
+        ],
+        "ks_d_95_ci": [
+          0.1854482225969373,
+          0.21160206875078344
+        ]
       },
       {
         "feature": "SpacialCharRatioInURL",
@@ -824,14 +1249,25 @@
         "psi_severity": "MODERATE_SHIFT",
         "ks_d": 0.14960189891588724,
         "ks_pvalue": 4.782302310198459e-13,
+        "fdr_q_value": 9.061204377218132e-13,
+        "significant_under_fdr_005": true,
         "ks_severity": "MODERATE_DIVERGENCE",
         "w1_distance": 0.006369668741078611,
+        "normalized_w1": 0.1801297932924216,
         "ref_mean": 0.08451176207748515,
         "ref_std": 0.035361550272464536,
         "ref_p95": 0.143,
         "eval_mean": 0.09030923076923077,
         "eval_std": 0.031615060788160024,
-        "eval_p95": 0.143
+        "eval_p95": 0.143,
+        "psi_95_ci": [
+          0.1231225474347575,
+          0.26156984629817653
+        ],
+        "ks_d_95_ci": [
+          0.12584033902280237,
+          0.1788326681466565
+        ]
       },
       {
         "feature": "IsHTTPS",
@@ -839,14 +1275,25 @@
         "psi_severity": "SEVERE_SHIFT",
         "ks_d": 0.26883525610697984,
         "ks_pvalue": 1.3590489776765571e-41,
+        "fdr_q_value": 4.447796654214187e-41,
+        "significant_under_fdr_005": true,
         "ks_severity": "SEVERE_DIVERGENCE",
         "w1_distance": 0.26883525610697984,
+        "normalized_w1": 0.5381886058517797,
         "ref_mean": 0.521933974662251,
         "ref_std": 0.4995186690760574,
         "ref_p95": 1.0,
         "eval_mean": 0.7907692307692308,
         "eval_std": 0.40675945525318746,
-        "eval_p95": 1.0
+        "eval_p95": 1.0,
+        "psi_95_ci": [
+          0.24629006661474834,
+          0.4258037841747594
+        ],
+        "ks_d_95_ci": [
+          0.23498910226082598,
+          0.29806602533774906
+        ]
       }
     ]
   }

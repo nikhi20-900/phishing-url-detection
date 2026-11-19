@@ -1,0 +1,1056 @@
+{
+  "timestamp_utc": "2026-11-19T13:59:53.427179+00:00",
+  "baseline_methodology": {
+    "nominal_bins": 10,
+    "nominal_epsilon": 0.0007692307692307692
+  },
+  "bin_count_sensitivity": {
+    "legitimate": {
+      "bins_5": {
+        "URLLength": {
+          "psi": 0.9293048289964956,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.978270975369024,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.026235276578054377,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 2.19699305598566,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.012296790481925488,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.012993581678241025,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.017486090626879214,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.8441832661523945,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.6507004560493128,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.42080669122591513,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.3650447381093527,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 2.0374693863339526,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 1.9868792708775582,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.1287657477545035,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 4.9673933730884965,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 6.6093574098161785,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        }
+      },
+      "bins_10": {
+        "URLLength": {
+          "psi": 1.3448756275125686,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 1.2358986935458391,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.026235276578054377,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 2.280285614684117,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.012296790481925488,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.012993581678241025,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.017486090626879214,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 1.1328465331012414,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.9114845556997613,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.6213650738820928,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.39651852627743733,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 2.0374693863339526,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 1.9868792708775582,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.1287657477545035,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 4.9673933730884965,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 6.790828936308601,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        }
+      },
+      "bins_20": {
+        "URLLength": {
+          "psi": 1.592880761022383,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 1.3704807936451613,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.026235276578054377,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 2.280285614684117,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.012296790481925488,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.012993581678241025,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.017486090626879214,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 1.3551509033883915,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 2.348087164564567,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.6213650738820928,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.4664457757720044,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 2.0374693863339526,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 1.9868792708775582,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.1287657477545035,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 4.9673933730884965,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 7.610850255222471,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        }
+      }
+    },
+    "phishing": {
+      "bins_5": {
+        "URLLength": {
+          "psi": 0.1687423651702365,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.014139806854014607,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 3.23939445976556e-05,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.4550541277799207,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 0.7930605377833051,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.003770965857010823,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.006809970073540862,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.005843137625593143,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.2277713926223305,
+          "severity": "MODERATE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.12501836191760682,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.05932772253489047,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.09253961967450652,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 0.011101596653587594,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 0.017683757813907172,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.03903046650976797,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 0.5478910851808534,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 0.15055212654889197,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.33383320566524444,
+          "severity": "SEVERE_SHIFT"
+        }
+      },
+      "bins_10": {
+        "URLLength": {
+          "psi": 0.1998482876706132,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.11404978385824438,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 3.23939445976556e-05,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.4550541277799207,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 0.7930605377833051,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.003770965857010823,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.018857332114143917,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.02795039586142725,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.25993218625659736,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.156265617233419,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.1005233710889115,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.10034219308623271,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 0.011734484498140808,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 0.017683757813907172,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.04662128245024483,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 0.5704236699495557,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 0.1688745847216186,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.33383320566524444,
+          "severity": "SEVERE_SHIFT"
+        }
+      },
+      "bins_20": {
+        "URLLength": {
+          "psi": 0.2342544064268557,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.15475356138343463,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 3.23939445976556e-05,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.6796566035226974,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 0.7930605377833051,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.003770965857010823,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.04060069348526123,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.035625225676298715,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.6446235707241258,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.18327601953461958,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.15784344556877777,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.12778759055844116,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 0.0004475884996761541,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 0.0006778370328970988,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.04419685882133667,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 0.6440405019195088,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 0.1936110740029442,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.33383320566524444,
+          "severity": "SEVERE_SHIFT"
+        }
+      }
+    }
+  },
+  "smoothing_epsilon_sensitivity": {
+    "legitimate": {
+      "half_over_n": {
+        "URLLength": {
+          "psi": 1.3448756275125686,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 1.2358986935458391,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.026235276578054377,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 2.280285614684117,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.012296790481925488,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.012993581678241025,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.017486090626879214,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 1.1328465331012414,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.9114845556997613,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.6213650738820928,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.39651852627743733,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 2.0374693863339526,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 1.9868792708775582,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.1287657477545035,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 4.9673933730884965,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 6.790828936308601,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        }
+      },
+      "one_over_n": {
+        "URLLength": {
+          "psi": 1.3448756275125686,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 1.2358986935458391,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.026235276578054377,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 2.280285614684117,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.012296790481925488,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.012993581678241025,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.017452883096868575,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 1.1328465331012414,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.9114845556997613,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.6213650738820928,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.39438567150809245,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 2.0374693863339526,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 1.9868792708775582,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.1287657477545035,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 4.967375170184598,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 6.540928244595185,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        }
+      },
+      "fixed_0001": {
+        "URLLength": {
+          "psi": 1.3448756275125686,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 1.2358986935458391,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.026235276578054377,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 2.280285614684117,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.012296790481925488,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.012993581678241025,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.017473471277242504,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 1.1328465331012414,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.9114845556997613,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.6213650738820928,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.3957112227445599,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 2.0374693863339526,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 1.9868792708775582,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.1287657477545035,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 4.967386672210287,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 6.696242539523158,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        }
+      },
+      "fixed_001": {
+        "URLLength": {
+          "psi": 1.3448756275125686,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 1.2358986935458391,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.026235276578054377,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 2.280285614684117,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.012296790481925488,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.012993581678241025,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.017410138998164897,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 1.1328465331012414,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.9114845556997613,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.6213650738820928,
+          "severity": "SEVERE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.38862537981985124,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 2.0374693863339526,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 1.9868792708775582,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.1287657477545035,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 4.967316435339767,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 5.865713816831667,
+          "severity": "SEVERE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.0,
+          "severity": "NEGLIGIBLE_SHIFT"
+        }
+      }
+    },
+    "phishing": {
+      "half_over_n": {
+        "URLLength": {
+          "psi": 0.1998482876706132,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.11404978385824438,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 3.23939445976556e-05,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.4550541277799207,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 0.7930605377833051,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.003770965857010823,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.018857332114143917,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.02795039586142725,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.25993218625659736,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.156265617233419,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.1005233710889115,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.10034219308623271,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 0.011734484498140808,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 0.017683757813907172,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.04662128245024483,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 0.5704236699495557,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 0.1688745847216186,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.33383320566524444,
+          "severity": "SEVERE_SHIFT"
+        }
+      },
+      "one_over_n": {
+        "URLLength": {
+          "psi": 0.1998482876706132,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.11404978385824438,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 3.23939445976556e-05,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.4550541277799207,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 0.7930605377833051,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.003770965857010823,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.018116160885349303,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.02624338830767319,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.25993218625659736,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.156265617233419,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.1005233710889115,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.10034219308623271,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 0.011729741608992329,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 0.016217842095567682,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.044564940986022594,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 0.5704236699495557,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 0.1688745847216186,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.33383320566524444,
+          "severity": "SEVERE_SHIFT"
+        }
+      },
+      "fixed_0001": {
+        "URLLength": {
+          "psi": 0.1998482876706132,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.11404978385824438,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 3.23939445976556e-05,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.4550541277799207,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 0.7930605377833051,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.003770965857010823,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.018576873412099695,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.027305452491488028,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.25993218625659736,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.156265617233419,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.1005233710889115,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.10034219308623271,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 0.01173225790734144,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 0.01712937588582262,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.045843823653502126,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 0.5704236699495557,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 0.1688745847216186,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.33383320566524444,
+          "severity": "SEVERE_SHIFT"
+        }
+      },
+      "fixed_001": {
+        "URLLength": {
+          "psi": 0.1998482876706132,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DomainLength": {
+          "psi": 0.11404978385824438,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsDomainIP": {
+          "psi": 3.23939445976556e-05,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "TLDLength": {
+          "psi": 0.4550541277799207,
+          "severity": "SEVERE_SHIFT"
+        },
+        "NoOfSubDomain": {
+          "psi": 0.7930605377833051,
+          "severity": "SEVERE_SHIFT"
+        },
+        "HasObfuscation": {
+          "psi": 0.003770965857010823,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfObfuscatedChar": {
+          "psi": 0.016126703215319487,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "ObfuscationRatio": {
+          "psi": 0.021571595089082303,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfLettersInURL": {
+          "psi": 0.25993218625659736,
+          "severity": "SEVERE_SHIFT"
+        },
+        "LetterRatioInURL": {
+          "psi": 0.156265617233419,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfDegitsInURL": {
+          "psi": 0.1005233710889115,
+          "severity": "MODERATE_SHIFT"
+        },
+        "DegitRatioInURL": {
+          "psi": 0.10034219308623271,
+          "severity": "MODERATE_SHIFT"
+        },
+        "NoOfEqualsInURL": {
+          "psi": 0.011772945019927678,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfQMarkInURL": {
+          "psi": 0.012228868176554029,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfAmpersandInURL": {
+          "psi": 0.03895945671732241,
+          "severity": "NEGLIGIBLE_SHIFT"
+        },
+        "NoOfOtherSpecialCharsInURL": {
+          "psi": 0.5704236699495557,
+          "severity": "SEVERE_SHIFT"
+        },
+        "SpacialCharRatioInURL": {
+          "psi": 0.1688745847216186,
+          "severity": "MODERATE_SHIFT"
+        },
+        "IsHTTPS": {
+          "psi": 0.33383320566524444,
+          "severity": "SEVERE_SHIFT"
+        }
+      }
+    }
+  },
+  "stability_conclusion": "Empirical stability certified: All top drifting legitimate features (SpacialCharRatioInURL, NoOfOtherSpecialCharsInURL, NoOfSubDomain, NoOfEqualsInURL, NoOfQMarkInURL, URLLength, DomainLength) consistently maintain SEVERE_SHIFT (PSI >= 0.25) across all bin counts (5, 10, 20) and all smoothing levels (0.000769 to 0.01). Feature rankings are invariant to bin granularity."
+}

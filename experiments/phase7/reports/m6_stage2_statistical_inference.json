@@ -1,0 +1,429 @@
+{
+  "timestamp_utc": "2026-11-19T13:59:53.153875+00:00",
+  "methodology": {
+    "multiple_testing_correction": "Benjamini-Hochberg (BH) False Discovery Rate (FDR) control at alpha = 0.05",
+    "family_size_m": 36,
+    "continuous_ks_limitation": "The two-sample Kolmogorov-Smirnov test assumes continuous underlying distributions without ties. For binary flags (IsHTTPS, HasObfuscation, IsDomainIP) and small-integer count features, ties heavily occur, making the asymptotic continuous KS p-value conservative. Complementary discrete-appropriate proportion tests are computed below to ensure valid statistical inference."
+  },
+  "summary": {
+    "total_hypotheses_tested": 36,
+    "statistically_significant_under_fdr_005": 23,
+    "non_significant_under_fdr_005": 13
+  },
+  "fdr_corrected_tests_ranking": [
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfOtherSpecialCharsInURL",
+      "ks_d": 0.7787344879024153,
+      "p_value": 0.0,
+      "fdr_q_value": 0.0,
+      "significant_fdr_005": true,
+      "rank": 1,
+      "critical_threshold": 0.001388888888888889
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "SpacialCharRatioInURL",
+      "ks_d": 0.7705531986923817,
+      "p_value": 0.0,
+      "fdr_q_value": 0.0,
+      "significant_fdr_005": true,
+      "rank": 2,
+      "critical_threshold": 0.002777777777777778
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "URLLength",
+      "ks_d": 0.4959876432191107,
+      "p_value": 2.611447451779417e-147,
+      "fdr_q_value": 3.1337369421353005e-146,
+      "significant_fdr_005": true,
+      "rank": 3,
+      "critical_threshold": 0.004166666666666667
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfLettersInURL",
+      "ks_d": 0.4723485289294669,
+      "p_value": 8.44158364386687e-133,
+      "fdr_q_value": 7.597425279480183e-132,
+      "significant_fdr_005": true,
+      "rank": 4,
+      "critical_threshold": 0.005555555555555556
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "DomainLength",
+      "ks_d": 0.4390082836981475,
+      "p_value": 7.632024828368081e-114,
+      "fdr_q_value": 5.495057876425018e-113,
+      "significant_fdr_005": true,
+      "rank": 5,
+      "critical_threshold": 0.006944444444444445
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "LetterRatioInURL",
+      "ks_d": 0.41673624408874027,
+      "p_value": 4.029772603324786e-102,
+      "fdr_q_value": 2.4178635619948717e-101,
+      "significant_fdr_005": true,
+      "rank": 6,
+      "critical_threshold": 0.008333333333333333
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfQMarkInURL",
+      "ks_d": 0.30398061847381064,
+      "p_value": 1.8184511007450065e-53,
+      "fdr_q_value": 9.35203423240289e-53,
+      "significant_fdr_005": true,
+      "rank": 7,
+      "critical_threshold": 0.009722222222222222
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfSubDomain",
+      "ks_d": 0.30277011944182897,
+      "p_value": 4.900713091412375e-53,
+      "fdr_q_value": 2.205320891135569e-52,
+      "significant_fdr_005": true,
+      "rank": 8,
+      "critical_threshold": 0.011111111111111112
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfEqualsInURL",
+      "ks_d": 0.30090369539688755,
+      "p_value": 2.2410481103387792e-52,
+      "fdr_q_value": 8.964192441355117e-52,
+      "significant_fdr_005": true,
+      "rank": 9,
+      "critical_threshold": 0.0125
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfSubDomain",
+      "ks_d": 0.29232645502003646,
+      "p_value": 3.0114104602041558e-49,
+      "fdr_q_value": 1.0841077656734961e-48,
+      "significant_fdr_005": true,
+      "rank": 10,
+      "critical_threshold": 0.01388888888888889
+    },
+    {
+      "cohort": "phishing",
+      "feature": "IsHTTPS",
+      "ks_d": 0.26883525610697984,
+      "p_value": 1.3590489776765571e-41,
+      "fdr_q_value": 4.447796654214187e-41,
+      "significant_fdr_005": true,
+      "rank": 11,
+      "critical_threshold": 0.015277777777777779
+    },
+    {
+      "cohort": "phishing",
+      "feature": "TLDLength",
+      "ks_d": 0.2310860941613189,
+      "p_value": 1.0181594543771012e-30,
+      "fdr_q_value": 3.0544783631313035e-30,
+      "significant_fdr_005": true,
+      "rank": 12,
+      "critical_threshold": 0.016666666666666666
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfOtherSpecialCharsInURL",
+      "ks_d": 0.19929437644309117,
+      "p_value": 6.805252047485652e-23,
+      "fdr_q_value": 1.884531336226796e-22,
+      "significant_fdr_005": true,
+      "rank": 13,
+      "critical_threshold": 0.018055555555555557
+    },
+    {
+      "cohort": "phishing",
+      "feature": "LetterRatioInURL",
+      "ks_d": 0.16521829849696118,
+      "p_value": 7.851242412148752e-16,
+      "fdr_q_value": 2.0188909059811077e-15,
+      "significant_fdr_005": true,
+      "rank": 14,
+      "critical_threshold": 0.019444444444444445
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfLettersInURL",
+      "ks_d": 0.16123247566710747,
+      "p_value": 4.29052406869756e-15,
+      "fdr_q_value": 1.0297257764874145e-14,
+      "significant_fdr_005": true,
+      "rank": 15,
+      "critical_threshold": 0.020833333333333336
+    },
+    {
+      "cohort": "phishing",
+      "feature": "DegitRatioInURL",
+      "ks_d": 0.15451574814293634,
+      "p_value": 6.820352500908897e-14,
+      "fdr_q_value": 1.5345793127045018e-13,
+      "significant_fdr_005": true,
+      "rank": 16,
+      "critical_threshold": 0.022222222222222223
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfDegitsInURL",
+      "ks_d": 0.1505697026120627,
+      "p_value": 2.9899600317899333e-13,
+      "fdr_q_value": 5.979920063579867e-13,
+      "significant_fdr_005": true,
+      "rank": 17,
+      "critical_threshold": 0.02361111111111111
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "DegitRatioInURL",
+      "ks_d": 0.1505697026120627,
+      "p_value": 2.9899600317899333e-13,
+      "fdr_q_value": 5.979920063579867e-13,
+      "significant_fdr_005": true,
+      "rank": 18,
+      "critical_threshold": 0.025
+    },
+    {
+      "cohort": "phishing",
+      "feature": "SpacialCharRatioInURL",
+      "ks_d": 0.14960189891588724,
+      "p_value": 4.782302310198459e-13,
+      "fdr_q_value": 9.061204377218132e-13,
+      "significant_fdr_005": true,
+      "rank": 19,
+      "critical_threshold": 0.026388888888888892
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfDegitsInURL",
+      "ks_d": 0.14604769934370954,
+      "p_value": 1.879648213803896e-12,
+      "fdr_q_value": 3.3833667848470126e-12,
+      "significant_fdr_005": true,
+      "rank": 20,
+      "critical_threshold": 0.02777777777777778
+    },
+    {
+      "cohort": "phishing",
+      "feature": "URLLength",
+      "ks_d": 0.13822045378266798,
+      "p_value": 3.403579167865845e-11,
+      "fdr_q_value": 5.834707144912877e-11,
+      "significant_fdr_005": true,
+      "rank": 21,
+      "critical_threshold": 0.02916666666666667
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "TLDLength",
+      "ks_d": 0.07636300159749476,
+      "p_value": 0.0010087031539881344,
+      "fdr_q_value": 0.0016506051610714926,
+      "significant_fdr_005": true,
+      "rank": 22,
+      "critical_threshold": 0.030555555555555558
+    },
+    {
+      "cohort": "phishing",
+      "feature": "DomainLength",
+      "ks_d": 0.07598372819946705,
+      "p_value": 0.0011127831984339065,
+      "fdr_q_value": 0.0017417476149400276,
+      "significant_fdr_005": true,
+      "rank": 23,
+      "critical_threshold": 0.03194444444444444
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfAmpersandInURL",
+      "ks_d": 0.0243932164658337,
+      "p_value": 0.8275256445437146,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 24,
+      "critical_threshold": 0.03333333333333333
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfAmpersandInURL",
+      "ks_d": 0.014626626068039106,
+      "p_value": 0.9988466846044844,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 25,
+      "critical_threshold": 0.034722222222222224
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfEqualsInURL",
+      "ks_d": 0.008839461542505145,
+      "p_value": 0.999999999115305,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 26,
+      "critical_threshold": 0.036111111111111115
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfQMarkInURL",
+      "ks_d": 0.006251824714212373,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 27,
+      "critical_threshold": 0.037500000000000006
+    },
+    {
+      "cohort": "phishing",
+      "feature": "ObfuscationRatio",
+      "ks_d": 0.005603581090097509,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 28,
+      "critical_threshold": 0.03888888888888889
+    },
+    {
+      "cohort": "phishing",
+      "feature": "NoOfObfuscatedChar",
+      "ks_d": 0.005313608223243893,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 29,
+      "critical_threshold": 0.04027777777777778
+    },
+    {
+      "cohort": "phishing",
+      "feature": "HasObfuscation",
+      "ks_d": 0.004920197817217309,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 30,
+      "critical_threshold": 0.04166666666666667
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "ObfuscationRatio",
+      "ks_d": 0.0030663436412301515,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 31,
+      "critical_threshold": 0.04305555555555556
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "HasObfuscation",
+      "ks_d": 0.0030240258984585155,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 32,
+      "critical_threshold": 0.044444444444444446
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "NoOfObfuscatedChar",
+      "ks_d": 0.0030240258984585155,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 33,
+      "critical_threshold": 0.04583333333333334
+    },
+    {
+      "cohort": "phishing",
+      "feature": "IsDomainIP",
+      "ks_d": 0.0004370822364829774,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 34,
+      "critical_threshold": 0.04722222222222222
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "IsDomainIP",
+      "ks_d": 0.0,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 35,
+      "critical_threshold": 0.04861111111111111
+    },
+    {
+      "cohort": "legitimate",
+      "feature": "IsHTTPS",
+      "ks_d": 0.0,
+      "p_value": 1.0,
+      "fdr_q_value": 1.0,
+      "significant_fdr_005": false,
+      "rank": 36,
+      "critical_threshold": 0.05
+    }
+  ],
+  "discrete_feature_inferential_tests": {
+    "legitimate": {
+      "IsDomainIP": {
+        "p_ref": 0.0,
+        "p_eval": 0.0,
+        "difference": 0.0,
+        "z_statistic": 0.0,
+        "p_value": 1.0,
+        "significant_005": false
+      },
+      "HasObfuscation": {
+        "p_ref": 5.2897178464500704e-05,
+        "p_eval": 0.003076923076923077,
+        "difference": 0.0030240258984585763,
+        "z_statistic": 8.959378511853739,
+        "p_value": 0.0,
+        "significant_005": true
+      },
+      "IsHTTPS": {
+        "p_ref": 1.0,
+        "p_eval": 1.0,
+        "difference": 0.0,
+        "z_statistic": 0.0,
+        "p_value": 1.0,
+        "significant_005": false
+      }
+    },
+    "phishing": {
+      "IsDomainIP": {
+        "p_ref": 0.005716763917363192,
+        "p_eval": 0.006153846153846154,
+        "difference": 0.0004370822364829618,
+        "z_statistic": 0.1471305384639496,
+        "p_value": 0.8830289859654536,
+        "significant_005": false
+      },
+      "HasObfuscation": {
+        "p_ref": 0.004310571413552016,
+        "p_eval": 0.009230769230769232,
+        "difference": 0.004920197817217216,
+        "z_statistic": 1.8975037774809722,
+        "p_value": 0.05776148070395237,
+        "significant_005": false
+      },
+      "IsHTTPS": {
+        "p_ref": 0.521933974662251,
+        "p_eval": 0.7907692307692308,
+        "difference": 0.2688352561069798,
+        "z_statistic": 13.665816367094113,
+        "p_value": 0.0,
+        "significant_005": true
+      }
+    }
+  }
+}
