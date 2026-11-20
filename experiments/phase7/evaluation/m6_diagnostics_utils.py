@@ -260,7 +260,9 @@ def compute_bh_fdr(raw_pvalues: np.ndarray, alpha: float = 0.05) -> Tuple[np.nda
 
 def compute_two_proportion_test(k1: int, n1: int, k2: int, n2: int) -> Dict[str, Any]:
     """
-    Perform a two-sample pooled z-test for binary proportions between two samples.
+    Perform a two-sample pooled z-test and Fisher's exact test for binary proportions.
+    Uses stats.norm.sf(abs(z)) for numerical stability to prevent catastrophic cancellation.
+    Avoids serializing underflowed p-values as true zero.
 
     Parameters:
         k1: Positive count in sample 1 (e.g., reference training)
@@ -269,7 +271,7 @@ def compute_two_proportion_test(k1: int, n1: int, k2: int, n2: int) -> Dict[str,
         n2: Total size of sample 2
 
     Returns:
-        Dict with proportions, z-statistic, two-tailed p-value, and significance flag.
+        Dict with proportions, z-statistic, two-tailed p-value, Fisher exact p-value, and method metadata.
     """
     p1 = k1 / n1 if n1 > 0 else 0.0
     p2 = k2 / n2 if n2 > 0 else 0.0
@@ -278,19 +280,98 @@ def compute_two_proportion_test(k1: int, n1: int, k2: int, n2: int) -> Dict[str,
 
     if se > 1e-12:
         z = (p2 - p1) / se
-        p_val = 2.0 * (1.0 - stats.norm.cdf(abs(z)))
+        # Numerically stable survival function: 2 * norm.sf(|z|) avoids cancellation in 1 - cdf
+        sf_val = stats.norm.sf(abs(z))
+        logsf_val = stats.norm.logsf(abs(z))
+        z_p_val = 2.0 * sf_val
+        # Prevent float underflow to true zero
+        if z_p_val == 0.0 or z_p_val < 1e-300:
+            z_p_val = 1e-300
     else:
         z = 0.0
-        p_val = 1.0
+        z_p_val = 1.0
+        logsf_val = 0.0
+
+    # Fisher's exact test for 2x2 contingency table: [[k1, n1 - k1], [k2, n2 - k2]]
+    table = [[int(k1), int(n1 - k1)], [int(k2), int(n2 - k2)]]
+    try:
+        fisher_res = stats.fisher_exact(table, alternative="two-sided")
+        fisher_stat = float(fisher_res.statistic)
+        fisher_p = float(fisher_res.pvalue)
+        if fisher_p == 0.0 or fisher_p < 1e-300:
+            fisher_p = 1e-300
+    except Exception:
+        fisher_stat = float("nan")
+        fisher_p = 1.0
+
+    # For sparse binary events (counts < 10), Fisher's exact test is the authoritative primary test
+    is_sparse = (k1 < 10 or k2 < 10 or (n1 - k1) < 10 or (n2 - k2) < 10)
+    primary_p = fisher_p if is_sparse else z_p_val
+    primary_method = "fisher_exact" if is_sparse else "two_sample_z_test_survival_function"
 
     return {
         "p_ref": float(p1),
         "p_eval": float(p2),
         "difference": float(p2 - p1),
         "z_statistic": float(z),
-        "p_value": float(p_val),
-        "significant_005": bool(p_val < 0.05),
+        "z_p_value": float(z_p_val),
+        "z_log_p_value": float(logsf_val + np.log(2.0)),
+        "fisher_exact_statistic": float(fisher_stat),
+        "fisher_exact_p_value": float(fisher_p),
+        "p_value": float(primary_p),
+        "method_used": primary_method,
+        "is_sparse_event": bool(is_sparse),
+        "significant_005": bool(primary_p < 0.05),
     }
+
+
+def compute_discrete_association_test(
+    ref_series: np.ndarray,
+    eval_series: np.ndarray,
+    feature_name: str,
+) -> Dict[str, Any]:
+    """
+    Perform discrete-appropriate statistical tests for features with heavy ties.
+    For binary features: invokes compute_two_proportion_test (Fisher exact + z-test).
+    For discrete count features: performs Mann-Whitney U test with exact tie handling.
+    """
+    ref = np.asarray(ref_series, dtype=float)
+    eval_d = np.asarray(eval_series, dtype=float)
+
+    binary_features = {"IsDomainIP", "HasObfuscation", "IsHTTPS"}
+    if feature_name in binary_features:
+        k1 = int(np.sum(ref >= 0.5))
+        n1 = len(ref)
+        k2 = int(np.sum(eval_d >= 0.5))
+        n2 = len(eval_d)
+        res = compute_two_proportion_test(k1, n1, k2, n2)
+        return {
+            "feature_name": feature_name,
+            "feature_type": "BINARY",
+            "test_name": res["method_used"],
+            "statistic": res["z_statistic"] if "z_test" in res["method_used"] else res["fisher_exact_statistic"],
+            "p_value": res["p_value"],
+            "is_exact_or_tie_corrected": True,
+            "details": res,
+        }
+    else:
+        # Discrete count features with heavy ties (e.g. NoOfQMarkInURL, NoOfEqualsInURL, NoOfSubDomain)
+        mwu_res = stats.mannwhitneyu(ref, eval_d, alternative="two-sided")
+        p_val = float(mwu_res.pvalue)
+        if p_val == 0.0 or p_val < 1e-300:
+            p_val = 1e-300
+        return {
+            "feature_name": feature_name,
+            "feature_type": "DISCRETE_COUNT",
+            "test_name": "mann_whitney_u_tie_corrected",
+            "statistic": float(mwu_res.statistic),
+            "p_value": p_val,
+            "is_exact_or_tie_corrected": True,
+            "details": {
+                "u_statistic": float(mwu_res.statistic),
+                "tie_corrected_p_value": p_val,
+            },
+        }
 
 
 def compute_domain_cluster_bootstrap(
@@ -305,6 +386,15 @@ def compute_domain_cluster_bootstrap(
     """
     Perform domain-cluster-aware bootstrap uncertainty analysis.
     Resamples unique registered domains with replacement and computes 95% CIs.
+
+    Methodological Specifications:
+    - Conditional on Training Reference: The training reference distribution D_train
+      (N=94,523 legit / 76,092 phish) is held fixed as an asymptotic baseline because its
+      sample size is ~145x larger than the external benchmark. Confidence intervals are
+      strictly conditional on D_train.
+    - Zero-Count Smoothing: Epsilon smoothing is fixed at nominal eps = 1.0 / (2.0 * N_eval)
+      where N_eval is nominal evaluation size, ensuring stable logarithmic ratios across varying
+      bootstrap cluster sizes.
 
     Parameters:
         ref_df: Reference training DataFrame (rows = samples, cols = features)
@@ -429,6 +519,14 @@ def compute_domain_cluster_bootstrap(
         "num_iterations": num_iterations,
         "random_seed": random_seed,
         "cluster_count": n_clusters,
+        "confidence_interval_type": "CONDITIONAL_ON_TRAINING_REFERENCE",
+        "reference_specification": {
+            "reference_partition": "frozen_training_split",
+            "reference_sample_size": len(ref_df),
+            "reference_condition": "fixed_asymptotic_baseline",
+            "smoothing_epsilon_policy": "fixed_nominal_epsilon",
+            "smoothing_epsilon_value": float(eps),
+        },
         "mean_psi": {
             "bootstrap_mean": float(np.mean(boot_mean_psi)),
             "bootstrap_std": float(np.std(boot_mean_psi)),

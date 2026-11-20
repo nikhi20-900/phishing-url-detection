@@ -1,6 +1,11 @@
 {
-  "timestamp_utc": "2026-11-19T13:59:53.148696+00:00",
-  "methodology": "Public-suffix-aware domain clustering with 2,000-iteration cluster bootstrap",
+  "timestamp_utc": "2026-11-19T17:58:41.114814+00:00",
+  "methodology": "Independent Public Suffix List (PSL) snapshot extraction with 2,000-iteration cluster bootstrap",
+  "psl_specification": {
+    "snapshot_version": "2026-11-19-v1",
+    "source": "Mozilla Public Suffix List Registry (src.psl_snapshot)",
+    "extraction_policy": "Independent eTLD+1 resolution from raw URL strings"
+  },
   "domain_counts": {
     "fully_qualified_domain_names_fqdn": {
       "legitimate": 219,
@@ -8,21 +13,28 @@
       "total": 869
     },
     "registered_domains_etld_plus_1": {
-      "legitimate": 160,
+      "legitimate": 159,
       "phishing": 650,
-      "total": 810
+      "total": 809
     }
   },
   "cluster_size_distributions": {
     "legitimate": {
-      "max_urls_per_domain": 5,
+      "max_urls_per_domain": 6,
       "frequency_table": {
-        "1": 25,
+        "1": 24,
         "2": 13,
         "3": 3,
         "4": 5,
-        "5": 114
-      }
+        "5": 113,
+        "6": 1
+      },
+      "domains_with_max_urls": [
+        {
+          "domain": "freedesktop.org",
+          "count": 6
+        }
+      ]
     },
     "phishing": {
       "max_urls_per_domain": 1,
@@ -36,72 +48,89 @@
     "cross_class_status": "CERTIFIED_ZERO_OVERLAP",
     "training_overlap_count": 0,
     "training_status": "CERTIFIED_ZERO_OVERLAP",
-    "evaluated_training_domains": 121217
+    "evaluated_training_domains_psl": 133739
   },
   "cluster_bootstrap_uncertainty": {
     "iterations": 2000,
     "random_seed": 42,
+    "conditioning_status": "CONDITIONAL_ON_TRAINING_REFERENCE",
+    "smoothing_epsilon_policy": "fixed_nominal_epsilon_half_over_n",
+    "training_reference_variance_comparison": {
+      "feature": "SpacialCharRatioInURL",
+      "training_reference_resampling_std": 0.020131571637168603,
+      "external_evaluation_bootstrap_std": 0.7373603273544485,
+      "ratio_external_to_training_std": 36.62706224053922,
+      "statistical_justification": "Because N_train (94,523) is ~145x larger than N_ext (650), training reference sampling variance contributes negligibly (std=0.02 vs external std=0.75). External cluster uncertainty dominates total estimator variance by >35x in standard deviation (>1,200x in variance)."
+    },
     "legitimate_partition": {
       "num_iterations": 2000,
       "random_seed": 42,
-      "cluster_count": 160,
+      "cluster_count": 159,
+      "confidence_interval_type": "CONDITIONAL_ON_TRAINING_REFERENCE",
+      "reference_specification": {
+        "reference_partition": "frozen_training_split",
+        "reference_sample_size": 94523,
+        "reference_condition": "fixed_asymptotic_baseline",
+        "smoothing_epsilon_policy": "fixed_nominal_epsilon",
+        "smoothing_epsilon_value": 0.0007692307692307692
+      },
       "mean_psi": {
-        "bootstrap_mean": 1.4287602616800654,
-        "bootstrap_std": 0.16111518277365094,
+        "bootstrap_mean": 1.4309236067672706,
+        "bootstrap_std": 0.16219519034666935,
         "ci_95": [
-          1.235796021081066,
-          1.857430425084636
+          1.2474334984332018,
+          1.8490844166122202
         ],
-        "median": 1.3829454841828834
+        "median": 1.3851249343449261
       },
       "features": {
         "URLLength": {
           "psi": {
-            "bootstrap_mean": 1.3739325441360593,
-            "bootstrap_std": 0.11576158695579476,
+            "bootstrap_mean": 1.3732174456218054,
+            "bootstrap_std": 0.1150396267053845,
             "ci_95": [
-              1.1506827135416944,
-              1.600872969642741
+              1.1572985617462037,
+              1.6055160471039882
             ],
-            "median": 1.3727236475595466
+            "median": 1.367898060974648
           },
           "ks_d": {
-            "bootstrap_mean": 0.49848399274659033,
-            "bootstrap_std": 0.02399669751331024,
+            "bootstrap_mean": 0.49817571076461115,
+            "bootstrap_std": 0.02376946523192299,
             "ci_95": [
-              0.45072262413560527,
-              0.5440503288615053
+              0.4510600162761555,
+              0.5434291098992785
             ],
-            "median": 0.49860349831203005
+            "median": 0.4984485663276865
           }
         },
         "DomainLength": {
           "psi": {
-            "bootstrap_mean": 1.3784433495289805,
-            "bootstrap_std": 0.28089624583137973,
+            "bootstrap_mean": 1.3746978096328595,
+            "bootstrap_std": 0.2684282797660324,
             "ci_95": [
-              0.9664885631881462,
-              2.162338608219117
+              0.978844187724192,
+              2.1676762163607086
             ],
-            "median": 1.337344676763113
+            "median": 1.3330615763486091
           },
           "ks_d": {
-            "bootstrap_mean": 0.4400792380252712,
-            "bootstrap_std": 0.036306288485549704,
+            "bootstrap_mean": 0.4398306682724427,
+            "bootstrap_std": 0.034014010619879416,
             "ci_95": [
-              0.370102302338295,
-              0.5090026289236428
+              0.37647269268560035,
+              0.5085812675055815
             ],
-            "median": 0.43950692484195
+            "median": 0.4398284875906405
           }
         },
         "IsDomainIP": {
           "psi": {
-            "bootstrap_mean": 5.861987498946359e-06,
-            "bootstrap_std": 2.1958674359605083e-07,
+            "bootstrap_mean": 5.860129850624579e-06,
+            "bootstrap_std": 2.1598203952209924e-07,
             "ci_95": [
-              5.463967700651787e-06,
-              6.318521407117647e-06
+              5.483255141698927e-06,
+              6.306064107822601e-06
             ],
             "median": 5.8525173399342974e-06
           },
@@ -117,291 +146,291 @@
         },
         "TLDLength": {
           "psi": {
-            "bootstrap_mean": 0.033029418262617134,
-            "bootstrap_std": 0.029319879585245817,
+            "bootstrap_mean": 0.032875648568726275,
+            "bootstrap_std": 0.028341175105737557,
             "ci_95": [
-              0.00017794371603018365,
-              0.10086450351326727
+              0.00020651450951201963,
+              0.10442206046042339
             ],
-            "median": 0.025643873998865186
+            "median": 0.026158100522109543
           },
           "ks_d": {
-            "bootstrap_mean": 0.077965348841235,
-            "bootstrap_std": 0.03810732239793301,
+            "bootstrap_mean": 0.07808298346022272,
+            "bootstrap_std": 0.03725576375174723,
             "ci_95": [
-              0.015245738611335295,
-              0.15283853023181002
+              0.017134878331205382,
+              0.15560026745009212
             ],
-            "median": 0.07565246651100557
+            "median": 0.07617506587910464
           }
         },
         "NoOfSubDomain": {
           "psi": {
-            "bootstrap_mean": 2.3064657082847857,
-            "bootstrap_std": 0.3187716235458926,
+            "bootstrap_mean": 2.299304792484562,
+            "bootstrap_std": 0.31321276595190434,
             "ci_95": [
-              1.7011740552790884,
-              2.9621110815642844
+              1.7148194857699013,
+              2.9460150136492773
             ],
-            "median": 2.30048456897151
+            "median": 2.288648783728143
           },
           "ks_d": {
-            "bootstrap_mean": 0.30336688464031974,
-            "bootstrap_std": 0.03549191291620567,
+            "bootstrap_mean": 0.3029143759830356,
+            "bootstrap_std": 0.03505048731443366,
             "ci_95": [
-              0.233724685726608,
-              0.37252100047233083
+              0.2361376327418288,
+              0.3735397009241764
             ],
-            "median": 0.30214711486020374
+            "median": 0.30166633659904785
           }
         },
         "HasObfuscation": {
           "psi": {
-            "bootstrap_mean": 0.013165536488472789,
-            "bootstrap_std": 0.011012939261436967,
+            "bootstrap_mean": 0.013177391596355803,
+            "bootstrap_std": 0.01075496790453106,
             "ci_95": [
-              0.00019502098221262315,
-              0.03956621775428674
+              0.00019484067801021776,
+              0.03875117454429841
             ],
-            "median": 0.012096403669804122
+            "median": 0.012119683666324241
           },
           "ks_d": {
-            "bootstrap_mean": 0.0030228281323853193,
-            "bootstrap_std": 0.0021673786996855506,
+            "bootstrap_mean": 0.003028859331092642,
+            "bootstrap_std": 0.0021281160719617644,
             "ci_95": [
               5.2897178464461625e-05,
-              0.007883610758043447
+              0.007748025187068702
             ],
-            "median": 0.0029843103432941054
+            "median": 0.002988929675662
           }
         },
         "NoOfObfuscatedChar": {
           "psi": {
-            "bootstrap_mean": 0.01482768176216419,
-            "bootstrap_std": 0.01176064854725657,
+            "bootstrap_mean": 0.014829938161588,
+            "bootstrap_std": 0.011479793804989723,
             "ci_95": [
-              0.00016619250639678725,
-              0.04287049767132333
+              0.00016600853894812348,
+              0.041514258689589016
             ],
-            "median": 0.012894363359379341
+            "median": 0.012968651686217074
           },
           "ks_d": {
-            "bootstrap_mean": 0.0030328785962935568,
-            "bootstrap_std": 0.0021647383443073797,
+            "bootstrap_mean": 0.003038761682901179,
+            "bootstrap_std": 0.002125350289373586,
             "ci_95": [
               5.2897178464461625e-05,
-              0.007883610758043447
+              0.007748025187068702
             ],
-            "median": 0.0029941534383252644
+            "median": 0.0030005379360393825
           }
         },
         "ObfuscationRatio": {
           "psi": {
-            "bootstrap_mean": 0.01828402744284906,
-            "bootstrap_std": 0.014590186691713553,
+            "bootstrap_mean": 0.018306092639321824,
+            "bootstrap_std": 0.014271002899233602,
             "ci_95": [
-              0.00010132303193772623,
-              0.052615166893801704
+              0.00010113087071004031,
+              0.051582012602706874
             ],
-            "median": 0.01722185916516685
+            "median": 0.017252564919670765
           },
           "ks_d": {
-            "bootstrap_mean": 0.0030593483443971453,
-            "bootstrap_std": 0.002175357140108767,
+            "bootstrap_mean": 0.003065400701975854,
+            "bootstrap_std": 0.002136227895269545,
             "ci_95": [
               5.2897178464461625e-05,
-              0.007925928500814972
+              0.007790342929840227
             ],
-            "median": 0.0030266280860656303
+            "median": 0.0030312474184335247
           }
         },
         "NoOfLettersInURL": {
           "psi": {
-            "bootstrap_mean": 1.1584582122265252,
-            "bootstrap_std": 0.10654734446937149,
+            "bootstrap_mean": 1.1572269138504765,
+            "bootstrap_std": 0.1040343572025503,
             "ci_95": [
-              0.9591081591631905,
-              1.3727685119046633
+              0.9575076921681482,
+              1.361648491256113
             ],
-            "median": 1.1563701229328625
+            "median": 1.1584101396675504
           },
           "ks_d": {
-            "bootstrap_mean": 0.474786245321313,
-            "bootstrap_std": 0.02470353322427393,
+            "bootstrap_mean": 0.4746942730050282,
+            "bootstrap_std": 0.024275289842181212,
             "ci_95": [
-              0.4265456626991996,
-              0.5216495880078862
+              0.42722911280982173,
+              0.5204532377408403
             ],
-            "median": 0.47453261629296145
+            "median": 0.47530569927706434
           }
         },
         "LetterRatioInURL": {
           "psi": {
-            "bootstrap_mean": 0.9352100169705655,
-            "bootstrap_std": 0.11199575788756477,
+            "bootstrap_mean": 0.934276964529568,
+            "bootstrap_std": 0.10751064534194485,
             "ci_95": [
-              0.7307386175672179,
-              1.1640297463662197
+              0.7356624450097657,
+              1.1447151906906794
             ],
-            "median": 0.9315933070582347
+            "median": 0.9335052264765948
           },
           "ks_d": {
-            "bootstrap_mean": 0.4200033394217779,
-            "bootstrap_std": 0.028315521541870402,
+            "bootstrap_mean": 0.4198502035756268,
+            "bootstrap_std": 0.027787849050938607,
             "ci_95": [
-              0.36433336043539144,
-              0.47553386898928596
+              0.36453827324582827,
+              0.4732804879450809
             ],
-            "median": 0.42005621006273464
+            "median": 0.42064107050314786
           }
         },
         "NoOfDegitsInURL": {
           "psi": {
-            "bootstrap_mean": 0.640488337101895,
-            "bootstrap_std": 0.134446837569585,
+            "bootstrap_mean": 0.6369859518661014,
+            "bootstrap_std": 0.13449732900352224,
             "ci_95": [
-              0.38590149075253316,
-              0.9151792650336957
+              0.3893398878376322,
+              0.9214088561348465
             ],
-            "median": 0.6339134769041931
+            "median": 0.6363925588099542
           },
           "ks_d": {
-            "bootstrap_mean": 0.15034511145907523,
-            "bootstrap_std": 0.02376040349830364,
+            "bootstrap_mean": 0.14971843454076963,
+            "bootstrap_std": 0.023644640188161477,
             "ci_95": [
-              0.10505333660344,
-              0.1967195643354915
+              0.10453991300067451,
+              0.19657019572398002
             ],
-            "median": 0.15007210385571257
+            "median": 0.1502091256889857
           }
         },
         "DegitRatioInURL": {
           "psi": {
-            "bootstrap_mean": 0.4160512509549734,
-            "bootstrap_std": 0.08262636052388975,
+            "bootstrap_mean": 0.41418475354860324,
+            "bootstrap_std": 0.080787965351197,
             "ci_95": [
-              0.26652315934056314,
-              0.589627097427903
+              0.26209147019718815,
+              0.5767495304212517
             ],
-            "median": 0.4105540543121477
+            "median": 0.41211734361702224
           },
           "ks_d": {
-            "bootstrap_mean": 0.15034666134640423,
-            "bootstrap_std": 0.023760315683552,
+            "bootstrap_mean": 0.14971980457769188,
+            "bootstrap_std": 0.023644315982856354,
             "ci_95": [
-              0.10505333660344,
-              0.1967195643354915
+              0.10454070645835148,
+              0.19657019572398002
             ],
-            "median": 0.15007210385571257
+            "median": 0.150211704071824
           }
         },
         "NoOfEqualsInURL": {
           "psi": {
-            "bootstrap_mean": 2.0479358463016544,
-            "bootstrap_std": 0.2542403141935287,
+            "bootstrap_mean": 2.0450669424528125,
+            "bootstrap_std": 0.2452846949257433,
             "ci_95": [
-              1.5549743095921233,
-              2.590719602321358
+              1.5960887168773357,
+              2.5417876336224423
             ],
-            "median": 2.0444171443317183
+            "median": 2.03490362408723
           },
           "ks_d": {
-            "bootstrap_mean": 0.30119084769111826,
-            "bootstrap_std": 0.03087013955657851,
+            "bootstrap_mean": 0.3008552472495553,
+            "bootstrap_std": 0.029738488247842344,
             "ci_95": [
-              0.24015316570416506,
-              0.3645180551750404
+              0.245491355186205,
+              0.359923564057225
             ],
-            "median": 0.301194502151109
+            "median": 0.3003056727298994
           }
         },
         "NoOfQMarkInURL": {
           "psi": {
-            "bootstrap_mean": 1.9924291710359152,
-            "bootstrap_std": 0.24787884855206935,
+            "bootstrap_mean": 1.9896114131015148,
+            "bootstrap_std": 0.23853693685363503,
             "ci_95": [
-              1.5152913085976347,
-              2.508591103016987
+              1.5534376204222744,
+              2.470358121603889
             ],
-            "median": 1.9902132163862651
+            "median": 1.9820701550790683
           },
           "ks_d": {
-            "bootstrap_mean": 0.3042645912607418,
-            "bootstrap_std": 0.03104855105290498,
+            "bootstrap_mean": 0.30394117114497227,
+            "bootstrap_std": 0.02989986576287416,
             "ci_95": [
-              0.24322541091830024,
-              0.3677058542181026
+              0.24826647869720717,
+              0.3631473479628608
             ],
-            "median": 0.30439878938989506
+            "median": 0.30337715636215185
           }
         },
         "NoOfAmpersandInURL": {
           "psi": {
-            "bootstrap_mean": 0.13368976814860897,
-            "bootstrap_std": 0.06360812222826084,
+            "bootstrap_mean": 0.13352986548848594,
+            "bootstrap_std": 0.06577286004809187,
             "ci_95": [
-              0.03420806572729767,
-              0.277340474227816
+              0.03214196109696967,
+              0.28323293208658545
             ],
-            "median": 0.12649606875929711
+            "median": 0.12290652073713738
           },
           "ks_d": {
-            "bootstrap_mean": 0.02433119273560307,
-            "bootstrap_std": 0.009719252381097417,
+            "bootstrap_mean": 0.02429932241230219,
+            "bootstrap_std": 0.010024706094798642,
             "ci_95": [
-              0.0076145158345347266,
-              0.04523404597406406
+              0.0075174708606940335,
+              0.04637034899477237
             ],
-            "median": 0.023549622658689984
+            "median": 0.023215331850449106
           }
         },
         "NoOfOtherSpecialCharsInURL": {
           "psi": {
-            "bootstrap_mean": 5.836311469765305,
-            "bootstrap_std": 2.3083256344275624,
+            "bootstrap_mean": 5.904152260257724,
+            "bootstrap_std": 2.3718993268538147,
             "ci_95": [
-              4.190918004523537,
-              11.747417510946484
+              4.170489606620839,
+              11.752081152196546
             ],
-            "median": 4.972440736781793
+            "median": 4.9793285232455675
           },
           "ks_d": {
-            "bootstrap_mean": 0.7787277022139689,
-            "bootstrap_std": 0.0041997757382860575,
+            "bootstrap_mean": 0.7788009609039948,
+            "bootstrap_std": 0.004343885850973512,
             "ci_95": [
-              0.7694084578952708,
+              0.7690392137510956,
               0.7848883340562615
             ],
-            "median": 0.7787721261051911
+            "median": 0.7788231296602528
           }
         },
         "SpacialCharRatioInURL": {
           "psi": {
-            "bootstrap_mean": 7.418950647854809,
-            "bootstrap_std": 0.7475918181436582,
+            "bootstrap_mean": 7.415169017750663,
+            "bootstrap_std": 0.7373603273544485,
             "ci_95": [
-              6.4288076802113965,
-              8.824253158875294
+              6.448180079004682,
+              8.786186534416919
             ],
-            "median": 7.444211302067952
+            "median": 7.4373865979138785
           },
           "ks_d": {
-            "bootstrap_mean": 0.7717385448603754,
-            "bootstrap_std": 0.015024082428241737,
+            "bootstrap_mean": 0.7717840702480253,
+            "bootstrap_std": 0.014666855722562535,
             "ci_95": [
-              0.7431682602296277,
-              0.8006039204743819
+              0.7428248296505345,
+              0.8004747278556654
             ],
-            "median": 0.7717636598434957
+            "median": 0.7716010067067371
           }
         },
         "IsHTTPS": {
           "psi": {
-            "bootstrap_mean": 5.861987498946359e-06,
-            "bootstrap_std": 2.1958674359605083e-07,
+            "bootstrap_mean": 5.860129850624579e-06,
+            "bootstrap_std": 2.1598203952209924e-07,
             "ci_95": [
-              5.463967700651787e-06,
-              6.318521407117647e-06
+              5.483255141698927e-06,
+              6.306064107822601e-06
             ],
             "median": 5.8525173399342974e-06
           },
@@ -421,6 +450,14 @@
       "num_iterations": 2000,
       "random_seed": 42,
       "cluster_count": 650,
+      "confidence_interval_type": "CONDITIONAL_ON_TRAINING_REFERENCE",
+      "reference_specification": {
+        "reference_partition": "frozen_training_split",
+        "reference_sample_size": 76092,
+        "reference_condition": "fixed_asymptotic_baseline",
+        "smoothing_epsilon_policy": "fixed_nominal_epsilon",
+        "smoothing_epsilon_value": 0.0007692307692307692
+      },
       "mean_psi": {
         "bootstrap_mean": 0.19664251875512861,
         "bootstrap_std": 0.010564678231876156,

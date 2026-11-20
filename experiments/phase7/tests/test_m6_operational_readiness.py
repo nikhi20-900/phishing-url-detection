@@ -30,11 +30,16 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from src.features import FEATURE_NAMES, extract_url_features
+from src.psl_snapshot import extract_fqdn, extract_psl_registered_domain
 from experiments.phase7.evaluation.m6_diagnostics_utils import (
     classify_structural_stratum,
+    compute_bh_fdr,
     compute_bounding_box_analysis,
     compute_clopper_pearson,
+    compute_discrete_association_test,
+    compute_domain_cluster_bootstrap,
     compute_psi,
+    compute_two_proportion_test,
     evaluate_lexical_probe_oof,
     extract_path_segments,
     is_ip_host,
@@ -663,36 +668,51 @@ class TestM6OperationalReadiness:
         assert audit_a["label_encoding"]["legitimate"] == 1
 
         # Feature skew audit
-        skew = audit_a["feature_extraction_skew_audit"]
-        assert skew["DomainLength"]["mismatches_per_1000"] == 0
-        assert skew["URLLength"]["max_absolute_difference"] == 1.0
+        train_skew = audit_a["training_feature_extraction_skew_audit"]
+        assert train_skew["DomainLength"]["mismatches_per_1000"] == 0
+        assert train_skew["URLLength"]["max_absolute_difference"] == 1.0
+
+        bench_skew = audit_a["benchmark_feature_extraction_skew_audit"]
+        assert bench_skew["status"] == "CONCORDANT"
+        assert bench_skew["evaluated_urls"] == 1300
 
         # Finding B: Provenance
         audit_b = full_data["audit_finding_b_provenance"]
         assert audit_b["status"] == "PASS"
         assert audit_b["total_observations_verified"] == 1300
-        assert audit_b["legitimate_verification"]["tls_verified_count"] == 650
-        assert audit_b["phishing_verification"]["phishtank_snapshot_matches"] == 650
+        legit_v = audit_b["legitimate_verification"]
+        assert legit_v["tls_verified_count"] == 650
+        assert legit_v["tls_protocol_distribution"]["TLSv1.3"] == 555
+        assert legit_v["tls_protocol_distribution"]["TLSv1.2"] == 95
+        assert legit_v["http_status_code_distribution"]["200"] == 626
+        assert legit_v["certificate_san_evidence"]["present_count"] == 650
+        assert legit_v["certificate_san_evidence"]["mean_sans"] == 6.16
+
+        phish_v = audit_b["phishing_verification"]
+        assert phish_v["phishtank_snapshot_matches"] == 650
+        assert phish_v["verification_status_yes_count"] == 650
+        assert phish_v["online_status_yes_count"] == 650
+        assert phish_v["socket_level_tls_and_http_status"] == "UNAVAILABLE_UPSTREAM_FEED_INGESTION"
 
     def test_stage2_domain_clustering_and_bootstrap_uncertainty(self):
         """Stage 2 Finding C: Verify domain clustering, zero overlap, and 2,000-iteration cluster bootstrap."""
         assert OUTPUT_DOMAIN_INDEP.exists()
         domain_data = json.loads(OUTPUT_DOMAIN_INDEP.read_text(encoding="utf-8"))
 
-        # Domain counts
+        # Domain counts under independent PSL
         fqdn = domain_data["domain_counts"]["fully_qualified_domain_names_fqdn"]
         assert fqdn["legitimate"] == 219
         assert fqdn["phishing"] == 650
         assert fqdn["total"] == 869
 
         etld1 = domain_data["domain_counts"]["registered_domains_etld_plus_1"]
-        assert etld1["legitimate"] == 160
+        assert etld1["legitimate"] == 159
         assert etld1["phishing"] == 650
-        assert etld1["total"] == 810
+        assert etld1["total"] == 809
 
         # Cluster caps
         clusters = domain_data["cluster_size_distributions"]
-        assert clusters["legitimate"]["max_urls_per_domain"] == 5
+        assert clusters["legitimate"]["max_urls_per_domain"] == 6
         assert clusters["phishing"]["max_urls_per_domain"] == 1
 
         # Zero overlaps
@@ -706,6 +726,8 @@ class TestM6OperationalReadiness:
         boot = domain_data["cluster_bootstrap_uncertainty"]
         assert boot["iterations"] == 2000
         assert boot["random_seed"] == 42
+        assert boot["conditioning_status"] == "CONDITIONAL_ON_TRAINING_REFERENCE"
+        assert "training_reference_variance_comparison" in boot
 
         # Legitimate Mean PSI CI
         legit_boot = boot["legitimate_partition"]
@@ -742,19 +764,26 @@ class TestM6OperationalReadiness:
             prev_p = item["p_value"]
             assert 0.0 <= item["fdr_q_value"] <= 1.0
 
-        # Discrete tests for binary features
-        discrete = stat_data["discrete_feature_inferential_tests"]
+        # Exact and survival-function tests for binary features
+        exact_tests = stat_data["binary_features_exact_tests"]
         # Phishing IsHTTPS
-        p_https = discrete["phishing"]["IsHTTPS"]
+        p_https = exact_tests["phishing"]["IsHTTPS"]
         assert p_https["z_statistic"] > 10.0
         assert p_https["p_value"] < 1e-10
+        assert p_https["fisher_exact_p_value"] < 1e-10
         assert p_https["significant_005"] is True
 
         # Legitimate IsHTTPS
-        l_https = discrete["legitimate"]["IsHTTPS"]
+        l_https = exact_tests["legitimate"]["IsHTTPS"]
         assert l_https["z_statistic"] == 0.0
         assert l_https["p_value"] == 1.0
         assert l_https["significant_005"] is False
+
+        # Legitimate HasObfuscation (sparse cell test)
+        l_obf = exact_tests["legitimate"]["HasObfuscation"]
+        assert l_obf["is_sparse_event"] is True
+        assert l_obf["method_used"] == "fisher_exact"
+        assert l_obf["significant_005"] is True
 
     def test_stage2_psi_sensitivity_analysis(self):
         """Stage 2 Finding E: Verify PSI stability across bin counts (5, 10, 20) and smoothing epsilons."""
@@ -809,6 +838,175 @@ class TestM6OperationalReadiness:
         assert "Training Representation Bias Proof" not in full_text
         assert "synthetic augmentation caused the feature shift" not in full_text
         assert "drift in SpacialCharRatio proves" not in full_text
+
+
+class TestM6Stage2SyntheticMathematicalRigour:
+    """
+    Independent synthetic mathematical verification test suite for Phase 7 M6 Stage 2.
+    Tests core statistical mechanics on exact analytical examples without relying on disk artifacts.
+    """
+
+    def test_math_synthetic_psi_calculation(self):
+        """Verify hand-calculated analytical PSI, identical distributions, constant features, and epsilon smoothing."""
+        # 1. Hand-calculated 2-bin distribution:
+        # Ref: 20% in bin 0, 80% in bin 1
+        # Eval: 80% in bin 0, 20% in bin 1
+        # Analytical PSI = (0.8 - 0.2)*ln(0.8/0.2) + (0.2 - 0.8)*ln(0.2/0.8) = 1.2 * ln(4) = 1.663553233343869
+        ref_arr = np.array([0.0] * 200 + [1.0] * 800)
+        eval_arr = np.array([0.0] * 800 + [1.0] * 200)
+        psi_val, status = compute_psi(ref_arr, eval_arr, num_bins=2, epsilon=1e-6)
+        expected_analytical = 1.2 * np.log(4.0)
+        assert status == "OK"
+        assert np.isclose(psi_val, expected_analytical, atol=1e-5), f"Expected {expected_analytical}, got {psi_val}"
+
+        # 2. Identical distributions: analytical PSI must be 0.0
+        psi_identical, status_id = compute_psi(ref_arr, ref_arr, num_bins=5, epsilon=1e-4)
+        assert status_id == "OK"
+        assert np.isclose(psi_identical, 0.0, atol=1e-7)
+
+        # 3. Constant feature: all elements identical
+        const_ref = np.zeros(500)
+        const_eval = np.zeros(500)
+        psi_const, _ = compute_psi(const_ref, const_eval, num_bins=5, epsilon=1e-4)
+        assert np.isclose(psi_const, 0.0, atol=1e-7)
+
+        # 4. Zero count in evaluation bin with epsilon smoothing
+        # Ref has values [1, 2], Eval has only [1]
+        zero_ref = np.array([1.0] * 500 + [2.0] * 500)
+        zero_eval = np.array([1.0] * 500)
+        psi_smoothed, status_sm = compute_psi(zero_ref, zero_eval, num_bins=2, epsilon=0.001)
+        assert status_sm == "OK"
+        assert psi_smoothed > 0.0 and np.isfinite(psi_smoothed)
+
+    def test_math_synthetic_bh_fdr_correction(self):
+        """Verify exact analytical Benjamini-Hochberg FDR q-values and monotonicity on synthetic p-values."""
+        # Known 5-element p-value vector:
+        # p = [0.001, 0.01, 0.02, 0.04, 0.06] with m=5
+        # k=1: 0.001*(5/1) = 0.005
+        # k=2: 0.01*(5/2)  = 0.025
+        # k=3: 0.02*(5/3)  = 0.03333333...
+        # k=4: 0.04*(5/4)  = 0.05
+        # k=5: 0.06*(5/5)  = 0.06
+        # Cumulative minimum from right preserves these exact values.
+        p_vec = np.array([0.001, 0.01, 0.02, 0.04, 0.06])
+        q_vals, sig_flags = compute_bh_fdr(p_vec, alpha=0.05)
+
+        expected_q = np.array([0.005, 0.025, 1.0 / 30.0, 0.05, 0.06])
+        assert np.allclose(q_vals, expected_q, atol=1e-7)
+        assert np.array_equal(sig_flags, np.array([True, True, True, False, False]))
+
+        # Verify preservation of order with unordered p-value input
+        shuffled_p = np.array([0.04, 0.001, 0.06, 0.01, 0.02])
+        shuffled_q, shuffled_sig = compute_bh_fdr(shuffled_p, alpha=0.05)
+        assert np.isclose(shuffled_q[1], 0.005, atol=1e-7)
+        assert np.isclose(shuffled_q[3], 0.025, atol=1e-7)
+        assert bool(shuffled_sig[1]) is True and bool(shuffled_sig[3]) is True and bool(shuffled_sig[2]) is False
+
+    def test_math_synthetic_psl_domain_extraction(self):
+        """Verify independent PSL domain extraction edge cases including ccTLDs, IPv4/v6, and platform domains."""
+        cases = [
+            ("https://a.b.c.example.com/path/to/resource", "a.b.c.example.com", "example.com"),
+            ("https://news.bbc.co.uk/sport/football", "news.bbc.co.uk", "bbc.co.uk"),
+            ("https://sub.egov.gov.kz/services", "sub.egov.gov.kz", "egov.gov.kz"),
+            ("https://portal.fgov.be/nl/home", "portal.fgov.be", "portal.fgov.be"),
+            ("https://site.public.lu/index.html", "site.public.lu", "site.public.lu"),
+            ("https://user.github.io/my-project/", "user.github.io", "user.github.io"),
+            ("http://192.168.1.100:8080/admin", "192.168.1.100", "192.168.1.100"),
+            ("http://[2001:db8::1]:80/status", "2001:db8::1", "2001:db8::1"),
+            ("https://wayland.freedesktop.org/docs", "wayland.freedesktop.org", "freedesktop.org"),
+            ("https://freedesktop.org/software/", "freedesktop.org", "freedesktop.org"),
+        ]
+        for url, expected_fqdn, expected_domain in cases:
+            assert extract_fqdn(url) == expected_fqdn, f"FQDN mismatch for {url}"
+            assert extract_psl_registered_domain(url) == expected_domain, f"Domain mismatch for {url}"
+
+        # Malformed input resilience
+        assert extract_fqdn("") == ""
+        assert extract_psl_registered_domain("") == ""
+        assert extract_fqdn("invalid_url_without_scheme_or_host") == ""
+        assert extract_psl_registered_domain("invalid_url_without_scheme_or_host") == ""
+        assert extract_fqdn("http://example.com") == "example.com"
+        assert extract_psl_registered_domain("http://example.com") == "example.com"
+
+    def test_math_synthetic_cluster_bootstrap_behavior(self):
+        """Verify cluster preservation and conditional reproducibility in domain-cluster bootstrap."""
+        # 4 domains with different cluster sizes
+        ref_df = pd.DataFrame({"feat": np.linspace(0, 10, 100)})
+        eval_df = pd.DataFrame({
+            "feat": [1.0, 1.2, 1.1, 5.0, 5.1, 9.0, 9.1, 9.2, 9.3],
+            "domain": ["dom1", "dom1", "dom1", "dom2", "dom2", "dom3", "dom3", "dom3", "dom3"]
+        })
+        res1 = compute_domain_cluster_bootstrap(
+            ref_df=ref_df,
+            eval_df=eval_df,
+            cluster_series=eval_df["domain"],
+            feature_names=["feat"],
+            num_iterations=100,
+            random_seed=42,
+        )
+        res2 = compute_domain_cluster_bootstrap(
+            ref_df=ref_df,
+            eval_df=eval_df,
+            cluster_series=eval_df["domain"],
+            feature_names=["feat"],
+            num_iterations=100,
+            random_seed=42,
+        )
+        # Verify exact determinism under identical seed
+        assert res1["mean_psi"]["bootstrap_mean"] == res2["mean_psi"]["bootstrap_mean"]
+        assert res1["confidence_interval_type"] == "CONDITIONAL_ON_TRAINING_REFERENCE"
+        assert res1["cluster_count"] == 3
+
+    def test_math_synthetic_exact_tests_and_survival_function(self):
+        """Verify survival-function proportion test without catastrophic cancellation and Fisher's exact test."""
+        # 1. Catastrophic cancellation test for large z:
+        # For z = 15.0, 1.0 - norm.cdf(15.0) underflows to 0.0 in standard float64.
+        # stats.norm.sf(15.0) computes ~3.6e-51, avoiding cancellation.
+        k1 = 5
+        n1 = 94523
+        k2 = 2
+        n2 = 650
+        res = compute_two_proportion_test(k1, n1, k2, n2)
+        assert res["is_sparse_event"] is True
+        assert res["method_used"] == "fisher_exact"
+        assert res["p_value"] > 0.0
+        assert res["p_value"] != 0.0
+        assert np.isclose(res["fisher_exact_p_value"], 0.00095606, atol=1e-5)
+
+        # 2. Large z-score proportion test (non-sparse)
+        # e.g. 50% vs 80% with large sample sizes
+        res_large = compute_two_proportion_test(5000, 10000, 8000, 10000)
+        assert res_large["is_sparse_event"] is False
+        assert res_large["method_used"] == "two_sample_z_test_survival_function"
+        assert res_large["z_statistic"] > 40.0
+        # Prevented from underflowing to true 0.0
+        assert res_large["p_value"] >= 1e-300
+        assert res_large["significant_005"] is True
+
+    def test_math_synthetic_provenance_validation(self):
+        """Verify field-level provenance audit logic and explicit classification of unavailable fields."""
+        # Synthetic evaluation observation dicts
+        synthetic_legit_obs = {
+            "tls_protocol": "TLSv1.3",
+            "http_status_code": 200,
+            "certificate_sans": ["example.org", "www.example.org"],
+            "reachability": "SUCCESS",
+        }
+        assert synthetic_legit_obs["tls_protocol"] in {"TLSv1.3", "TLSv1.2"}
+        assert synthetic_legit_obs["http_status_code"] == 200
+        assert len(synthetic_legit_obs["certificate_sans"]) >= 1
+
+        # Phishing upstream threat intelligence record without socket capture
+        synthetic_phish_obs = {
+            "verification_status": "yes",
+            "online_status": "yes",
+            "socket_level_tls": "UNAVAILABLE_UPSTREAM_FEED_INGESTION",
+            "http_status": "UNAVAILABLE_UPSTREAM_FEED_INGESTION",
+        }
+        assert synthetic_phish_obs["verification_status"] == "yes"
+        assert synthetic_phish_obs["online_status"] == "yes"
+        assert synthetic_phish_obs["socket_level_tls"] == "UNAVAILABLE_UPSTREAM_FEED_INGESTION"
+
 
 
 

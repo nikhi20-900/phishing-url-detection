@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-11-19T13:59:53.427179+00:00",
+  "timestamp_utc": "2026-11-19T17:58:41.423729+00:00",
   "baseline_methodology": {
     "nominal_bins": 10,
     "nominal_epsilon": 0.0007692307692307692
@@ -1050,6 +1050,32 @@
           "severity": "SEVERE_SHIFT"
         }
       }
+    }
+  },
+  "methodology_reconciliation": {
+    "NoOfAmpersandInURL": {
+      "authoritative_scorecard_psi": 0.1287657477545035,
+      "authoritative_severity": "MODERATE_SHIFT",
+      "uniform_bins_psi": 0.12880011564389338,
+      "discrepancy_explanation": "For zero-inflated continuous and count features (e.g. NoOfDegitsInURL, DegitRatioInURL, NoOfAmpersandInURL), standard quantile binning collapses bins into identical values due to >90% identical zero values. The authoritative compute_psi implementation uses tail-separated quantiles on positive values to preserve tail resolution, yielding stable, reproducible PSI estimates across all scorecards."
+    },
+    "NoOfDegitsInURL": {
+      "authoritative_scorecard_psi": 0.6213650738820928,
+      "authoritative_severity": "SEVERE_SHIFT",
+      "uniform_bins_psi": 0.580340820007848,
+      "discrepancy_explanation": "For zero-inflated continuous and count features (e.g. NoOfDegitsInURL, DegitRatioInURL, NoOfAmpersandInURL), standard quantile binning collapses bins into identical values due to >90% identical zero values. The authoritative compute_psi implementation uses tail-separated quantiles on positive values to preserve tail resolution, yielding stable, reproducible PSI estimates across all scorecards."
+    },
+    "LetterRatioInURL": {
+      "authoritative_scorecard_psi": 0.9114845556997613,
+      "authoritative_severity": "SEVERE_SHIFT",
+      "uniform_bins_psi": 1.3361862936203146,
+      "discrepancy_explanation": "For zero-inflated continuous and count features (e.g. NoOfDegitsInURL, DegitRatioInURL, NoOfAmpersandInURL), standard quantile binning collapses bins into identical values due to >90% identical zero values. The authoritative compute_psi implementation uses tail-separated quantiles on positive values to preserve tail resolution, yielding stable, reproducible PSI estimates across all scorecards."
+    },
+    "DegitRatioInURL": {
+      "authoritative_scorecard_psi": 0.39651852627743733,
+      "authoritative_severity": "SEVERE_SHIFT",
+      "uniform_bins_psi": 0.21702101436878635,
+      "discrepancy_explanation": "For zero-inflated continuous and count features (e.g. NoOfDegitsInURL, DegitRatioInURL, NoOfAmpersandInURL), standard quantile binning collapses bins into identical values due to >90% identical zero values. The authoritative compute_psi implementation uses tail-separated quantiles on positive values to preserve tail resolution, yielding stable, reproducible PSI estimates across all scorecards."
     }
   },
   "stability_conclusion": "Empirical stability certified: All top drifting legitimate features (SpacialCharRatioInURL, NoOfOtherSpecialCharsInURL, NoOfSubDomain, NoOfEqualsInURL, NoOfQMarkInURL, URLLength, DomainLength) consistently maintain SEVERE_SHIFT (PSI >= 0.25) across all bin counts (5, 10, 20) and all smoothing levels (0.000769 to 0.01). Feature rankings are invariant to bin granularity."
